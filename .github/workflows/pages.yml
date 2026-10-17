@@ -1,0 +1,32 @@
+# Publishes the app to GitHub Pages on every push to the default branch.
+# The site is static, so the repository root is deployed as-is.
+name: Publish to GitHub Pages
+on:
+  push:
+    branches: [netgarden-app, main, master]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Drop files the site does not need
+        run: rm -rf tools .github assets/sprites/_raw
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
