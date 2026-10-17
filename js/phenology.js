@@ -29,24 +29,38 @@
 
   const STRAW = '#c9b67a';
   const DULL = '#8a8a4a';
+  const DIEBACK = '#b8b06a';
+
+  /* deciduous woody profile built from leafOut / leafFall (defaults April / November) */
+  function woodyProfile(p, m, base, autumn) {
+    const out = p.leafOut || 4, fall = p.leafFall || 11;
+    const inSeason = (x) => (out <= fall ? (x >= out && x <= fall) : (x >= out || x <= fall));
+    if (!inSeason(m)) return { d: 0, c: base };
+    if (m === out) return { d: 0.5, c: p.flush ? p.flush : base };
+    if (m === (out % 12) + 1 && p.flush) return { d: 1, c: mixHex(p.flush, base, 0.6) };
+    if (m === fall) return { d: 0.35, c: autumn };
+    if (m === ((fall - 2 + 12) % 12) + 1) return { d: 1, c: autumn };
+    return { d: 1, c: base };
+  }
 
   /* Leaf density + colour for month m (1..12). */
   function leafAt(p, m) {
     const base = p.leaf;
-    if (p.ev) return { d: 1, c: base };
+    if (p.ev) {
+      if (p.flush && (m === 4 || m === 5)) return { d: 1, c: m === 4 ? p.flush : mixHex(p.flush, base, 0.6) };
+      return { d: 1, c: base };
+    }
     if (p.leafMonths) {
       const i = p.leafMonths.indexOf(m);
       if (i < 0) return { d: 0, c: base };
       const first = i === 0, last = i === p.leafMonths.length - 1;
       if (last && p.autumn) return { d: 0.8, c: p.autumn };
+      if (last && p.type === 'bulb') return { d: 0.6, c: DIEBACK };
       return { d: first ? 0.6 : 1, c: base };
     }
     const autumn = p.autumn || DULL;
     switch (p.type) {
-      case 'tree': case 'shrub': case 'climber': {
-        const tbl = { 4: [0.5, base], 5: [1, base], 6: [1, base], 7: [1, base], 8: [1, base], 9: [1, base], 10: [1, autumn], 11: [0.35, autumn] };
-        const v = tbl[m]; return v ? { d: v[0], c: v[1] } : { d: 0, c: base };
-      }
+      case 'tree': case 'shrub': case 'climber': return woodyProfile(p, m, base, autumn);
       case 'perennial': {
         const tbl = { 3: [0.3, base], 4: [0.7, base], 5: [1, base], 6: [1, base], 7: [1, base], 8: [1, base], 9: [1, base], 10: [0.8, p.autumn || base], 11: [0.3, DULL] };
         const v = tbl[m]; return v ? { d: v[0], c: v[1] } : { d: 0, c: base };
@@ -57,10 +71,13 @@
         const v = tbl[m]; return v ? { d: v[0], c: v[1] } : { d: 0, c: base };
       }
       case 'bulb': {
+        /* leaves appear a month before flowering, die back yellow a month after */
         const fm = p.flower ? p.flower.m : [];
-        const set = new Set();
-        fm.forEach(x => { set.add(((x - 2 + 12) % 12) + 1); set.add(x); set.add((x % 12) + 1); });
-        return set.has(m) ? { d: fm.includes(m) ? 1 : 0.6, c: base } : { d: 0, c: base };
+        const before = new Set(fm.map(x => ((x - 2 + 12) % 12) + 1)), after = new Set(fm.map(x => (x % 12) + 1));
+        if (fm.includes(m)) return { d: 1, c: base };
+        if (after.has(m)) return { d: 0.6, c: DIEBACK };
+        if (before.has(m)) return { d: 0.6, c: base };
+        return { d: 0, c: base };
       }
     }
     return { d: 1, c: base };
@@ -68,7 +85,7 @@
 
   function monthState(p, m) {
     const leaf = leafAt(p, m);
-    const fl = p.flower && p.flower.m.includes(m) ? 1 : 0;
+    const fl = p.flower && p.flower.m.includes(m) ? (p.peak ? (p.peak.includes(m) ? 1 : 0.5) : 1) : 0;
     const fr = p.fruit && p.fruit.m.includes(m) ? 1 : 0;
     return {
       leaf: leaf.d, leafColor: leaf.c,

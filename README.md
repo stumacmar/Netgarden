@@ -20,7 +20,33 @@ python3 -m http.server 8000
 
 and open http://localhost:8000/.
 
-## How to use it
+## The app in four steps
+
+1. **Photo.** Choose a photo, then answer three questions: where your eye
+   level is (drag the yellow line), how long the back fence is (mark it and
+   type the metres), and which way the camera faces. A 1 m grid shows on the
+   lawn so you can see the calibration is right. Below that, tell it about
+   your garden: region, soil, drainage, pH and exposure. These drive the
+   "suits my garden" filter and the checks.
+2. **Beds.** Draw borders by tapping corners and pressing Done. Paint over
+   anything that stands in front of where you will plant, and give it a
+   distance, so new plants behind it are hidden by it.
+3. **Plants.** Over 400 plants with thumbnails, grouped by role (trees,
+   shrubs, climbers, perennials, grasses, bulbs, hedging, ground cover,
+   ferns, herbs, vegetables, annuals) and filters such as "suits my garden",
+   pollinators, evergreen and winter interest. Tap a plant, then tap the
+   lawn. A bar over the photo lets you flip, duplicate or delete the
+   selected plant; fruit trees get a rootstock choice.
+4. **Review.** Checks (sun and shade, soil, hardiness, spacing, pollination
+   partners), design tips (layering, evergreen backbone, grouping,
+   succession), jobs for the month on the slider, the year-round calendar,
+   a plan view, a shopping list, export and the realistic render.
+
+Undo and Redo are always in the top bar (also Ctrl+Z and Ctrl+Shift+Z).
+The coloured bands under the time slider show when each of your plants is
+in flower; the gaps are the quiet months.
+
+## How to use it (details)
 
 1. **Set up photo.** Upload a photo taken from where you usually look at the
    garden. Drag the yellow horizon line to your eye level (for a 1.8 m fence,
