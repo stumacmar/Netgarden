@@ -45,6 +45,49 @@ and open http://localhost:8000/.
 Designs save automatically. Export them as a JSON file to move between
 browsers, and "Save picture" writes the current view as a JPEG.
 
+## Making plants sit in the photo
+
+Every plant, drawn or photographed, gets the same treatment so it reads as
+part of the picture rather than a sticker on it:
+
+- a **cast shadow** on the lawn along the sun direction you set in Setup
+  (match an existing shadow in your photo), plus a soft contact shadow;
+- **exposure and warmth matched** to the photo automatically, with sliders
+  to fine-tune;
+- **distance haze**: far plants are slightly softer and less saturated;
+- **grain and a feathered edge** so cutouts are not unnaturally clean;
+- **flip**: mirror a plant so its lit side faces the sun (generated photos
+  are lit from the left and flip automatically when the sun is on the right).
+
+**Things in front.** Use "Mark foreground" to paint over anything that
+stands in front of where you will plant: your existing shrub, the stone
+edge, a wall. Give each a distance by clicking the ground where it stands.
+Plants behind it are hidden by it; plants in front are not.
+
+**Borders** have a surface: bare soil, bark mulch or gravel, mapped through
+the perspective.
+
+**Garden age.** The slider in the Design tab shows the garden at one to
+fifteen years after planting. Trees take about ten years to reach the
+library's mature size, shrubs five, perennials two.
+
+**Checks.** Tell Setup which way the camera faces and the app flags
+sun-lovers in shade (the border in front of a south-facing fence, or under a
+tree) and shade plants in full sun, and warns when two plants are closer
+than their mature spreads allow. Pick your region to shift flowering by
+up to three weeks. These checks are rough guides, not horticulture.
+
+**Shopping list.** The Design tab totals what you have placed with a
+suggested pot size and a link to the RHS entry. Undo is Ctrl+Z.
+
+## Realistic render
+
+"Render this month" in Setup sends the current view to an image model that
+re-renders the planted areas so they look photographed in place, keeping
+the rest of your photo untouched. It needs your own OpenAI API key (it stays
+in your browser; each render costs a few pence). The slider stays live for
+planning; the render is the picture you would show someone.
+
 ## Photo-real plants
 
 Plants are drawn from real photographs when a cutout exists for them, with a

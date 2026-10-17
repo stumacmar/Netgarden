@@ -12,6 +12,7 @@
   <div class="modes">
     <button data-mode="plant" class="mode active" title="Place and move plants (P)">Plants</button>
     <button data-mode="bed" class="mode" title="Draw a border (B)">Draw border</button>
+    <button data-mode="mask" class="mode" title="Paint things that stand in front of new planting (F)">Mark foreground</button>
     <button data-mode="setup" class="mode" title="Set horizon and scale (S)">Set up photo</button>
     <label class="chk"><input type="checkbox" id="showGrid"> 1 m grid</label>
     <label class="chk"><input type="checkbox" id="showLabels"> Labels</label>
@@ -50,11 +51,17 @@
 
     <div class="tab hidden" id="tab-design">
       <div id="selectedBox" class="box muted">Click a placed plant to select it.</div>
+      <label>Garden age <span id="yearsVal" class="count"></span><input type="range" id="years" min="1" max="15" step="1"></label>
+      <div class="row"><button id="undoBtn" title="Ctrl+Z">Undo</button></div>
+      <h3>Checks</h3>
+      <ul id="checks" class="checks"></ul>
       <h3>Plan view</h3>
       <canvas id="plan" width="300" height="220"></canvas>
       <p class="small">Top-down, metres. Camera at the bottom. Click a plant here to select it.</p>
       <h3>Planted <span id="plantCount" class="count"></span></h3>
       <div id="placedList" class="list compact"></div>
+      <h3>Shopping list <button id="shopCopy" class="mini">Copy</button></h3>
+      <div id="shopping"></div>
       <h3>Borders <span id="bedCount" class="count"></span></h3>
       <div id="bedList" class="list compact"></div>
       <div class="row">
@@ -95,6 +102,34 @@
           <option value="1.39">Phone, 2× telephoto (50 mm)</option>
         </select></label>
       <div id="camReadout" class="box small"></div>
+      <h3>Your garden</h3>
+      <label>The camera is facing
+        <select id="heading"><option value="">Not sure</option><option value="N">North</option><option value="NE">North-east</option><option value="E">East</option><option value="SE">South-east</option><option value="S">South</option><option value="SW">South-west</option><option value="W">West</option><option value="NW">North-west</option></select></label>
+      <p class="small">Used for sun and shade checks. Facing south means the back fence is on the sunny side and shades the border in front of it.</p>
+      <label>Region
+        <select id="region"><option value="south">Southern England</option><option value="midlands">Midlands and Wales (about a week later)</option><option value="north">Northern England (about two weeks later)</option><option value="scotland">Scotland (about three weeks later)</option></select></label>
+      <h3>Things in front</h3>
+      <p class="small">Paint over anything that should hide plants behind it: the existing shrub, the stone edge, a wall. Give each a distance.</p>
+      <div class="row"><button id="maskNew">New object</button><button id="maskDepth">Set distance</button></div>
+      <div class="row"><label class="inline">Brush <span id="brushVal" class="count"></span></label><input type="range" id="brush" min="4" max="300" step="1"><label class="inline"><input type="checkbox" id="eraseChk"> erase</label></div>
+      <div id="maskList" class="list compact"></div>
+      <h3>Realistic render</h3>
+      <p class="small">Sends the current view to an image model that re-renders the planted areas so they look photographed in place. Needs your own OpenAI API key, which stays in this browser. Each render costs a few pence.</p>
+      <input type="password" id="apiKey" placeholder="sk-…" autocomplete="off">
+      <div class="row"><select id="renderQuality"><option value="low">Quick</option><option value="medium" selected>Standard</option><option value="high">Best</option></select><button id="renderBtn">Render this month</button></div>
+      <h3>Light</h3>
+      <p class="small">Where the sun is decides where shadows fall. Look at an existing shadow in the photo and match it.</p>
+      <label>Sun direction <span id="sunAzVal" class="count"></span><input type="range" id="sunAz" min="-180" max="180" step="5"></label>
+      <label>Sun height <span id="sunElVal" class="count"></span><input type="range" id="sunEl" min="8" max="70" step="1"></label>
+      <details><summary class="small">Fine-tune how plants blend into the photo</summary>
+        <label>Brightness <input type="range" id="light-brightness" min="0.6" max="1.4" step="0.02"></label>
+        <label>Warmth <input type="range" id="light-warmth" min="-1" max="1" step="0.05"></label>
+        <label>Contrast <input type="range" id="light-contrast" min="0.7" max="1.3" step="0.02"></label>
+        <label>Saturation <input type="range" id="light-saturation" min="0.5" max="1.4" step="0.02"></label>
+        <label>Shadow strength <input type="range" id="light-shadow" min="0" max="0.8" step="0.05"></label>
+        <label>Grain <input type="range" id="light-grain" min="0" max="1" step="0.05"></label>
+        <button id="lightAuto">Auto</button>
+      </details>
       <h3>Plant photos</h3>
       <p class="small">Plants with a photo in <code>assets/sprites</code> are drawn from real photographs, crossfading between seasonal states. Others fall back to drawn shapes.</p>
       <div id="credits"></div>
@@ -110,10 +145,19 @@
 </main>
 
 <script src="assets/sprites/manifest.js"></script>
+<dialog id="renderDlg">
+  <div class="dlgHead"><b id="renderTitle">Rendered</b><span class="small">Hold "Before" to compare.</span><button id="renderBefore">Before</button><a id="renderDl" class="btn" href="#" download>Download</a><button id="renderClose">Close</button></div>
+  <img id="renderImg" alt="Rendered garden">
+</dialog>
 <script src="js/homography.js"></script>
 <script src="js/phenology.js"></script>
 <script src="js/plants.js"></script>
 <script src="js/render.js"></script>
+<script src="js/compose.js"></script>
+<script src="js/beds.js"></script>
+<script src="js/masks.js"></script>
+<script src="js/renderapi.js"></script>
+<script src="js/site.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

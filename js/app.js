@@ -12,10 +12,18 @@
     beds: [],                 /* [{ id, pts: [{X,Z}] }] */
     plants: [],               /* [{ id, pid, X, Z, seed, size }] */
     t: 6.5,
+    sun: { az: -35, el: 25 },
+    site: { heading: null, region: 'south' },
+    years: 15,                /* years after planting; 15 = mature */
+    undo: [],  /* az: 0 = sun behind the camera, +90 = from the right; el: height above horizon */
+    light: null,               /* brightness, warmth, contrast, saturation, shadow, grain */
+    stats: null,
     mode: 'plant',
     libSel: null, sel: null, hover: null,
     typeFilter: 'all', search: '',
     drawingBed: null,         /* [{X,Z}] while drawing */
+    masks: [],                /* foreground objects: { id, Z, name, canvas, version } */
+    maskSel: null, brush: 40, erase: false, maskSetDepth: false,
     refClicks: null,          /* 0/1 while marking the reference length */
     drag: null,
     playing: false,
@@ -49,6 +57,10 @@
     const toPlan = (x, y) => { const p = unit(x, y); return p ? { X: p.X * hc, Z: p.Z * hc } : null; };
     const ppm = (X, Z) => f / (hc * s + Z * c);
     cam = { f, hc, theta, horizonY: vh, toImage, toPlan, ppm };
+    if (!state.stats || state.stats.horizonY !== vh) {
+      state.stats = Object.assign(window.Compose.photoStats(state.photo.img, W, H, vh), { horizonY: vh });
+      if (!state.light || state.light.auto) state.light = Object.assign(window.Compose.autoLight(state.stats), { auto: true });
+    }
   }
 
   /* ---------------- photo loading ---------------- */
@@ -84,7 +96,7 @@
   const KEY = 'netgarden.v1';
   function save() {
     try {
-      const o = { t: state.t, ground: state.ground, beds: state.beds, plants: state.plants, photoName: state.photo.name, photoData: state.photo.dataUrl && !/sample/.test(state.photo.name) ? state.photo.dataUrl : null };
+      const o = { t: state.t, ground: state.ground, beds: state.beds, plants: state.plants, sun: state.sun, light: state.light, masks: state.masks.map(window.Masks.serialize), site: state.site, years: state.years, photoName: state.photo.name, photoData: state.photo.dataUrl && !/sample/.test(state.photo.name) ? state.photo.dataUrl : null };
       localStorage.setItem(KEY, JSON.stringify(o));
     } catch (e) { /* storage full or blocked: carry on */ }
   }
@@ -115,28 +127,32 @@
   }
 
   function placedImage(pl) { return cam.toImage(pl.X, pl.Z); }
+  function tEff() { return state.t - (window.Site.REGIONS[state.site.region] || 0) / 4.33; }
+  function sizeOf(pl) { return (pl.size || 1) * window.Site.growth(LIB.byId[pl.pid], state.years); }
   function placedBounds(pl) {
     const p = LIB.byId[pl.pid], q = placedImage(pl);
-    return window.Render.bounds(p, q.x, q.y, cam.ppm(pl.X, pl.Z), pl.size);
+    return window.Render.bounds(p, q.x, q.y, cam.ppm(pl.X, pl.Z), sizeOf(pl));
   }
   function sortedPlants() { return state.plants.slice().sort((a, b) => placedImage(a).y - placedImage(b).y); }
 
   function drawBed(c, bed, alpha) {
     const pts = bed.pts.map(p => cam.toImage(p.X, p.Z));
     if (pts.length < 2) return;
+    if (pts.length > 2) { window.Beds.drawBed(c, bed, cam, { alpha, lineWidth: 2 / view.scale }); return; }
     c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y));
-    if (pts.length > 2) { c.closePath(); c.fillStyle = `rgba(74,52,34,${0.78 * alpha})`; c.fill(); }
     c.strokeStyle = `rgba(40,28,18,${0.9 * alpha})`; c.lineWidth = 2 / view.scale; c.stroke();
   }
 
-  function drawScene(c, forExport) {
+  function drawScene(c, forExport, plantsOnly) {
     const ph = state.photo;
-    c.drawImage(ph.img, 0, 0, ph.w, ph.h);
-    state.beds.forEach(b => drawBed(c, b, 1));
-    sortedPlants().forEach(pl => {
-      const p = LIB.byId[pl.pid]; if (!p) return;
-      const q = placedImage(pl);
-      window.Render.drawPlant(c, p, stateAt(p, state.t), q.x, q.y, cam.ppm(pl.X, pl.Z), pl.seed, { size: pl.size, t: state.t });
+    if (!plantsOnly) { c.drawImage(ph.img, 0, 0, ph.w, ph.h); state.beds.forEach(b => drawBed(c, b, 1)); }
+    const env = { cam, sun: state.sun, light: state.light || window.Compose.autoLight(state.stats || {}), stats: state.stats, quality: forExport ? 'best' : 'normal' };
+    const items = sortedPlants().map(pl => ({ kind: 'plant', Z: pl.Z, pl })).concat(state.masks.filter(m => m.Z != null).map(m => ({ kind: 'mask', Z: m.Z, m })));
+    items.sort((a, b) => b.Z - a.Z); /* far first */
+    items.forEach(it => {
+      if (it.kind === 'mask') { if (!plantsOnly) c.drawImage(window.Masks.maskedPhoto(it.m, ph), 0, 0); return; }
+      const pl = it.pl, p = LIB.byId[pl.pid]; if (!p) return;
+      window.Compose.drawPlant(c, { p, st: stateAt(p, tEff()), t: tEff(), seed: pl.seed, size: sizeOf(pl), flip: !!pl.flip !== (window.Render.hasSprites(p) && state.sun.az > 0), X: pl.X, Z: pl.Z }, env);
     });
   }
 
@@ -169,6 +185,19 @@
       ctx.restore();
     }
 
+    /* mask mode: show the mask being painted */
+    if (state.mode === 'mask') {
+      const m = state.masks.find(x => x.id === state.maskSel);
+      if (m) {
+        ctx.save(); ctx.globalAlpha = 0.45;
+        const tint = document.createElement('canvas'); tint.width = m.canvas.width; tint.height = m.canvas.height;
+        const tc = tint.getContext('2d'); tc.drawImage(m.canvas, 0, 0); tc.globalCompositeOperation = 'source-in'; tc.fillStyle = '#ff3b6b'; tc.fillRect(0, 0, tint.width, tint.height);
+        ctx.drawImage(tint, 0, 0, state.photo.w, state.photo.h); ctx.restore();
+        if (m.Z != null) { const g = cam.toImage(0, m.Z); ctx.save(); ctx.strokeStyle = '#ff3b6b'; ctx.lineWidth = lw(1.5); ctx.setLineDash([lw(8), lw(6)]); ctx.beginPath(); ctx.moveTo(0, g.y); ctx.lineTo(state.photo.w, g.y); ctx.stroke(); ctx.restore(); }
+      }
+      if (state.hoverPt) { ctx.save(); ctx.strokeStyle = state.erase ? '#fff' : '#ff3b6b'; ctx.lineWidth = lw(1.5); ctx.beginPath(); ctx.arc(state.hoverPt.x, state.hoverPt.y, state.brush, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
+    }
+
     /* setup overlays */
     if (state.mode === 'setup') {
       const g = state.ground;
@@ -190,7 +219,7 @@
     /* ghost of the plant about to be placed */
     if (state.mode === 'plant' && state.libSel && state.hoverPt && !state.drag) {
       const pl = cam.toPlan(state.hoverPt.x, state.hoverPt.y);
-      if (pl) window.Render.drawPlant(ctx, LIB.byId[state.libSel], stateAt(LIB.byId[state.libSel], state.t), state.hoverPt.x, state.hoverPt.y, cam.ppm(pl.X, pl.Z), 12345, { alpha: 0.55, t: state.t });
+      if (pl) window.Render.drawPlant(ctx, LIB.byId[state.libSel], stateAt(LIB.byId[state.libSel], tEff()), state.hoverPt.x, state.hoverPt.y, cam.ppm(pl.X, pl.Z), 12345, { alpha: 0.55, t: tEff(), size: window.Site.growth(LIB.byId[state.libSel], state.years) });
     }
 
     /* selection, hover, labels */
@@ -238,6 +267,19 @@
       else if (Math.abs(pt.y - cam.horizonY) < tol) state.drag = { kind: 'horizon' };
       return;
     }
+    if (state.mode === 'mask') {
+      let m = state.masks.find(x => x.id === state.maskSel);
+      if (state.maskSetDepth) {
+        const pl = cam.toPlan(pt.x, pt.y);
+        if (!pl) { hint('Click on the ground where the object stands.'); return; }
+        if (m) { m.Z = pl.Z; state.maskSetDepth = false; afterChange(); renderMasks(); updateHint(); }
+        return;
+      }
+      if (!m) { m = newMask(); }
+      state.drag = { kind: 'paint', id: m.id, last: pt };
+      window.Masks.paint(m, pt.x, pt.y, state.brush, state.erase || ev.altKey); invalidate();
+      return;
+    }
     if (state.mode === 'bed') {
       const pl = cam.toPlan(pt.x, pt.y);
       if (!pl) { hint('Click on the ground, below the horizon.'); return; }
@@ -273,6 +315,10 @@
       if (d.kind === 'horizon') { g.horizon = Math.max(0.02, Math.min(0.9, pt.y / state.photo.h)); rebuild(); }
       else if (d.kind === 'ref1') { g.ref.x1 = pt.x; g.ref.y1 = pt.y; rebuild(); }
       else if (d.kind === 'ref2') { g.ref.x2 = pt.x; g.ref.y2 = pt.y; rebuild(); }
+      else if (d.kind === 'paint') {
+        const m = state.masks.find(x => x.id === d.id);
+        if (m) { window.Masks.line(m, d.last.x, d.last.y, pt.x, pt.y, state.brush, state.erase || ev.altKey); d.last = pt; invalidate(); }
+      }
       else if (d.kind === 'plant') {
         const pl = cam.toPlan(pt.x - d.dx, pt.y - d.dy);
         if (pl) { const p = state.plants.find(x => x.id === d.id); p.X = pl.X; p.Z = pl.Z; d.moved = true; invalidate(); }
@@ -290,7 +336,7 @@
   canvas.addEventListener('pointerup', () => {
     if (state.drag) {
       const d = state.drag; state.drag = null;
-      if (d.kind === 'plant' && d.moved) afterChange(); else if (d.kind !== 'plant') { save(); renderSetup(); }
+      if (d.kind === 'plant' && d.moved) afterChange(); else if (d.kind === 'paint') { save(); renderMasks(); } else if (d.kind !== 'plant') { save(); renderSetup(); }
     }
   });
   canvas.addEventListener('pointerleave', () => { state.hoverPt = null; state.hover = null; invalidate(); });
@@ -300,8 +346,10 @@
     if (ev.target.matches('input, select, textarea')) return;
     if (ev.key === 'Escape') { state.libSel = null; state.sel = null; state.drawingBed = null; state.refClicks = null; renderLibrary(); renderDesign(); updateHint(); invalidate(); }
     if ((ev.key === 'Delete' || ev.key === 'Backspace') && state.sel) { removePlant(state.sel); }
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z') { ev.preventDefault(); undo(); }
     if (ev.key === 'Enter' && state.mode === 'bed') finishBed();
-    if (ev.key === 'p') setMode('plant'); if (ev.key === 'b') setMode('bed'); if (ev.key === 's') setMode('setup');
+    if (ev.key === 'p') setMode('plant'); if (ev.key === 'b') setMode('bed'); if (ev.key === 's') setMode('setup'); if (ev.key === 'f') setMode('mask');
+    if (ev.key === '[') { state.brush = Math.max(4, state.brush * 0.8); renderMasks(); invalidate(); } if (ev.key === ']') { state.brush = Math.min(400, state.brush * 1.25); renderMasks(); invalidate(); }
     if (ev.key === 'ArrowRight') setTime(state.t + 0.25); if (ev.key === 'ArrowLeft') setTime(state.t - 0.25);
   });
 
@@ -311,19 +359,32 @@
   }
   function removePlant(id) { state.plants = state.plants.filter(p => p.id !== id); if (state.sel === id) state.sel = null; afterChange(); }
   function rebuild() { buildCamera(); invalidate(); renderSetup(); }
-  function afterChange() { save(); renderDesign(); renderCalendar(); invalidate(); }
+  let lastSnap = null;
+  function snapshot() { return JSON.stringify({ plants: state.plants, beds: state.beds }); }
+  function afterChange() {
+    const now = snapshot();
+    if (lastSnap !== null && lastSnap !== now) { state.undo.push(lastSnap); if (state.undo.length > 60) state.undo.shift(); }
+    lastSnap = now;
+    save(); renderDesign(); renderCalendar(); invalidate();
+  }
+  function undo() {
+    const prev = state.undo.pop(); if (!prev) return;
+    const o = JSON.parse(prev); state.plants = o.plants; state.beds = o.beds; state.sel = null; lastSnap = prev;
+    save(); renderDesign(); renderCalendar(); invalidate(); hint('Undone.');
+  }
 
   /* ---------------- modes & hints ---------------- */
   function setMode(m) {
     state.mode = m; state.drawingBed = null; state.refClicks = null; state.drag = null;
     document.querySelectorAll('.modes .mode').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
-    if (m === 'setup') showTab('setup'); else if (m === 'bed') showTab('design'); else if (m === 'plant' && !state.libSel) showTab('library');
+    if (m === 'setup') showTab('setup'); else if (m === 'bed') showTab('design'); else if (m === 'mask') { showTab('setup'); if (!state.maskSel && state.masks.length) state.maskSel = state.masks[0].id; renderMasks(); } else if (m === 'plant' && !state.libSel) showTab('library');
     updateHint(); invalidate();
   }
   document.querySelectorAll('.modes .mode').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
   function hint(s) { $('hint').textContent = s; }
   function updateHint() {
     if (state.mode === 'setup') hint(state.refClicks != null ? (state.refClicks === 0 ? 'Click the first end of the known length.' : 'Now click the other end.') : 'Drag the yellow horizon line to your eye level. Drag the blue ends onto something you can measure.');
+    else if (state.mode === 'mask') hint(state.maskSetDepth ? 'Click the ground where this object stands, so plants behind it are hidden and plants in front are not.' : `Paint over something that stands in front of where you will plant. ${state.erase ? 'Erasing.' : 'Hold Alt to erase.'} [ and ] change the brush. Then click "Set distance".`);
     else if (state.mode === 'bed') hint(state.drawingBed && state.drawingBed.length ? `${state.drawingBed.length} corner${state.drawingBed.length > 1 ? 's' : ''}. Keep clicking, then double-click or press Enter to finish. Esc cancels.` : 'Click the corners of a border on the lawn. Double-click or Enter to finish.');
     else hint(state.libSel ? `Click on the lawn or a border to plant ${LIB.byId[state.libSel].name}. Esc to stop.` : 'Choose a plant on the right, then click where it should go. Drag plants to move them, Delete to remove.');
   }
@@ -393,7 +454,7 @@
         <p class="small">${p.notes || ''}</p>
         <label>Size <span class="count">${Math.round(sel.size * 100)}% of mature (${(p.h * sel.size).toFixed(1)} m tall)</span>
           <input type="range" id="selSize" min="0.25" max="1.4" step="0.05" value="${sel.size}"></label>
-        <div class="row"><button id="selDup">Duplicate</button><button id="selDel" class="danger">Remove</button></div>
+        <div class="row"><button id="selFlip" title="Mirror the plant so its lit side faces the sun">Flip</button><button id="selDup">Duplicate</button><button id="selDel" class="danger">Remove</button></div>
         <details class="photoBox"><summary>Photos of this plant</summary>
           <p class="small">${window.Render.hasSprites(p) ? 'Drawn from photographs where a season has one; other seasons use the nearest photo.' : 'No photos yet, so this plant is drawn. Add a photo with a transparent background for any season.'}</p>
           <div class="states">${SPRITE_STATES.map(st => { const e = ((window.SPRITE_MANIFEST || {})[p.id] || {})[st]; return `<div class="st"><span>${st}</span>${e && e.file ? `<img src="${e.file}" alt="${st}"> ${e.license === 'own' ? `<button data-rm="${st}" title="Remove your photo">×</button>` : ''}` : '<em class="small">none</em>'}</div>`; }).join('')}</div>
@@ -404,23 +465,49 @@
       box.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => removeUserSprite(p.id, b.dataset.rm)));
       $('selSize').addEventListener('input', (e) => { sel.size = +e.target.value; invalidate(); });
       $('selSize').addEventListener('change', () => afterChange());
+      $('selFlip').addEventListener('click', () => { sel.flip = !sel.flip; afterChange(); });
       $('selDup').addEventListener('click', () => { const np = Object.assign({}, sel, { id: uid(), X: sel.X + p.s * 0.9, seed: Math.floor(Math.random() * 1e9) }); state.plants.push(np); state.sel = np.id; afterChange(); });
       $('selDel').addEventListener('click', () => removePlant(sel.id));
     } else { box.className = 'box muted'; box.textContent = 'Click a placed plant to select it.'; }
 
+    $('yearsVal').textContent = state.years >= 15 ? 'mature' : `${state.years} year${state.years === 1 ? '' : 's'} after planting`;
+    $('years').value = state.years;
+    const site = { heading: state.site.heading, fenceZ: fenceZ() };
+    const checks = window.Site.checks(state.plants, LIB.byId, site);
+    const warnIds = new Set(checks.map(c => c.id).concat(checks.map(c => c.id2).filter(Boolean)));
+    $('checks').innerHTML = checks.length ? checks.map(c => `<li class="${c.level}" data-go="${c.id}">${c.text}</li>`).join('') : `<li class="ok">${state.plants.length ? 'No sun or spacing problems found.' : 'Checks appear here once you have placed plants.'}${state.site.heading ? '' : ' Set which way the camera faces (Setup) for sun checks.'}</li>`;
+    $('checks').querySelectorAll('[data-go]').forEach(li => li.addEventListener('click', () => { state.sel = li.dataset.go; renderDesign(); invalidate(); }));
     $('plantCount').textContent = state.plants.length ? `(${state.plants.length})` : '';
     $('placedList').innerHTML = state.plants.length ? sortedPlants().reverse().map(pl => {
       const p = LIB.byId[pl.pid];
-      return `<div class="card ${pl.id === state.sel ? 'active' : ''}" data-id="${pl.id}">${swatchHtml(p)}<div><div class="nm">${p.name}</div><div class="meta">${pl.Z.toFixed(1)} m away, ${pl.X < 0 ? 'left' : 'right'} ${Math.abs(pl.X).toFixed(1)} m</div></div><button data-del="${pl.id}">×</button></div>`;
+      return `<div class="card ${pl.id === state.sel ? 'active' : ''}" data-id="${pl.id}">${swatchHtml(p)}<div><div class="nm">${p.name}${warnIds.has(pl.id) ? ' <span title="See checks">⚠</span>' : ''}</div><div class="meta">${pl.Z.toFixed(1)} m away, ${pl.X < 0 ? 'left' : 'right'} ${Math.abs(pl.X).toFixed(1)} m</div></div><button data-del="${pl.id}">×</button></div>`;
     }).join('') : '<p class="small">Nothing planted yet.</p>';
     $('placedList').querySelectorAll('.card').forEach(c => c.addEventListener('click', () => { state.sel = c.dataset.id; renderDesign(); invalidate(); }));
     $('placedList').querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); removePlant(b.dataset.del); }));
 
+    /* shopping list */
+    const counts = {};
+    state.plants.forEach(pl => { counts[pl.pid] = (counts[pl.pid] || 0) + 1; });
+    const potSize = { tree: '10 L or bare-root', shrub: '3 L', climber: '2 L', perennial: '2 L', grass: '2 L', bulb: 'pack of 10 bulbs' };
+    const rows = Object.entries(counts).map(([pid, n]) => { const p = LIB.byId[pid]; return { p, n, pot: potSize[p.type] }; }).sort((a, b) => a.p.type.localeCompare(b.p.type) || a.p.name.localeCompare(b.p.name));
+    $('shopping').innerHTML = rows.length ? `<table class="shop">${rows.map(r => `<tr><td>${r.n} ×</td><td><b>${r.p.name}</b><br><i class="small">${r.p.latin}</i></td><td class="small">${r.pot}</td><td><a class="small" href="https://www.rhs.org.uk/plants/search-results?query=${encodeURIComponent(r.p.latin)}" target="_blank" rel="noopener">RHS</a></td></tr>`).join('')}</table>` : '<p class="small">Empty until you place plants.</p>';
+    $('shopCopy').onclick = () => { const txt = rows.map(r => `${r.n} x ${r.p.name} (${r.p.latin}), ${r.pot}`).join('\n'); navigator.clipboard && navigator.clipboard.writeText(txt).then(() => hint('Shopping list copied.')); };
     $('bedCount').textContent = state.beds.length ? `(${state.beds.length})` : '';
-    $('bedList').innerHTML = state.beds.length ? state.beds.map((b, i) => `<div class="card"><div class="sw" style="background:#4a3422"></div><div><div class="nm">Border ${i + 1}</div><div class="meta">${b.pts.length} corners</div></div><button data-bed="${b.id}">×</button></div>`).join('') : '<p class="small">Use "Draw border" to mark beds on the lawn.</p>';
+    $('bedList').innerHTML = state.beds.length ? state.beds.map((b, i) => `<div class="card"><div class="sw" style="background:${{ soil: '#4a3422', bark: '#5a3b26', gravel: '#9a948a' }[b.surface || 'soil']}"></div><div><div class="nm">Border ${i + 1}</div><div class="meta"><select data-surface="${b.id}"><option value="soil"${(b.surface || 'soil') === 'soil' ? ' selected' : ''}>Bare soil</option><option value="bark"${b.surface === 'bark' ? ' selected' : ''}>Bark mulch</option><option value="gravel"${b.surface === 'gravel' ? ' selected' : ''}>Gravel</option></select> · ${b.pts.length} corners</div></div><button data-bed="${b.id}">×</button></div>`).join('') : '<p class="small">Use "Draw border" to mark beds on the lawn.</p>';
     $('bedList').querySelectorAll('[data-bed]').forEach(b => b.addEventListener('click', () => { state.beds = state.beds.filter(x => x.id !== b.dataset.bed); afterChange(); }));
+    $('bedList').querySelectorAll('[data-surface]').forEach(sl => sl.addEventListener('change', () => { const bed = state.beds.find(x => x.id === sl.dataset.surface); if (bed) { bed.surface = sl.value; afterChange(); } }));
     renderPlan();
   }
+  function fenceZ() {
+    const g = state.ground; if (!g.ref) return null;
+    const a = cam.toPlan(g.ref.x1, g.ref.y1), b = cam.toPlan(g.ref.x2, g.ref.y2);
+    return a && b ? (a.Z + b.Z) / 2 : null;
+  }
+  $('years').addEventListener('input', (e) => { state.years = +e.target.value; $('yearsVal').textContent = state.years >= 15 ? 'mature' : `${state.years} year${state.years === 1 ? '' : 's'} after planting`; invalidate(); renderPlan(); });
+  $('years').addEventListener('change', () => { save(); renderDesign(); });
+  $('undoBtn').addEventListener('click', undo);
+  $('heading').addEventListener('change', (e) => { state.site.heading = e.target.value || null; save(); renderDesign(); });
+  $('region').addEventListener('change', (e) => { state.site.region = e.target.value; save(); invalidate(); renderCalendar(); renderPlan(); });
   $('clearAll').addEventListener('click', () => { if (confirm('Remove every plant and border from this design?')) { state.plants = []; state.beds = []; state.sel = null; afterChange(); } });
 
   /* plan minimap */
@@ -447,7 +534,7 @@
     for (let X = -Math.floor(halfX); X <= halfX; X++) { const a = map(X, 0), b = map(X, maxZ); planCtx.beginPath(); planCtx.moveTo(a.x, a.y); planCtx.lineTo(b.x, b.y); planCtx.stroke(); }
     state.beds.forEach(b => { planCtx.fillStyle = 'rgba(74,52,34,0.75)'; planCtx.beginPath(); b.pts.forEach((p, i) => { const q = map(p.X, p.Z); i ? planCtx.lineTo(q.x, q.y) : planCtx.moveTo(q.x, q.y); }); planCtx.closePath(); planCtx.fill(); });
     state.plants.forEach(pl => {
-      const p = LIB.byId[pl.pid], st = stateAt(p, state.t), q = map(pl.X, pl.Z), r = Math.max(2.5, p.s * pl.size * k / 2);
+      const p = LIB.byId[pl.pid], st = stateAt(p, tEff()), q = map(pl.X, pl.Z), r = Math.max(2.5, p.s * sizeOf(pl) * k / 2);
       planCtx.fillStyle = st.leaf > 0.05 ? rgba(st.leafColor, 0.45 + 0.5 * st.leaf) : 'rgba(110,90,60,0.6)';
       planCtx.beginPath(); planCtx.arc(q.x, q.y, r, 0, Math.PI * 2); planCtx.fill();
       if (st.flower > 0.1 && st.flowerColor) { planCtx.strokeStyle = st.flowerColor; planCtx.lineWidth = 3; planCtx.stroke(); }
@@ -483,9 +570,9 @@
     });
     cal.innerHTML = html + '</table><p class="small">Cell colour = foliage. Dot = in flower. Small dot = fruit or berries.</p>';
 
-    const flowering = ids.map(p => ({ p, s: stateAt(p, state.t) })).filter(x => x.s.flower > 0.3);
+    const flowering = ids.map(p => ({ p, s: stateAt(p, tEff()) })).filter(x => x.s.flower > 0.3);
     $('inFlower').innerHTML = flowering.length ? flowering.map(x => `<span class="s"><b style="background:${x.s.flowerColor}"></b>${x.p.name}</span>`).join('') : '<span class="small">Nothing in flower at this point in the year.</span>';
-    const leafy = ids.map(p => ({ p, s: stateAt(p, state.t) })).filter(x => x.s.leaf > 0.3);
+    const leafy = ids.map(p => ({ p, s: stateAt(p, tEff()) })).filter(x => x.s.leaf > 0.3);
     $('foliageNow').innerHTML = leafy.length ? leafy.map(x => `<span class="s"><b style="background:${x.s.leafColor}"></b>${x.p.name}</span>`).join('') : '<span class="small">Bare stems and soil only.</span>';
     const quiet = [];
     for (let m = 1; m <= 12; m++) if (!ids.some(p => p.flower && p.flower.m.includes(m))) quiet.push(MONTHS[m - 1]);
@@ -501,6 +588,23 @@
     const refZ = g.ref ? cam.toPlan((g.ref.x1 + g.ref.x2) / 2, (g.ref.y1 + g.ref.y2) / 2) : null;
     $('camReadout').innerHTML = `Camera height: <b>${cam.hc.toFixed(2)} m</b> (a phone at chest height is about 1.3–1.6 m)<br>Tilt: ${(cam.theta * 180 / Math.PI).toFixed(1)}° down` + (refZ ? `<br>Known length is about <b>${refZ.Z.toFixed(1)} m</b> away` : '<br>No known length marked yet: assuming the camera was 1.5 m up.') + (g.ref && (cam.hc < 0.6 || cam.hc > 3) ? '<br><span style="color:#a33a2a">That camera height looks wrong. Check the horizon line and the length in metres.</span>' : '');
   }
+  function renderLight() {
+    const L = state.light || window.Compose.autoLight(state.stats || {});
+    $('sunAz').value = state.sun.az; $('sunEl').value = state.sun.el;
+    $('sunAzVal').textContent = state.sun.az === 0 ? 'behind you' : `${Math.abs(state.sun.az)}° to the ${state.sun.az > 0 ? 'right' : 'left'}${Math.abs(state.sun.az) > 90 ? ', ahead' : ''}`;
+    $('sunElVal').textContent = `${state.sun.el}° up`;
+    [['brightness', 1], ['warmth', 0], ['contrast', 1], ['saturation', 1], ['shadow', 0.45], ['grain', 0.25]].forEach(([k]) => { const el = $('light-' + k); if (el) el.value = L[k]; });
+    $('lightAuto').textContent = L.auto ? 'Auto (from the photo)' : 'Reset to auto';
+  }
+  $('sunAz').addEventListener('input', (e) => { state.sun.az = +e.target.value; renderLight(); invalidate(); });
+  $('sunEl').addEventListener('input', (e) => { state.sun.el = +e.target.value; renderLight(); invalidate(); });
+  ['sunAz', 'sunEl'].forEach(id => $(id).addEventListener('change', save));
+  ['brightness', 'warmth', 'contrast', 'saturation', 'shadow', 'grain'].forEach(k => {
+    const el = $('light-' + k); if (!el) return;
+    el.addEventListener('input', (e) => { state.light = Object.assign({}, state.light || window.Compose.autoLight(state.stats || {}), { [k]: +e.target.value, auto: false }); renderLight(); invalidate(); });
+    el.addEventListener('change', save);
+  });
+  $('lightAuto').addEventListener('click', () => { state.light = Object.assign(window.Compose.autoLight(state.stats || {}), { auto: true }); renderLight(); invalidate(); save(); });
   $('horizon').addEventListener('input', (e) => { state.ground.horizon = +e.target.value; rebuild(); });
   $('horizon').addEventListener('change', save);
   $('refLen').addEventListener('change', (e) => { state.ground.refLen = Math.max(0.5, +e.target.value || 1); rebuild(); save(); });
@@ -513,8 +617,8 @@
     const url = URL.createObjectURL(file);
     await loadPhoto(url, file.name, true);
     URL.revokeObjectURL(url);
-    state.ground = defaultGround(); state.beds = []; state.plants = []; state.sel = null;
-    buildCamera(); fit(); save(); renderSetup(); renderDesign(); setMode('setup');
+    state.ground = defaultGround(); state.beds = []; state.plants = []; state.sel = null; state.masks = []; state.maskSel = null; state.stats = null; state.light = null;
+    buildCamera(); fit(); save(); renderSetup(); renderDesign(); renderMasks(); renderLight(); setMode('setup');
     hint('New photo. Set the horizon and mark a known length, then go back to Plants.');
   });
 
@@ -533,9 +637,7 @@
     } catch (err) { alert('That file could not be read as a Netgarden design.'); }
   });
   $('exportPng').addEventListener('click', () => {
-    const c = document.createElement('canvas'); c.width = state.photo.w; c.height = state.photo.h;
-    const cc = c.getContext('2d');
-    const saved = view.scale; view.scale = 1; drawScene(cc, true); view.scale = saved;
+    const c = compositeCanvas();
     try {
       const a = document.createElement('a'); a.href = c.toDataURL('image/jpeg', 0.9); a.download = `netgarden-${timeLabel(state.t).replace(/\s+/g, '-').toLowerCase()}.jpg`; a.click();
     } catch (err) { alert('The browser will not export the bundled sample photo when the app is opened straight from a file. Upload your own photo, or run the app from a local web server.'); }
@@ -611,6 +713,59 @@
     renderCredits(); renderDesign(); invalidate();
   }
 
+  /* ---------------- foreground objects ---------------- */
+  function newMask() {
+    const m = { id: uid(), Z: null, name: `Object ${state.masks.length + 1}`, canvas: window.Masks.makeMaskCanvas(state.photo.w, state.photo.h), version: 1 };
+    state.masks.push(m); state.maskSel = m.id; renderMasks(); return m;
+  }
+  function renderMasks() {
+    const box = $('maskList'); if (!box) return;
+    $('brushVal').textContent = `${Math.round(state.brush)} px`; $('brush').value = state.brush; $('eraseChk').checked = state.erase;
+    box.innerHTML = state.masks.length ? state.masks.map(m => `<div class="card ${m.id === state.maskSel ? 'active' : ''}" data-mask="${m.id}"><div class="sw" style="background:#ff3b6b"></div><div><div class="nm">${m.name}</div><div class="meta">${m.Z == null ? '<span style="color:#a33a2a">distance not set</span>' : m.Z.toFixed(1) + ' m away'}</div></div><button data-maskdel="${m.id}">×</button></div>`).join('') : '<p class="small">Nothing marked yet.</p>';
+    box.querySelectorAll('[data-mask]').forEach(c => c.addEventListener('click', () => { state.maskSel = c.dataset.mask; if (state.mode !== 'mask') setMode('mask'); renderMasks(); invalidate(); }));
+    box.querySelectorAll('[data-maskdel]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); state.masks = state.masks.filter(x => x.id !== b.dataset.maskdel); if (state.maskSel === b.dataset.maskdel) state.maskSel = null; afterChange(); renderMasks(); }));
+  }
+  $('maskNew').addEventListener('click', () => { setMode('mask'); newMask(); updateHint(); invalidate(); });
+  $('maskDepth').addEventListener('click', () => { if (!state.maskSel) { newMask(); } setMode('mask'); state.maskSetDepth = true; updateHint(); });
+  $('brush').addEventListener('input', (e) => { state.brush = +e.target.value; $('brushVal').textContent = `${Math.round(state.brush)} px`; });
+  $('eraseChk').addEventListener('change', (e) => { state.erase = e.target.checked; updateHint(); });
+
+  /* ---------------- realistic render ---------------- */
+  function compositeCanvas(plantsOnly) {
+    const c = document.createElement('canvas'); c.width = state.photo.w; c.height = state.photo.h;
+    const saved = view.scale; view.scale = 1; drawScene(c.getContext('2d'), true, plantsOnly); view.scale = saved;
+    return c;
+  }
+  async function doRender() {
+    const key = $('apiKey').value.trim();
+    if (!key) { alert('Enter your OpenAI API key first. It stays in this browser.'); return; }
+    if (!state.plants.length) { alert('Place some plants first.'); return; }
+    try { localStorage.setItem('netgarden.apikey', key); } catch (e) { }
+    const btn = $('renderBtn'); btn.disabled = true; btn.textContent = 'Rendering… (30–90 s)';
+    try {
+      const composite = compositeCanvas();
+      const silhouette = compositeCanvas(true);
+      const polys = state.beds.map(b => b.pts.map(p => cam.toImage(p.X, p.Z)));
+      const hz = (state.stats && state.stats.haze) || [120, 120, 120];
+      const r = await window.RenderAPI.render({ key, composite, silhouette, polys, month: timeLabel(state.t), photoMean: `rgb(${hz[0]},${hz[1]},${hz[2]})`, quality: $('renderQuality').value });
+      showRender(r.canvas, composite);
+    } catch (err) { alert('Render failed: ' + err.message); }
+    btn.disabled = false; btn.textContent = 'Render this month';
+  }
+  function showRender(result, before) {
+    const dlg = $('renderDlg'), img = $('renderImg');
+    const a = result.toDataURL('image/jpeg', 0.92), b = before.toDataURL('image/jpeg', 0.92);
+    img.src = a; img.dataset.after = a; img.dataset.before = b;
+    $('renderTitle').textContent = `Rendered: ${timeLabel(state.t)}`;
+    $('renderDl').href = a; $('renderDl').download = `netgarden-render-${timeLabel(state.t).replace(/\s+/g, '-').toLowerCase()}.jpg`;
+    dlg.showModal();
+  }
+  $('renderBtn').addEventListener('click', doRender);
+  $('renderBefore').addEventListener('pointerdown', () => { $('renderImg').src = $('renderImg').dataset.before; });
+  ['pointerup', 'pointerleave'].forEach(ev => $('renderBefore').addEventListener(ev, () => { $('renderImg').src = $('renderImg').dataset.after; }));
+  $('renderClose').addEventListener('click', () => $('renderDlg').close());
+  try { const k = localStorage.getItem('netgarden.apikey'); if (k) $('apiKey').value = k; } catch (e) { }
+
   /* photo credits (CC BY-SA images must be credited) */
   function renderCredits() {
     const m = window.SPRITE_MANIFEST || {}, rows = [];
@@ -624,6 +779,8 @@
     $('credits').innerHTML = rows.length ? `<ul class="small">${rows.join('')}</ul>` : '<p class="small">No photo sprites yet. See tools/sprites.py.</p>';
   }
 
+  window.netgarden = { state, invalidate, get cam() { return cam; }, draw, save };
+
   /* ---------------- boot ---------------- */
   async function boot() {
     window.Render.api.onImageLoad = invalidate;
@@ -635,9 +792,11 @@
       else await loadPhoto('assets/sample-garden.jpg', 'sample-garden.jpg', null);
     } catch (e) { hint('Could not load a photo. Use Setup to upload one.'); return; }
     state.ground = (saved && saved.ground) || defaultGround();
-    if (saved) { state.beds = saved.beds || []; state.plants = (saved.plants || []).filter(p => LIB.byId[p.pid]); if (typeof saved.t === 'number') state.t = saved.t; }
+    if (saved) { state.beds = saved.beds || []; state.plants = (saved.plants || []).filter(p => LIB.byId[p.pid]); if (typeof saved.t === 'number') state.t = saved.t; if (saved.sun) state.sun = saved.sun; if (saved.light) state.light = saved.light; if (saved.site) state.site = Object.assign({ heading: null, region: 'south' }, saved.site); if (typeof saved.years === 'number') state.years = saved.years; if (saved.masks) state.masks = await Promise.all(saved.masks.map(m => window.Masks.restore(m, state.photo.w, state.photo.h))); }
     buildCamera(); fit();
-    renderLibrary(); renderDesign(); renderCalendar(); renderSetup(); setTime(state.t); updateHint();
+    $('heading').value = state.site.heading || ''; $('region').value = state.site.region || 'south';
+    lastSnap = snapshot();
+    renderLibrary(); renderDesign(); renderCalendar(); renderSetup(); renderLight(); renderMasks(); setTime(state.t); updateHint();
   }
   boot();
 })();

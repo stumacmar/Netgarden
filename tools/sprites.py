@@ -214,7 +214,7 @@ def prompt_for(p, state):
         'autumn': 'in autumn colour',
     }[state]
     return (f'Photograph of a single {form} of {p["latin"]} ({p["name"]}), {what}, whole plant visible from ground level '
-            f'at eye height, side view, isolated on a plain white background, natural soft daylight, sharp focus, '
+            f'at eye height, side view, isolated on a plain white background, soft natural daylight from the upper left, sharp focus, '
             f'no pot, no people, no text, photorealistic, botanical accuracy')
 
 

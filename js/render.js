@@ -17,7 +17,9 @@
     };
   }
 
+  let shadowsOff = false;
   function shadow(ctx, x, y, w) {
+    if (shadowsOff) return;
     ctx.save();
     ctx.fillStyle = 'rgba(20,30,10,0.22)';
     ctx.beginPath();
@@ -326,6 +328,7 @@
     const w = Math.max(3, p.s * ppm * sizeF), h = Math.max(3, p.h * ppm * sizeF);
     const rnd = mulberry32(seed);
     ctx.save();
+    shadowsOff = !!opts.noShadow;
     if (opts.alpha != null) ctx.globalAlpha = opts.alpha;
     /* photo sprites first: crossfade between the two nearest seasonal states */
     if (hasSprites(p) && opts.t != null) {
@@ -345,7 +348,7 @@
         }
         if (a && b && a.im === b.im) drawSprite(ctx, a.im, x, y, h, 1);
         else { if (a) drawSprite(ctx, a.im, x, y, h, blend[0].w); if (b) drawSprite(ctx, b.im, x, y, h, blend[1].w); }
-        ctx.restore();
+        ctx.restore(); shadowsOff = false;
         return { w, h };
       }
     }
@@ -357,7 +360,7 @@
       case 'grass': drawGrass(ctx, p, st, x, y, w, h, rnd); break;
       case 'bulb': drawBulb(ctx, p, st, x, y, w, h, rnd, ppm); break;
     }
-    ctx.restore();
+    ctx.restore(); shadowsOff = false;
     return { w, h };
   }
 
