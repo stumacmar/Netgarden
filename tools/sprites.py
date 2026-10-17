@@ -136,6 +136,7 @@ def cmd_fetch(pid, state, title_or_index):
     data = http(big, True)
     os.makedirs(os.path.join(RAW, pid), exist_ok=True)
     raw = os.path.join(RAW, pid, f'{state}.jpg')
+    if os.path.exists(raw[:-4] + '.png'): os.remove(raw[:-4] + '.png')
     with open(raw, 'wb') as f: f.write(data)
     m = load_manifest(); m.setdefault(pid, {})[state] = {
         'source': 'https://commons.wikimedia.org/wiki/' + urllib.parse.quote(rec['title'].replace(' ', '_')),
@@ -174,8 +175,9 @@ def remove_rmbg14(im):
 
 def cmd_cutout(pid, state, model='u2net'):
     from PIL import Image, ImageFilter
-    raw = os.path.join(RAW, pid, f'{state}.jpg')
-    if not os.path.exists(raw) and os.path.exists(raw[:-4] + '.png'): raw = raw[:-4] + '.png'
+    cands = [c for c in (os.path.join(RAW, pid, f'{state}.jpg'), os.path.join(RAW, pid, f'{state}.png')) if os.path.exists(c)]
+    if not cands: sys.exit(f'No raw image for {pid} {state}: fetch, import or generate it first.')
+    raw = max(cands, key=os.path.getmtime)  # newest wins
     im = Image.open(raw)
     im.thumbnail((1600, 1600))
     if im.mode == 'RGBA' and im.getchannel('A').getextrema()[0] < 128:
@@ -240,7 +242,7 @@ def cmd_generate(pid, state, provider='openai', quality='medium'):
         key = os.environ.get('OPENAI_API_KEY') or sys.exit('Set OPENAI_API_KEY')
         body = json.dumps({'model': 'gpt-image-1', 'prompt': prompt, 'size': '1024x1536', 'quality': quality, 'n': 1,
                            'background': 'transparent', 'output_format': 'png'}).encode()
-        req = urllib.request.Request('https://api.openai.com/v1/images/generations', data=body,
+        req = urllib.request.Request(os.environ.get('OPENAI_BASE_URL', 'https://api.openai.com/v1') + '/images/generations', data=body,
                                      headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'User-Agent': UA})
         with urllib.request.urlopen(req, timeout=300) as r: d = json.load(r)
         img = base64.b64decode(d['data'][0]['b64_json'])
@@ -255,6 +257,8 @@ def cmd_generate(pid, state, provider='openai', quality='medium'):
         sys.exit('provider must be openai or replicate')
     from PIL import Image
     im = Image.open(io.BytesIO(img))
+    for stale in (raw, raw[:-4] + '.png'):
+        if os.path.exists(stale): os.remove(stale)
     if im.mode == 'RGBA':
         raw = raw[:-4] + '.png'; im.save(raw)
     else:
