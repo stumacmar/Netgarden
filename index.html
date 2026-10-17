@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netgarden</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="leaf">❧</span> Netgarden <span class="tag">garden planner with a year on a slider</span></div>
+  <div class="modes">
+    <button data-mode="plant" class="mode active" title="Place and move plants (P)">Plants</button>
+    <button data-mode="bed" class="mode" title="Draw a border (B)">Draw border</button>
+    <button data-mode="setup" class="mode" title="Set horizon and scale (S)">Set up photo</button>
+    <label class="chk"><input type="checkbox" id="showGrid"> 1 m grid</label>
+    <label class="chk"><input type="checkbox" id="showLabels"> Labels</label>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="stage">
+    <div class="canvasWrap" id="canvasWrap">
+      <canvas id="view"></canvas>
+      <div class="hint" id="hint"></div>
+    </div>
+    <div class="timebar">
+      <button id="play" class="icon" title="Play through the year">▶</button>
+      <div class="sliderWrap">
+        <input type="range" id="time" min="0" max="11.99" step="0.02" value="6.5">
+        <div class="months" id="monthTicks"></div>
+      </div>
+      <div class="timeLabel" id="timeLabel">Mid June</div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <nav class="tabs">
+      <button data-tab="library" class="active">Plants</button>
+      <button data-tab="design">Design</button>
+      <button data-tab="calendar">Calendar</button>
+      <button data-tab="setup">Setup</button>
+    </nav>
+
+    <div class="tab" id="tab-library">
+      <input type="search" id="search" placeholder="Search plants… (e.g. lavender, apple, shade)">
+      <div class="chips" id="typeChips"></div>
+      <div class="list" id="plantList"></div>
+    </div>
+
+    <div class="tab hidden" id="tab-design">
+      <div id="selectedBox" class="box muted">Click a placed plant to select it.</div>
+      <h3>Plan view</h3>
+      <canvas id="plan" width="300" height="220"></canvas>
+      <p class="small">Top-down, metres. Camera at the bottom. Click a plant here to select it.</p>
+      <h3>Planted <span id="plantCount" class="count"></span></h3>
+      <div id="placedList" class="list compact"></div>
+      <h3>Borders <span id="bedCount" class="count"></span></h3>
+      <div id="bedList" class="list compact"></div>
+      <div class="row">
+        <button id="clearAll" class="danger">Clear design</button>
+      </div>
+    </div>
+
+    <div class="tab hidden" id="tab-calendar">
+      <p class="small">What each plant you've placed is doing through the year. The highlighted column is the slider's month.</p>
+      <div id="calendar"></div>
+      <h3>In flower now</h3>
+      <div id="inFlower" class="swatches"></div>
+      <h3>Foliage now</h3>
+      <div id="foliageNow" class="swatches"></div>
+      <h3>Quiet months</h3>
+      <div id="gaps" class="small"></div>
+    </div>
+
+    <div class="tab hidden" id="tab-setup">
+      <h3>Photo</h3>
+      <input type="file" id="photoFile" accept="image/*">
+      <p class="small">Take it from where you usually look at the garden, phone held level-ish. Your photo stays in your browser.</p>
+      <h3>Perspective</h3>
+      <p class="small">Netgarden needs two things to put plants on the ground at the right size: where the horizon is, and one length you know.</p>
+      <label>Horizon (eye level) <span id="horizonVal" class="count"></span>
+        <input type="range" id="horizon" min="0" max="1" step="0.001"></label>
+      <p class="small">Drag until the line sits at the height your eyes were when you took the photo: for a fence about 1.8 m tall, a little below its top.</p>
+      <div class="row">
+        <button id="markRef">Mark a known length</button>
+        <label class="inline">metres <input type="number" id="refLen" min="0.5" max="50" step="0.1" value="6.5"></label>
+      </div>
+      <p class="small">Click two points on the photo along something you can measure: the back fence is ideal.</p>
+      <label>Camera lens
+        <select id="lens">
+          <option value="0.72">Phone, standard (26 mm)</option>
+          <option value="0.667">Phone, wide (24 mm)</option>
+          <option value="0.36">Phone, ultra-wide (13 mm)</option>
+          <option value="1.39">Phone, 2× telephoto (50 mm)</option>
+        </select></label>
+      <div id="camReadout" class="box small"></div>
+      <h3>Save</h3>
+      <p class="small">Your design saves automatically in this browser.</p>
+      <div class="row">
+        <button id="exportJson">Export design</button>
+        <label class="btn">Import <input type="file" id="importJson" accept="application/json" hidden></label>
+        <button id="exportPng">Save picture</button>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<script src="js/homography.js"></script>
+<script src="js/phenology.js"></script>
+<script src="js/plants.js"></script>
+<script src="js/render.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

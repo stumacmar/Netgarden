@@ -1,0 +1,92 @@
+:root {
+  --bg: #f4f2ec; --panel: #fbfaf6; --ink: #22301f; --muted: #6b7266; --line: #ddd9cf;
+  --accent: #3f7d3a; --accent-ink: #fff; --danger: #a33a2a; --soft: #e8efe3;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+button, input, select { font: inherit; }
+button { cursor: pointer; border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 6px; padding: 6px 10px; }
+button:hover { border-color: var(--accent); }
+button.danger { color: var(--danger); }
+button.icon { width: 36px; height: 36px; padding: 0; font-size: 16px; }
+.btn { display: inline-block; cursor: pointer; border: 1px solid var(--line); background: #fff; border-radius: 6px; padding: 6px 10px; }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 14px; background: #263a22; color: #f4f2ec; }
+.brand { font-weight: 600; font-size: 16px; }
+.brand .leaf { color: #9ccf7a; margin-right: 4px; }
+.brand .tag { font-weight: 400; font-size: 12px; opacity: 0.75; margin-left: 8px; }
+.modes { display: flex; gap: 6px; align-items: center; }
+.modes .mode { background: transparent; color: #f4f2ec; border-color: rgba(255,255,255,0.25); }
+.modes .mode.active { background: #9ccf7a; color: #1d2a1a; border-color: #9ccf7a; }
+.chk { font-size: 12px; margin-left: 8px; opacity: 0.9; }
+
+.layout { display: grid; grid-template-columns: 1fr 360px; height: calc(100vh - 46px); }
+.stage { display: flex; flex-direction: column; min-width: 0; }
+.canvasWrap { position: relative; flex: 1; min-height: 0; background: #1b2318; }
+#view { display: block; width: 100%; height: 100%; }
+.hint { position: absolute; left: 12px; bottom: 12px; background: rgba(20,30,18,0.8); color: #f4f2ec; padding: 6px 10px; border-radius: 6px; font-size: 12px; pointer-events: none; max-width: 70%; }
+.hint:empty { display: none; }
+
+.timebar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--panel); border-top: 1px solid var(--line); }
+.sliderWrap { flex: 1; }
+#time { width: 100%; margin: 0; }
+.months { display: grid; grid-template-columns: repeat(12, 1fr); font-size: 11px; color: var(--muted); margin-top: 2px; }
+.months span { text-align: left; }
+.timeLabel { min-width: 130px; text-align: right; font-weight: 600; }
+
+.side { border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+.tabs { display: flex; border-bottom: 1px solid var(--line); }
+.tabs button { flex: 1; border: 0; border-radius: 0; background: transparent; padding: 10px 4px; color: var(--muted); border-bottom: 2px solid transparent; }
+.tabs button.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.tab { padding: 12px; overflow: auto; flex: 1; min-height: 0; }
+.tab.hidden { display: none; }
+.tab h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 16px 0 6px; }
+.tab h3:first-child { margin-top: 0; }
+.small { font-size: 12px; color: var(--muted); }
+.count { font-weight: 400; color: var(--muted); font-size: 12px; }
+.box { background: var(--soft); border-radius: 8px; padding: 10px; }
+.box.muted { color: var(--muted); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+label { display: block; margin: 8px 0 4px; }
+label.inline { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
+input[type=range] { width: 100%; }
+input[type=search], input[type=number], select { width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+input[type=number] { width: 80px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+.chips button { font-size: 12px; padding: 3px 8px; border-radius: 999px; }
+.chips button.active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+.list { display: flex; flex-direction: column; gap: 6px; }
+.card { display: grid; grid-template-columns: 34px 1fr; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; cursor: pointer; }
+.card:hover { border-color: var(--accent); }
+.card.active { border-color: var(--accent); background: var(--soft); box-shadow: 0 0 0 2px rgba(63,125,58,0.25) inset; }
+.card .sw { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+.card .sw i { position: absolute; width: 12px; height: 12px; border-radius: 50%; right: 3px; top: 3px; border: 1px solid rgba(0,0,0,0.15); }
+.card .nm { font-weight: 600; }
+.card .lt { font-style: italic; color: var(--muted); font-size: 12px; }
+.card .meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.list.compact .card { padding: 6px 8px; grid-template-columns: 22px 1fr auto; align-items: center; }
+.list.compact .card .sw { width: 22px; height: 22px; }
+.list.compact .card .sw i { width: 8px; height: 8px; right: 1px; top: 1px; }
+.list.compact button { padding: 2px 8px; font-size: 12px; }
+
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.swatches .s { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px 2px 2px; }
+.swatches .s b { width: 18px; height: 18px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,0.12); }
+
+#calendar { overflow-x: auto; }
+.cal { border-collapse: collapse; width: 100%; font-size: 11px; }
+.cal th { font-weight: 500; color: var(--muted); padding: 2px; }
+.cal th.now, .cal td.now { background: rgba(63,125,58,0.12); }
+.cal td.name { white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; padding: 2px 4px; }
+.cal td.m { width: 16px; height: 18px; padding: 0; position: relative; border: 1px solid #fff; }
+.cal td.m i { position: absolute; left: 3px; top: 3px; width: 9px; height: 9px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); }
+.cal td.m u { position: absolute; right: 1px; bottom: 1px; width: 6px; height: 6px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); }
+#plan { width: 100%; height: auto; background: #e9eadb; border: 1px solid var(--line); border-radius: 8px; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: 1fr 45vh; }
+  .side { border-left: 0; border-top: 1px solid var(--line); }
+  .brand .tag { display: none; }
+}
