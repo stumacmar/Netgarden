@@ -97,6 +97,24 @@
     };
   }
 
+  /* Which photo sprite best shows month m: flower | fruit | autumn | spring | leaf | bare */
+  function spriteLabel(p, m) {
+    const s = monthState(p, m);
+    if (s.flower > 0) return 'flower';
+    if (s.fruit > 0) return 'fruit';
+    if (s.leaf <= 0) return 'bare';
+    if (s.leafColor !== p.leaf) return 'autumn';
+    if (s.leaf < 1 && !p.ev) return 'spring';
+    return 'leaf';
+  }
+  /* Two sprite states with crossfade weights at continuous time t. */
+  function spriteBlend(p, t) {
+    t = ((t % 12) + 12) % 12;
+    const centre = ((t - 0.5) % 12 + 12) % 12;
+    const i0 = Math.floor(centre), f = centre - i0;
+    return [{ state: spriteLabel(p, i0 + 1), w: 1 - f }, { state: spriteLabel(p, (i0 + 1) % 12 + 1), w: f }];
+  }
+
   function label(t) {
     const m = Math.floor(t) % 12, f = t - Math.floor(t);
     const part = f < 0.33 ? 'Early' : f < 0.66 ? 'Mid' : 'Late';
@@ -110,5 +128,5 @@
     return out;
   }
 
-  global.Phenology = { MONTHS, SHORT, stateAt, monthState, yearRow, label, mixHex, shade, rgba, hexToRgb };
+  global.Phenology = { MONTHS, SHORT, stateAt, monthState, yearRow, label, spriteLabel, spriteBlend, mixHex, shade, rgba, hexToRgb };
 })(window);

@@ -281,6 +281,44 @@
     ctx.restore();
   }
 
+  /* ---------- photo sprites ---------- */
+  const FALLBACK = {
+    flower: ['flower', 'leaf', 'spring', 'autumn', 'fruit'], fruit: ['fruit', 'leaf', 'autumn', 'flower', 'spring'],
+    autumn: ['autumn', 'leaf', 'fruit', 'flower', 'spring'], spring: ['spring', 'leaf', 'flower', 'autumn', 'fruit'],
+    leaf: ['leaf', 'spring', 'autumn', 'fruit', 'flower'], bare: ['bare'],
+  };
+  const imgCache = {};
+  const api = { onImageLoad: null };
+  function getImage(path) {
+    let im = imgCache[path];
+    if (!im) {
+      im = new Image(); imgCache[path] = im;
+      im.onload = () => { if (api.onImageLoad) api.onImageLoad(); };
+      im.src = path;
+    }
+    return im.complete && im.naturalWidth ? im : null;
+  }
+  function spriteSet(p) { return (window.SPRITE_MANIFEST || {})[p.id] || null; }
+  /* resolve a state to a loaded image, following the fallback chain */
+  function resolveSprite(p, state) {
+    const set = spriteSet(p); if (!set) return null;
+    for (const s of FALLBACK[state] || [state]) {
+      const e = set[s]; if (e && e.file) { const im = getImage(e.file); if (im) return { im, state: s }; }
+    }
+    return null;
+  }
+  function hasSprites(p) { const set = spriteSet(p); return !!(set && Object.values(set).some(e => e && e.file)); }
+  function spriteAspect(p) {
+    const set = spriteSet(p); if (!set) return null;
+    for (const s of ['leaf', 'flower', 'spring', 'autumn', 'fruit', 'bare']) { const e = set[s]; if (e && e.w && e.h) return e.w / e.h; }
+    return null;
+  }
+  function drawSprite(ctx, im, x, y, h, alpha) {
+    const w = h * im.naturalWidth / im.naturalHeight;
+    ctx.save(); ctx.globalAlpha *= alpha; ctx.drawImage(im, x - w / 2, y - h, w, h); ctx.restore();
+    return w;
+  }
+
   /* Draw a plant at image position (x,y) with pixels-per-metre scale. */
   function drawPlant(ctx, p, st, x, y, ppm, seed, opts) {
     opts = opts || {};
@@ -289,6 +327,28 @@
     const rnd = mulberry32(seed);
     ctx.save();
     if (opts.alpha != null) ctx.globalAlpha = opts.alpha;
+    /* photo sprites first: crossfade between the two nearest seasonal states */
+    if (hasSprites(p) && opts.t != null) {
+      const blend = window.Phenology.spriteBlend(p, opts.t);
+      const a = resolveSprite(p, blend[0].state), b = resolveSprite(p, blend[1].state);
+      const bareA = blend[0].state === 'bare' && !a, bareB = blend[1].state === 'bare' && !b;
+      if ((a || bareA) && (b || bareB)) {
+        shadow(ctx, x, y, (a || b) ? h * ((a || b).im.naturalWidth / (a || b).im.naturalHeight) : w);
+        if (bareA || bareB) { /* no winter photo: draw bare structure procedurally underneath */
+          const alpha = bareA ? blend[0].w : blend[1].w;
+          ctx.save(); ctx.globalAlpha *= alpha;
+          const bareSt = Object.assign({}, st, { leaf: 0, flower: 0, fruit: 0 });
+          if (p.type === 'tree') drawTree(ctx, p, bareSt, x, y, w, h, rnd);
+          else if (p.type === 'shrub') drawShrub(ctx, p, bareSt, x, y, w, h, rnd);
+          else if (p.type === 'climber') drawClimber(ctx, p, bareSt, x, y, w, h, rnd);
+          ctx.restore();
+        }
+        if (a && b && a.im === b.im) drawSprite(ctx, a.im, x, y, h, 1);
+        else { if (a) drawSprite(ctx, a.im, x, y, h, blend[0].w); if (b) drawSprite(ctx, b.im, x, y, h, blend[1].w); }
+        ctx.restore();
+        return { w, h };
+      }
+    }
     switch (p.type) {
       case 'tree': drawTree(ctx, p, st, x, y, w, h, rnd); break;
       case 'shrub': drawShrub(ctx, p, st, x, y, w, h, rnd); break;
@@ -303,10 +363,12 @@
 
   /* Bounding box in image space for hit testing. */
   function bounds(p, x, y, ppm, sizeF) {
-    const w = Math.max(12, p.s * ppm * (sizeF || 1)), h = Math.max(12, p.h * ppm * (sizeF || 1));
-    const ww = p.type === 'bulb' ? Math.max(w * 2.5, ppm * 0.35) : w;
+    const asp = spriteAspect(p);
+    const h = Math.max(12, p.h * ppm * (sizeF || 1));
+    const w = asp ? Math.max(12, h * asp) : Math.max(12, p.s * ppm * (sizeF || 1));
+    const ww = p.type === 'bulb' && !asp ? Math.max(w * 2.5, ppm * 0.35) : w;
     return { x0: x - ww / 2, x1: x + ww / 2, y0: y - h, y1: y + Math.max(4, ww * 0.12) };
   }
 
-  global.Render = { drawPlant, bounds, mulberry32 };
+  global.Render = { drawPlant, bounds, mulberry32, hasSprites, api };
 })(window);

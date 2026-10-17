@@ -136,7 +136,7 @@
     sortedPlants().forEach(pl => {
       const p = LIB.byId[pl.pid]; if (!p) return;
       const q = placedImage(pl);
-      window.Render.drawPlant(c, p, stateAt(p, state.t), q.x, q.y, cam.ppm(pl.X, pl.Z), pl.seed, { size: pl.size });
+      window.Render.drawPlant(c, p, stateAt(p, state.t), q.x, q.y, cam.ppm(pl.X, pl.Z), pl.seed, { size: pl.size, t: state.t });
     });
   }
 
@@ -190,7 +190,7 @@
     /* ghost of the plant about to be placed */
     if (state.mode === 'plant' && state.libSel && state.hoverPt && !state.drag) {
       const pl = cam.toPlan(state.hoverPt.x, state.hoverPt.y);
-      if (pl) window.Render.drawPlant(ctx, LIB.byId[state.libSel], stateAt(LIB.byId[state.libSel], state.t), state.hoverPt.x, state.hoverPt.y, cam.ppm(pl.X, pl.Z), 12345, { alpha: 0.55 });
+      if (pl) window.Render.drawPlant(ctx, LIB.byId[state.libSel], stateAt(LIB.byId[state.libSel], state.t), state.hoverPt.x, state.hoverPt.y, cam.ppm(pl.X, pl.Z), 12345, { alpha: 0.55, t: state.t });
     }
 
     /* selection, hover, labels */
@@ -393,7 +393,15 @@
         <p class="small">${p.notes || ''}</p>
         <label>Size <span class="count">${Math.round(sel.size * 100)}% of mature (${(p.h * sel.size).toFixed(1)} m tall)</span>
           <input type="range" id="selSize" min="0.25" max="1.4" step="0.05" value="${sel.size}"></label>
-        <div class="row"><button id="selDup">Duplicate</button><button id="selDel" class="danger">Remove</button></div>`;
+        <div class="row"><button id="selDup">Duplicate</button><button id="selDel" class="danger">Remove</button></div>
+        <details class="photoBox"><summary>Photos of this plant</summary>
+          <p class="small">${window.Render.hasSprites(p) ? 'Drawn from photographs where a season has one; other seasons use the nearest photo.' : 'No photos yet, so this plant is drawn. Add a photo with a transparent background for any season.'}</p>
+          <div class="states">${SPRITE_STATES.map(st => { const e = ((window.SPRITE_MANIFEST || {})[p.id] || {})[st]; return `<div class="st"><span>${st}</span>${e && e.file ? `<img src="${e.file}" alt="${st}"> ${e.license === 'own' ? `<button data-rm="${st}" title="Remove your photo">×</button>` : ''}` : '<em class="small">none</em>'}</div>`; }).join('')}</div>
+          <div class="row"><select id="spriteState">${SPRITE_STATES.map(st => `<option value="${st}">${st}</option>`).join('')}</select><label class="btn">Add photo <input type="file" id="spriteFile" accept="image/png,image/webp" hidden></label></div>
+          <p class="small">Photograph the plant at a garden centre against something plain, lift the subject (iPhone: long-press it in Photos, then share as an image), and add the PNG here.</p>
+        </details>`;
+      $('spriteFile').addEventListener('change', (e) => { const f = e.target.files[0]; if (f) addUserSprite(p.id, $('spriteState').value, f); });
+      box.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => removeUserSprite(p.id, b.dataset.rm)));
       $('selSize').addEventListener('input', (e) => { sel.size = +e.target.value; invalidate(); });
       $('selSize').addEventListener('change', () => afterChange());
       $('selDup').addEventListener('click', () => { const np = Object.assign({}, sel, { id: uid(), X: sel.X + p.s * 0.9, seed: Math.floor(Math.random() * 1e9) }); state.plants.push(np); state.sel = np.id; afterChange(); });
@@ -549,8 +557,78 @@
     else save();
   });
 
+  /* ---------------- your own plant photos (IndexedDB) ----------------
+   * A transparent PNG per plant and season, e.g. lifted from a photo on a phone. */
+  const SPRITE_STATES = ['leaf', 'flower', 'fruit', 'autumn', 'spring', 'bare'];
+  const userSprites = {};  /* pid -> state -> { file (object URL), w, h } */
+  function idb() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('netgarden', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('sprites');
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+  }
+  async function idbAll() { const db = await idb(); return new Promise((res) => { const out = {}; const c = db.transaction('sprites').objectStore('sprites').openCursor(); c.onsuccess = () => { const cur = c.result; if (!cur) return res(out); out[cur.key] = cur.value; cur.continue(); }; c.onerror = () => res(out); }); }
+  async function idbPut(key, blob) { const db = await idb(); return new Promise((res, rej) => { const t = db.transaction('sprites', 'readwrite'); t.objectStore('sprites').put(blob, key); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
+  async function idbDel(key) { const db = await idb(); return new Promise((res) => { const t = db.transaction('sprites', 'readwrite'); t.objectStore('sprites').delete(key); t.oncomplete = res; t.onerror = res; }); }
+  function applyUserSprites() {
+    window.SPRITE_MANIFEST = window.SPRITE_MANIFEST || {};
+    Object.entries(userSprites).forEach(([pid, states]) => {
+      window.SPRITE_MANIFEST[pid] = Object.assign({}, window.SPRITE_MANIFEST[pid] || {});
+      Object.entries(states).forEach(([st, e]) => { window.SPRITE_MANIFEST[pid][st] = Object.assign({ source: 'your photo', credit: '', license: 'own' }, e); });
+    });
+  }
+  function blobEntry(blob) {
+    return new Promise((res) => { const url = URL.createObjectURL(blob); const im = new Image(); im.onload = () => res({ file: url, w: im.naturalWidth, h: im.naturalHeight }); im.onerror = () => res({ file: url }); im.src = url; });
+  }
+  async function loadUserSprites() {
+    try {
+      const all = await idbAll();
+      for (const [key, blob] of Object.entries(all)) { const [pid, st] = key.split('/'); (userSprites[pid] = userSprites[pid] || {})[st] = await blobEntry(blob); }
+      applyUserSprites();
+    } catch (e) { /* no IndexedDB: feature unavailable */ }
+  }
+  async function addUserSprite(pid, st, file) {
+    /* trim transparent margins so the plant sits on the ground */
+    const bmp = await createImageBitmap(file);
+    const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
+    const cx = c.getContext('2d'); cx.drawImage(bmp, 0, 0);
+    const d = cx.getImageData(0, 0, c.width, c.height).data;
+    let x0 = c.width, y0 = c.height, x1 = 0, y1 = 0, any = false;
+    for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) if (d[(y * c.width + x) * 4 + 3] > 16) { any = true; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    if (!any) { alert('That image has no transparent background. Lift the subject first (long-press the plant in Photos on an iPhone, or use a background remover), then save it as a PNG.'); return; }
+    const w = x1 - x0 + 1, h = y1 - y0 + 1, k = Math.min(1, 1200 / h);
+    const o = document.createElement('canvas'); o.width = Math.round(w * k); o.height = Math.round(h * k);
+    o.getContext('2d').drawImage(c, x0, y0, w, h, 0, 0, o.width, o.height);
+    const blob = await new Promise(r => o.toBlob(r, 'image/png'));
+    await idbPut(`${pid}/${st}`, blob);
+    (userSprites[pid] = userSprites[pid] || {})[st] = await blobEntry(blob);
+    applyUserSprites(); renderCredits(); renderDesign(); invalidate();
+  }
+  async function removeUserSprite(pid, st) {
+    await idbDel(`${pid}/${st}`);
+    if (userSprites[pid]) { delete userSprites[pid][st]; if (window.SPRITE_MANIFEST[pid]) delete window.SPRITE_MANIFEST[pid][st]; }
+    renderCredits(); renderDesign(); invalidate();
+  }
+
+  /* photo credits (CC BY-SA images must be credited) */
+  function renderCredits() {
+    const m = window.SPRITE_MANIFEST || {}, rows = [];
+    Object.entries(m).forEach(([pid, states]) => Object.entries(states).forEach(([st, e]) => {
+      if (!e || !e.file) return;
+      const p = LIB.byId[pid]; if (!p) return;
+      const who = e.credit ? ` by ${e.credit}` : '';
+      if (e.license === 'own') return;
+      rows.push(`<li>${p.name} (${st}): ${e.source && e.source.startsWith('http') ? `<a href="${e.source}" target="_blank" rel="noopener">Wikimedia Commons</a>` : e.source}${who}, ${e.license}</li>`);
+    }));
+    $('credits').innerHTML = rows.length ? `<ul class="small">${rows.join('')}</ul>` : '<p class="small">No photo sprites yet. See tools/sprites.py.</p>';
+  }
+
   /* ---------------- boot ---------------- */
   async function boot() {
+    window.Render.api.onImageLoad = invalidate;
+    await loadUserSprites();
+    renderCredits();
     const saved = loadSaved();
     try {
       if (saved && saved.photoData) await loadPhoto(saved.photoData, saved.photoName || 'photo.jpg', saved.photoData);
