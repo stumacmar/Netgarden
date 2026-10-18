@@ -25,6 +25,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 320
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/acanthus/leaf.png",
+   "h": 272,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 323
   }
  },
  "acer-bloodgood": {
@@ -113,6 +121,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 325
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/achillea/leaf.png",
+   "h": 252,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 302
   }
  },
  "achillea-moonshine": {
@@ -123,6 +139,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 402
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/achillea-moonshine/leaf.png",
+   "h": 257,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 384
   }
  },
  "actinidia-kolomikta": {
@@ -159,6 +183,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 292
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/agapanthus/leaf.png",
+   "h": 297,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 285
   }
  },
  "agastache": {
@@ -169,6 +201,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 287
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/agastache/leaf.png",
+   "h": 252,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 305
   }
  },
  "ajuga": {
@@ -179,6 +219,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 448
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/ajuga/leaf.png",
+   "h": 119,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 480
   }
  },
  "akebia": {
@@ -215,6 +263,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 477
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/alchemilla/leaf.png",
+   "h": 240,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 469
   }
  },
  "allium-christophii": {
@@ -307,6 +363,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 257
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/ammi/leaf.png",
+   "h": 244,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 196
   }
  },
  "anemanthele": {
@@ -337,6 +401,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 247
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/anemone-honorine/leaf.png",
+   "h": 247,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 265
   }
  },
  "anemone-september-charm": {
@@ -347,6 +419,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 356
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/anemone-september-charm/leaf.png",
+   "h": 255,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 376
   }
  },
  "antirrhinum": {
@@ -357,6 +437,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 224
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/antirrhinum/leaf.png",
+   "h": 177,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 202
   }
  },
  "apple-bramley": {
@@ -577,6 +665,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 263
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/aquilegia/leaf.png",
+   "h": 253,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 319
   }
  },
  "arbutus": {
@@ -6107,6 +6203,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 321
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/pyracantha/leaf.png",
+   "h": 456,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 324
   }
  },
  "quince": {
@@ -6386,6 +6490,14 @@
   }
  },
  "rosa-banksiae": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/rosa-banksiae/bare.png",
+   "h": 436,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 169
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/rosa-banksiae/flower.png",
@@ -6393,6 +6505,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 250
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/rosa-banksiae/leaf.png",
+   "h": 476,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 248
   }
  },
  "rosa-rugosa": {
@@ -6558,6 +6678,14 @@
   }
  },
  "rose-generous-gardener": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/rose-generous-gardener/bare.png",
+   "h": 467,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 190
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/rose-generous-gardener/flower.png",
@@ -6565,6 +6693,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 211
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/rose-generous-gardener/leaf.png",
+   "h": 501,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 213
   }
  },
  "rose-gertrude": {
@@ -6764,6 +6900,22 @@
   }
  },
  "rose-new-dawn": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/rose-new-dawn/autumn.png",
+   "h": 462,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 347
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/rose-new-dawn/bare.png",
+   "h": 457,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 260
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/rose-new-dawn/flower.png",
@@ -6771,9 +6923,25 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 307
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/rose-new-dawn/leaf.png",
+   "h": 467,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 307
   }
  },
  "rose-zephirine": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/rose-zephirine/bare.png",
+   "h": 474,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 235
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/rose-zephirine/flower.png",
@@ -6781,6 +6949,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 328
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/rose-zephirine/leaf.png",
+   "h": 470,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 311
   }
  },
  "rosemary": {
@@ -6864,6 +7040,14 @@
   }
  },
  "runner-bean": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/runner-bean/bare.png",
+   "h": 445,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 50
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/runner-bean/flower.png",
@@ -6871,6 +7055,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 81
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/runner-bean/fruit.png",
+   "h": 444,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 101
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/runner-bean/leaf.png",
+   "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 87
   }
  },
  "sage-purple": {
@@ -7122,6 +7322,14 @@
   }
  },
  "solanum-glasnevin": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/solanum-glasnevin/bare.png",
+   "h": 449,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 188
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/solanum-glasnevin/flower.png",
@@ -7129,6 +7337,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 255
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/solanum-glasnevin/leaf.png",
+   "h": 455,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 262
   }
  },
  "sorbus-joseph-rock": {
@@ -7269,6 +7485,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 244
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/star-jasmine/leaf.png",
+   "h": 448,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 257
   }
  },
  "stipa-gigantea": {
@@ -7312,6 +7536,14 @@
   }
  },
  "sweet-pea": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/sweet-pea/bare.png",
+   "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 62
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/sweet-pea/flower.png",
@@ -7319,6 +7551,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 77
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/sweet-pea/leaf.png",
+   "h": 474,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 90
   }
  },
  "sweet-william": {
@@ -7666,6 +7906,22 @@
   }
  },
  "virginia-creeper": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/virginia-creeper/autumn.png",
+   "h": 509,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 242
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/virginia-creeper/bare.png",
+   "h": 477,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 183
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/virginia-creeper/leaf.png",
@@ -7676,6 +7932,22 @@
   }
  },
  "vitis-coignetiae": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/vitis-coignetiae/autumn.png",
+   "h": 502,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 234
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/vitis-coignetiae/bare.png",
+   "h": 478,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 176
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/vitis-coignetiae/leaf.png",
@@ -7730,6 +8002,22 @@
   }
  },
  "wisteria": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/wisteria/autumn.png",
+   "h": 477,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 226
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/wisteria/bare.png",
+   "h": 457,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 178
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/wisteria/flower.png",
@@ -7737,9 +8025,33 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 235
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/wisteria/leaf.png",
+   "h": 483,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 296
   }
  },
  "wisteria-alba": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/wisteria-alba/autumn.png",
+   "h": 470,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 245
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/wisteria-alba/bare.png",
+   "h": 461,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 203
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/wisteria-alba/flower.png",
@@ -7747,6 +8059,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 268
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/wisteria-alba/leaf.png",
+   "h": 470,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 252
   }
  },
  "yew-hedge": {
