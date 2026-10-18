@@ -1670,6 +1670,22 @@
   }
  },
  "crab-golden-hornet": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/crab-golden-hornet/autumn.png",
+   "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 401
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/crab-golden-hornet/bare.png",
+   "h": 428,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 351
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/crab-golden-hornet/flower.png",
