@@ -299,6 +299,176 @@
    "w": 346
   }
  },
+ "ilex-golden-king": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/ilex-golden-king/leaf.png",
+   "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 320
+  }
+ },
+ "juniper-skyrocket": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/juniper-skyrocket/leaf.png",
+   "h": 416,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 53
+  }
+ },
+ "laburnum": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/laburnum/flower.png",
+   "h": 447,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 360
+  }
+ },
+ "liquidambar": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/liquidambar/leaf.png",
+   "h": 427,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 274
+  }
+ },
+ "magnolia-soulangeana": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/magnolia-soulangeana/flower.png",
+   "h": 427,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 401
+  }
+ },
+ "magnolia-stellata": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/magnolia-stellata/flower.png",
+   "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 423
+  }
+ },
+ "magnolia-susan": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/magnolia-susan/flower.png",
+   "h": 444,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 381
+  }
+ },
+ "medlar": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/medlar/flower.png",
+   "h": 376,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 452
+  }
+ },
+ "mulberry": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/mulberry/leaf.png",
+   "h": 430,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 439
+  }
+ },
+ "olive": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/olive/leaf.png",
+   "h": 408,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 399
+  }
+ },
+ "pear-concorde": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/pear-concorde/flower.png",
+   "h": 452,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 384
+  }
+ },
+ "pear-conference": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/pear-conference/flower.png",
+   "h": 471,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 406
+  }
+ },
+ "plum-opal": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/plum-opal/flower.png",
+   "h": 451,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 463
+  }
+ },
+ "plum-victoria": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/plum-victoria/flower.png",
+   "h": 441,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 455
+  }
+ },
+ "prunus-amanogawa": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/prunus-amanogawa/flower.png",
+   "h": 380,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 333
+  }
+ },
+ "prunus-kanzan": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/prunus-kanzan/flower.png",
+   "h": 443,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 450
+  }
+ },
+ "prunus-serrula": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/prunus-serrula/flower.png",
+   "h": 426,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 371
+  }
+ },
  "silver-birch": {
   "bare": {
    "credit": "Roman Eisele",
