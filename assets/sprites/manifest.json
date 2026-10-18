@@ -428,9 +428,11 @@
   },
   "leaf": {
    "credit": "",
-   "file": null,
+   "file": "assets/sprites/anemone-blanda/leaf.png",
+   "h": 51,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 14
   }
  },
  "anemone-honorine": {
@@ -1366,9 +1368,11 @@
   },
   "leaf": {
    "credit": "",
-   "file": null,
+   "file": "assets/sprites/busy-lizzie/leaf.png",
+   "h": 40,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 128
   }
  },
  "calamagrostis-kf": {
@@ -2720,9 +2724,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "crab-evereste": {
