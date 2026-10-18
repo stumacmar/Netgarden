@@ -20,6 +20,22 @@
   }
  },
  "acer-bloodgood": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/acer-bloodgood/autumn.png",
+   "h": 438,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 442
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/acer-bloodgood/bare.png",
+   "h": 423,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 366
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/acer-bloodgood/leaf.png",
@@ -30,6 +46,22 @@
   }
  },
  "acer-griseum": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/acer-griseum/autumn.png",
+   "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 374
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/acer-griseum/bare.png",
+   "h": 417,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 361
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/acer-griseum/leaf.png",
@@ -40,6 +72,22 @@
   }
  },
  "acer-sango-kaku": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/acer-sango-kaku/autumn.png",
+   "h": 447,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 395
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/acer-sango-kaku/bare.png",
+   "h": 413,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 341
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/acer-sango-kaku/leaf.png",
@@ -170,6 +218,22 @@
   }
  },
  "amelanchier": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/amelanchier/autumn.png",
+   "h": 438,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 347
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/amelanchier/bare.png",
+   "h": 438,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 359
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/amelanchier/flower.png",
@@ -177,6 +241,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 361
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/amelanchier/fruit.png",
+   "h": 430,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 350
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/amelanchier/leaf.png",
+   "h": 448,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 357
   }
  },
  "ammi": {
@@ -240,6 +320,22 @@
   }
  },
  "apple-bramley": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/apple-bramley/autumn.png",
+   "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 467
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/apple-bramley/bare.png",
+   "h": 434,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 376
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/apple-bramley/flower.png",
@@ -247,9 +343,41 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 439
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/apple-bramley/fruit.png",
+   "h": 437,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 434
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/apple-bramley/leaf.png",
+   "h": 430,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 438
   }
  },
  "apple-cox": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/apple-cox/autumn.png",
+   "h": 445,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 460
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/apple-cox/bare.png",
+   "h": 400,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 346
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/apple-cox/flower.png",
@@ -257,9 +385,41 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 441
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/apple-cox/fruit.png",
+   "h": 428,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 463
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/apple-cox/leaf.png",
+   "h": 433,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 446
   }
  },
  "apple-discovery": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/apple-discovery/autumn.png",
+   "h": 438,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 439
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/apple-discovery/bare.png",
+   "h": 405,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 368
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/apple-discovery/flower.png",
@@ -267,9 +427,41 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 464
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/apple-discovery/fruit.png",
+   "h": 434,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 443
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/apple-discovery/leaf.png",
+   "h": 429,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 452
   }
  },
  "apple-egremont": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/apple-egremont/autumn.png",
+   "h": 437,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 465
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/apple-egremont/bare.png",
+   "h": 451,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 355
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/apple-egremont/flower.png",
@@ -277,9 +469,41 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 440
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/apple-egremont/fruit.png",
+   "h": 438,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 437
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/apple-egremont/leaf.png",
+   "h": 445,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 427
   }
  },
  "apple-james-grieve": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/apple-james-grieve/autumn.png",
+   "h": 438,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 445
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/apple-james-grieve/bare.png",
+   "h": 427,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 359
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/apple-james-grieve/flower.png",
@@ -287,6 +511,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 455
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/apple-james-grieve/fruit.png",
+   "h": 434,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 443
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/apple-james-grieve/leaf.png",
+   "h": 430,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 456
   }
  },
  "aquilegia": {
@@ -307,6 +547,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 398
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/arbutus/fruit.png",
+   "h": 444,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 445
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/arbutus/leaf.png",
+   "h": 439,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 410
   }
  },
  "arum-italicum": {
@@ -490,6 +746,22 @@
   }
  },
  "birch-jacquemontii": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/birch-jacquemontii/autumn.png",
+   "h": 405,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 266
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/birch-jacquemontii/bare.png",
+   "h": 459,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 296
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/birch-jacquemontii/leaf.png",
@@ -800,6 +1072,22 @@
   }
  },
  "cercis-forest-pansy": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/cercis-forest-pansy/autumn.png",
+   "h": 430,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 400
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/cercis-forest-pansy/bare.png",
+   "h": 425,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 382
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/cercis-forest-pansy/flower.png",
@@ -807,6 +1095,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 380
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cercis-forest-pansy/leaf.png",
+   "h": 433,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 393
   }
  },
  "chaenomeles": {
@@ -840,6 +1136,22 @@
   }
  },
  "cherry-morello": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/cherry-morello/autumn.png",
+   "h": 449,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 456
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/cherry-morello/bare.png",
+   "h": 408,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 371
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/cherry-morello/flower.png",
@@ -847,6 +1159,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 459
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/cherry-morello/fruit.png",
+   "h": 437,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 451
   }
  },
  "cherry-stella": {
