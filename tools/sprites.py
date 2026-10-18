@@ -163,18 +163,24 @@ def key_white(im):
     a = np.asarray(im, dtype=np.float32)
     dist = 255 - a.min(axis=2)                      # how far from pure white the darkest channel is
     alpha = np.clip((dist - 10) * 4, 0, 255)        # soft key
-    if not os.environ.get('KEY_WITH_U2NET'): 
-        out = im.convert('RGBA'); out.putalpha(Image.fromarray(alpha.astype('uint8'))); return out
-    try:
-        from rembg import remove, new_session
-        global _U2NET
-        try: _U2NET
-        except NameError: _U2NET = new_session('u2net')
-        m = remove(im, session=_U2NET, only_mask=True)
-        mk = np.asarray(m.resize(im.size), dtype=np.float32)
-        alpha = np.maximum(alpha * (mk / 255.0), np.where(mk > 200, alpha, 0))
-    except Exception:
-        pass
+    # the colour key misses white flowers on the white background; the segmentation model adds those back.
+    # The two are combined with max, so a poor mask can add stray background but never remove the plant.
+    if not os.environ.get('KEY_NO_U2NET'):
+        try:
+            from rembg import remove, new_session
+            global _U2NET
+            try: _U2NET
+            except NameError: _U2NET = new_session('u2net')
+            m = remove(im, session=_U2NET, only_mask=True)
+            mk = np.asarray(m.resize(im.size), dtype=np.float32)
+            inside = np.where(mk > 160, 255.0, 0.0)
+            alpha = np.maximum(alpha, inside)
+            # drop near-white pixels the mask claimed outside a small dilation of the keyed plant
+            from PIL import ImageFilter
+            keyed = Image.fromarray(np.clip((dist - 10) * 4, 0, 255).astype('uint8')).filter(ImageFilter.MaxFilter(15))
+            alpha = np.where(np.asarray(keyed) > 0, alpha, 0)
+        except Exception:
+            pass
     out = im.convert('RGBA'); out.putalpha(Image.fromarray(alpha.astype('uint8')))
     return out
 
