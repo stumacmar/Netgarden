@@ -113,7 +113,7 @@
   "leaf": {
    "credit": "",
    "file": "assets/sprites/aucuba/leaf.png",
-   "h": 499,
+   "h": 498,
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 503
@@ -1093,7 +1093,7 @@
   "flower": {
    "credit": "",
    "file": "assets/sprites/pear-conference/flower.png",
-   "h": 481,
+   "h": 478,
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 409

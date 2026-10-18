@@ -173,7 +173,8 @@ def key_white(im):
             except NameError: _U2NET = new_session('u2net')
             m = remove(im, session=_U2NET, only_mask=True)
             mk = np.asarray(m.resize(im.size), dtype=np.float32)
-            inside = np.where(mk > 160, 255.0, 0.0)
+            # add what the mask calls plant, except pixels that are pure background white (petals are off-white)
+            inside = np.where((mk > 160) & (dist > 7), 255.0, 0.0)
             alpha = np.maximum(alpha, inside)
             # drop near-white pixels the mask claimed outside a small dilation of the keyed plant
             from PIL import ImageFilter
