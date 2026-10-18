@@ -6620,9 +6620,11 @@
   },
   "leaf": {
    "credit": "",
-   "file": null,
+   "file": "assets/sprites/pelargonium/leaf.png",
+   "h": 92,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 136
   }
  },
  "pennisetum-hameln": {
