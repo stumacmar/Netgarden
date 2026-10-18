@@ -165,7 +165,10 @@ def key_white(im):
     alpha = np.clip((dist - 10) * 4, 0, 255)        # soft key
     try:
         from rembg import remove, new_session
-        m = remove(im, session=new_session('u2net'), only_mask=True)
+        global _U2NET
+        try: _U2NET
+        except NameError: _U2NET = new_session('u2net')
+        m = remove(im, session=_U2NET, only_mask=True)
         mk = np.asarray(m.resize(im.size), dtype=np.float32)
         alpha = np.maximum(alpha * (mk / 255.0), np.where(mk > 200, alpha, 0))
     except Exception:
