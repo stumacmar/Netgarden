@@ -14,7 +14,9 @@ Usage
   sprites.py fetch   <plant-id> <state> "<File:...>"      -> download + record credit
   sprites.py cutout  <plant-id> <state> [--model u2net]   -> remove background, trim, add to manifest
   sprites.py import  <plant-id> <state> <image-file>      -> use your own photo, then cutout
-  sprites.py generate <plant-id> <state> [--provider openai|replicate] [--quality low|medium|high]
+  sprites.py generate <plant-id> <state> [--provider openai|replicate|local] [--quality low|medium|high]
+      local = a diffusion model on this computer's CPU (pip install torch diffusers transformers accelerate);
+      env LOCAL_MODEL (default stabilityai/sd-turbo), LOCAL_STEPS (4), LOCAL_SIZE (512)
   sprites.py generate-all [--provider openai] [--quality medium] [--limit N] [--only id1,id2]
   sprites.py prompts                                      -> print the generation prompt for every plant/state
   sprites.py list
@@ -154,6 +156,24 @@ def cmd_import(pid, state, path):
     save_manifest(m); print('saved', raw)
 
 
+def key_white(im):
+    """Cut a plant from a plain white studio background: alpha from distance to white, refined by u2net."""
+    import numpy as np
+    from PIL import Image
+    a = np.asarray(im, dtype=np.float32)
+    dist = 255 - a.min(axis=2)                      # how far from pure white the darkest channel is
+    alpha = np.clip((dist - 10) * 4, 0, 255)        # soft key
+    try:
+        from rembg import remove, new_session
+        m = remove(im, session=new_session('u2net'), only_mask=True)
+        mk = np.asarray(m.resize(im.size), dtype=np.float32)
+        alpha = np.maximum(alpha * (mk / 255.0), np.where(mk > 200, alpha, 0))
+    except Exception:
+        pass
+    out = im.convert('RGBA'); out.putalpha(Image.fromarray(alpha.astype('uint8')))
+    return out
+
+
 def remove_rmbg14(im):
     """Background removal with BRIA RMBG-1.4 (ONNX at ~/.u2net/rmbg14.onnx, CC BY-NC 4.0: personal use)."""
     import numpy as np, onnxruntime as ort
@@ -182,6 +202,8 @@ def cmd_cutout(pid, state, model='u2net'):
     im.thumbnail((1600, 1600))
     if im.mode == 'RGBA' and im.getchannel('A').getextrema()[0] < 128:
         out = im  # already has a transparent background (generated or lifted on a phone)
+    elif model == 'white':
+        out = key_white(im.convert('RGB'))
     elif model == 'rmbg14':
         im = im.convert('RGB')
         out = remove_rmbg14(im)
@@ -253,8 +275,15 @@ def cmd_generate(pid, state, provider='openai', quality='medium'):
                                      headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'Prefer': 'wait', 'User-Agent': UA})
         with urllib.request.urlopen(req, timeout=300) as r: d = json.load(r)
         out = d['output']; img = http(out if isinstance(out, str) else out[0], True)
+    elif provider == 'local':
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import localgen
+        os.makedirs(os.path.join(RAW, pid), exist_ok=True)
+        tmp = os.path.join(RAW, pid, f'{state}.local.png')
+        localgen.generate(prompt, tmp, os.environ.get('LOCAL_MODEL', 'stabilityai/sd-turbo'), int(os.environ.get('LOCAL_STEPS', '4')), int(os.environ.get('LOCAL_SIZE', '512')), seed=abs(hash(pid + state)) % 100000)
+        img = open(tmp, 'rb').read(); os.remove(tmp)
     else:
-        sys.exit('provider must be openai or replicate')
+        sys.exit('provider must be openai, replicate or local')
     from PIL import Image
     im = Image.open(io.BytesIO(img))
     for stale in (raw, raw[:-4] + '.png'):
