@@ -228,7 +228,7 @@ def cmd_cutout(pid, state, model='u2net'):
     a = out.getchannel('A').filter(ImageFilter.GaussianBlur(0.6))
     out.putalpha(a)
     bbox = a.point(lambda v: 255 if v > 20 else 0).getbbox()
-    if not bbox: sys.exit('Nothing left after background removal.')
+    if not bbox: raise RuntimeError('Nothing left after background removal.')
     out = out.crop(bbox)
     if out.height > 1200: out = out.resize((round(out.width * 1200 / out.height), 1200), Image.LANCZOS)
     d = os.path.join(SPRITES, pid); os.makedirs(d, exist_ok=True)

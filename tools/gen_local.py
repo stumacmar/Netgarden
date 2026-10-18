@@ -60,7 +60,10 @@ def main():
                 img.save(os.path.join(raw_dir, st + '.png'))
                 m = sprites.load_manifest(); m.setdefault(pid, {})[st] = {'source': 'generated locally (sd-turbo image-to-image from the app drawing)', 'credit': '', 'license': 'generated', 'file': None}
                 sprites.save_manifest(m)
-                sprites.cmd_cutout(pid, st, 'white')
+                try:
+                    sprites.cmd_cutout(pid, st, 'white')
+                except Exception as ce:
+                    print(f'  attempt {attempt + 1}: cutout failed: {ce}', flush=True); continue
                 e = sprites.load_manifest()[pid][st]
                 ok = init_bbox is None or (e.get('h', 0) >= (init_bbox[3] - init_bbox[1]) * 0.6 and e.get('w', 0) >= (init_bbox[2] - init_bbox[0]) * 0.5)
                 if ok: break
