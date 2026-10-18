@@ -125,7 +125,14 @@ without a photo borrows the nearest one; a missing `bare` state draws the
 winter branch structure instead. Plants with no photos at all fall back to the
 drawn style.
 
-There are three ways to get photos in:
+The bundled library was made on an ordinary CPU with no API key:
+`tools/render_inits.js` draws every plant with the app's own renderer, and
+`tools/gen_local.py` refines each drawing with a small local image-to-image
+diffusion model (sd-turbo), which keeps the whole-plant composition and
+adds photographic texture, then keys out the white background. About 25
+seconds an image. Re-run it after adding plants to the library.
+
+There are three other ways to get photos in:
 
 1. **Your own photos, in the app.** Photograph a plant at a garden centre
    against something plain. Lift the subject so the background is transparent

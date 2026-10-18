@@ -447,8 +447,9 @@
     const shown = list.slice(0, 200);
     $('plantList').innerHTML = shown.map(p => {
       const issues = suitsIssues(p).filter(i => i.level !== 'note');
+      const sp = (window.SPRITE_MANIFEST || {})[p.id] || {}, spFile = (sp.flower && sp.flower.file) || (sp.leaf && sp.leaf.file) || (sp.fruit && sp.fruit.file);
       return `<div class="card ${state.libSel === p.id ? 'active' : ''}" data-id="${p.id}" title="${p.notes || ''}">
-        <canvas data-thumb="${p.id}" width="150" height="90"></canvas>
+        ${spFile ? `<img class="th" src="${spFile}" alt="" loading="lazy">` : `<canvas data-thumb="${p.id}" width="150" height="90"></canvas>`}
         <div class="nm">${p.name}</div><div class="lt">${p.latin}</div>
         <div class="meta">${p.h} × ${p.s} m · ${p.sun} sun${p.ev ? ' · evergreen' : ''}${p.flower ? ' · flowers ' + monthsText(p.flower.m) : ''}${p.fruit ? ' · fruit ' + monthsText(p.fruit.m) : ''}</div>
         ${issues.length ? `<div class="flag">⚠ ${issues[0].text.split(';')[0]}</div>` : ''}</div>`;

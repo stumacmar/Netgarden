@@ -83,7 +83,7 @@ details summary { cursor: pointer; color: var(--muted); font-size: 13px; margin:
 .card .lt { font-style: italic; color: var(--muted); font-size: 12px; }
 .card .meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .list.grid .card { display: flex; flex-direction: column; gap: 4px; padding: 6px; }
-.list.grid .card canvas { width: 100%; height: 90px; display: block; background: linear-gradient(#dfe8f4, #e9eadb 70%, #cfd8b8); border-radius: 6px; }
+.list.grid .card canvas, .list.grid .card img.th { width: 100%; height: 90px; display: block; background: linear-gradient(#dfe8f4, #e9eadb 70%, #cfd8b8); border-radius: 6px; object-fit: contain; }
 .list.grid .card .nm { font-size: 13px; line-height: 1.2; }
 .list.grid .card .flag { font-size: 11px; color: #a33a2a; }
 .list.compact .card { padding: 6px 8px; grid-template-columns: 22px 1fr auto; align-items: center; }
