@@ -43,6 +43,8 @@ and open http://localhost:8000/.
    a plan view, a shopping list, export and the realistic render.
 
 Undo and Redo are always in the top bar (also Ctrl+Z and Ctrl+Shift+Z).
+Zoom with the buttons, the mouse wheel or a pinch, and drag the photo to
+pan, to place small plants precisely. Plants cannot leave the photo.
 The coloured bands under the time slider show when each of your plants is
 in flower; the gaps are the quiet months.
 
@@ -167,8 +169,13 @@ Background removal needs `pip install rembg onnxruntime pillow numpy`.
 - `js/phenology.js` derives a visual state for any point in the year and
   interpolates between months so the slider moves smoothly.
 - `js/render.js` draws photo sprites when a plant has them (crossfading
-  between seasonal states) and otherwise draws the plant procedurally from
-  its parameters.
+  between seasonal states). Otherwise it draws the plant from individual
+  leaves and flowers: every species has a leaf shape (oval, lanceolate,
+  lobed, pinnate, needle, strap, frond, round, palm) and a flower form
+  (daisy, spike, umbel, ball, bell, rose, cup, trumpet, blossom, raceme,
+  catkin, plume), inferred from its botanical name or set explicitly with
+  `leafShape` and `flowerForm` in the library.
+- `js/compose.js` caches each rendered plant so the slider stays smooth.
 - `tools/sprites.py` builds the photo library: Commons search and fetch,
   background removal, image generation, and the manifest.
 
