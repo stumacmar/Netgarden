@@ -4364,10 +4364,26 @@
   }
  },
  "lonicera-winter-beauty": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/lonicera-winter-beauty/bare.png",
+   "h": 441,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/lonicera-winter-beauty/flower.png",
    "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/lonicera-winter-beauty/leaf.png",
+   "h": 492,
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 512
@@ -4513,6 +4529,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 504
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/mahonia-aquifolium/fruit.png",
+   "h": 343,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 503
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/mahonia-aquifolium/leaf.png",
+   "h": 343,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 495
   }
  },
  "mahonia-charity": {
@@ -4523,6 +4555,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 369
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/mahonia-charity/fruit.png",
+   "h": 508,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 374
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/mahonia-charity/leaf.png",
+   "h": 467,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 351
   }
  },
  "marigold-french": {
@@ -4672,6 +4720,14 @@
   }
  },
  "nandina": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/nandina/autumn.png",
+   "h": 472,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 498
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/nandina/flower.png",
@@ -4679,6 +4735,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 428
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/nandina/fruit.png",
+   "h": 492,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 391
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/nandina/leaf.png",
+   "h": 474,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 509
   }
  },
  "narcissus-actaea": {
@@ -4839,6 +4911,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 496
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/osmanthus-burkwoodii/leaf.png",
+   "h": 475,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 502
   }
  },
  "pachysandra": {
@@ -5046,6 +5126,14 @@
   }
  },
  "perovskia": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/perovskia/bare.png",
+   "h": 461,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/perovskia/flower.png",
@@ -5053,6 +5141,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 389
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/perovskia/leaf.png",
+   "h": 503,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 398
   }
  },
  "persicaria-firetail": {
@@ -5076,6 +5172,22 @@
   }
  },
  "philadelphus": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/philadelphus/autumn.png",
+   "h": 499,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/philadelphus/bare.png",
+   "h": 444,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/philadelphus/flower.png",
@@ -5083,6 +5195,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 391
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/philadelphus/leaf.png",
+   "h": 474,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 506
   }
  },
  "phlomis": {
@@ -5090,6 +5210,14 @@
    "credit": "",
    "file": "assets/sprites/phlomis/flower.png",
    "h": 477,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/phlomis/leaf.png",
+   "h": 483,
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 512
@@ -5123,9 +5251,33 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 499
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/photinia-red-robin/leaf.png",
+   "h": 500,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
   }
  },
  "physocarpus-diabolo": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/physocarpus-diabolo/autumn.png",
+   "h": 485,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 495
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/physocarpus-diabolo/bare.png",
+   "h": 420,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/physocarpus-diabolo/flower.png",
@@ -5133,6 +5285,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 491
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/physocarpus-diabolo/leaf.png",
+   "h": 481,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 507
   }
  },
  "pieris-forest-flame": {
@@ -5143,6 +5303,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 400
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/pieris-forest-flame/leaf.png",
+   "h": 499,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 423
   }
  },
  "pine-mugo": {
@@ -5297,6 +5465,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 512
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/portuguese-laurel/leaf.png",
+   "h": 508,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 471
   }
  },
  "potato": {
@@ -5310,6 +5486,14 @@
   }
  },
  "potentilla": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/potentilla/bare.png",
+   "h": 428,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/potentilla/flower.png",
@@ -5317,6 +5501,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 512
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/potentilla/leaf.png",
+   "h": 475,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 501
   }
  },
  "primrose": {
@@ -5337,6 +5529,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 512
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/privet/leaf.png",
+   "h": 496,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 496
   }
  },
  "prunus-amanogawa": {
@@ -5504,6 +5704,30 @@
   }
  },
  "raspberry-autumn": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/raspberry-autumn/autumn.png",
+   "h": 503,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/raspberry-autumn/bare.png",
+   "h": 435,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 511
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/raspberry-autumn/fruit.png",
+   "h": 460,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/raspberry-autumn/leaf.png",
@@ -5514,6 +5738,30 @@
   }
  },
  "raspberry-glen-ample": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/raspberry-glen-ample/autumn.png",
+   "h": 496,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 506
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/raspberry-glen-ample/bare.png",
+   "h": 452,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/raspberry-glen-ample/fruit.png",
+   "h": 475,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 440
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/raspberry-glen-ample/leaf.png",
@@ -5524,6 +5772,30 @@
   }
  },
  "redcurrant": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/redcurrant/autumn.png",
+   "h": 509,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 471
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/redcurrant/bare.png",
+   "h": 463,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/redcurrant/fruit.png",
+   "h": 480,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 461
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/redcurrant/leaf.png",
@@ -5544,6 +5816,22 @@
   }
  },
  "rhododendron-luteum": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/rhododendron-luteum/autumn.png",
+   "h": 475,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 498
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/rhododendron-luteum/bare.png",
+   "h": 433,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/rhododendron-luteum/flower.png",
@@ -5551,6 +5839,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 497
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/rhododendron-luteum/leaf.png",
+   "h": 469,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 494
   }
  },
  "rhododendron-yak": {
@@ -5561,6 +5857,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 493
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/rhododendron-yak/leaf.png",
+   "h": 416,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 497
   }
  },
  "rhubarb": {
@@ -5574,6 +5878,22 @@
   }
  },
  "ribes": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/ribes/autumn.png",
+   "h": 494,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 482
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/ribes/bare.png",
+   "h": 441,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/ribes/flower.png",
