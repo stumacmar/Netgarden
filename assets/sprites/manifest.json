@@ -284,9 +284,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "allium-globemaster": {
@@ -300,9 +301,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "allium-ps": {
@@ -316,9 +318,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "allium-sphaerocephalon": {
@@ -754,15 +757,17 @@
   },
   "fruit": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "asparagus": {
@@ -1464,9 +1469,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "camellia": {
@@ -2014,9 +2020,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "chives": {
@@ -2354,9 +2361,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "convallaria": {
@@ -2885,9 +2893,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "crocus-jeanne-darc": {
@@ -2901,9 +2910,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "crocus-tommasinianus": {
@@ -2917,9 +2927,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "cucumber": {
@@ -2967,9 +2978,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "cyclamen-hederifolium": {
@@ -2983,9 +2995,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "daffodil-tete": {
@@ -2999,9 +3012,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "dahlia-bishop": {
@@ -3369,9 +3383,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "erigeron": {
@@ -3439,9 +3454,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "escallonia": {
@@ -3723,9 +3739,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "forsythia": {
@@ -3809,9 +3826,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "fritillaria-meleagris": {
@@ -3825,9 +3843,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "fuchsia-magellanica": {
@@ -4063,9 +4082,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "globe-artichoke": {
@@ -4745,9 +4765,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "hydrangea-annabelle": {
@@ -5039,9 +5060,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "iris-sibirica": {
@@ -5431,9 +5453,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "leucothoe": {
@@ -6097,9 +6120,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "nandina": {
@@ -6147,9 +6171,11 @@
   },
   "leaf": {
    "credit": "",
-   "file": null,
+   "file": "assets/sprites/narcissus-actaea/leaf.png",
+   "h": 18,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 25
   }
  },
  "narcissus-jetfire": {
@@ -6163,9 +6189,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "narcissus-thalia": {
@@ -6179,9 +6206,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "nasturtium": {
@@ -6213,9 +6241,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "nepeta": {
@@ -6265,9 +6294,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "nicotiana": {
@@ -6445,9 +6475,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "papaver": {
@@ -6759,9 +6790,11 @@
   },
   "leaf": {
    "credit": "",
-   "file": null,
+   "file": "assets/sprites/petunia/leaf.png",
+   "h": 23,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 190
   }
  },
  "philadelphus": {
@@ -8391,9 +8424,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "sedum": {
@@ -8513,9 +8547,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "solanum-glasnevin": {
@@ -8833,9 +8868,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "sweetcorn": {
@@ -8977,9 +9013,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "tulip-purissima": {
@@ -9011,9 +9048,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "tulip-sprengeri": {
@@ -9045,9 +9083,10 @@
   },
   "leaf": {
    "credit": "",
+   "failed": true,
    "file": null,
    "license": "generated",
-   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
+   "source": "generated locally: no usable image"
   }
  },
  "verbascum": {
