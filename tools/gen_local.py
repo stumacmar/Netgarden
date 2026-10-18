@@ -42,22 +42,29 @@ def main():
     print(f'{len(todo)} images to make', flush=True)
     import torch
     from diffusers import AutoPipelineForImage2Image
-    pipe = AutoPipelineForImage2Image.from_pretrained('stabilityai/sd-turbo', torch_dtype=torch.float32, variant='fp16').to('cpu')
-    pipe.set_progress_bar_config(disable=True)
+    dtype = torch.float32 if os.environ.get('LOCAL_FP32') else torch.bfloat16   # bf16: 3x faster and half the memory on CPU
+    pipe = AutoPipelineForImage2Image.from_pretrained('stabilityai/sd-turbo', torch_dtype=dtype, variant='fp16').to('cpu')
+    pipe.set_progress_bar_config(disable=True); pipe.enable_attention_slicing()
     done = 0; t_start = time.time()
     for i, (pid, st) in enumerate(todo):
         p = plants[pid]; t0 = time.time()
         try:
             init = Image.open(os.path.join(init_dir, pid, st + '.png')).convert('RGB').resize((size, size))
-            g = torch.Generator('cpu').manual_seed(abs(hash(pid + st)) % 100000)
-            img = pipe(prompt=prompt_for(p, st), image=init, strength=strength, num_inference_steps=max(2, round(4 / strength)), guidance_scale=0.0, generator=g).images[0]
+            init_bbox = Image.eval(init.convert('L'), lambda v: 255 if v < 245 else 0).getbbox()
             raw_dir = os.path.join(sprites.RAW, pid); os.makedirs(raw_dir, exist_ok=True)
-            for stale in (os.path.join(raw_dir, st + '.jpg'), os.path.join(raw_dir, st + '.png')):
-                if os.path.exists(stale): os.remove(stale)
-            img.save(os.path.join(raw_dir, st + '.png'))
-            m = sprites.load_manifest(); m.setdefault(pid, {})[st] = {'source': 'generated locally (sd-turbo image-to-image from the app drawing)', 'credit': '', 'license': 'generated', 'file': None}
-            sprites.save_manifest(m)
-            sprites.cmd_cutout(pid, st, 'white')
+            for attempt in range(3):
+                g = torch.Generator('cpu').manual_seed((abs(hash(pid + st)) + attempt * 7919) % 100000)
+                img = pipe(prompt=prompt_for(p, st), image=init, strength=strength, num_inference_steps=max(2, round(4 / strength)), guidance_scale=0.0, generator=g).images[0]
+                for stale in (os.path.join(raw_dir, st + '.jpg'), os.path.join(raw_dir, st + '.png')):
+                    if os.path.exists(stale): os.remove(stale)
+                img.save(os.path.join(raw_dir, st + '.png'))
+                m = sprites.load_manifest(); m.setdefault(pid, {})[st] = {'source': 'generated locally (sd-turbo image-to-image from the app drawing)', 'credit': '', 'license': 'generated', 'file': None}
+                sprites.save_manifest(m)
+                sprites.cmd_cutout(pid, st, 'white')
+                e = sprites.load_manifest()[pid][st]
+                ok = init_bbox is None or (e.get('h', 0) >= (init_bbox[3] - init_bbox[1]) * 0.6 and e.get('w', 0) >= (init_bbox[2] - init_bbox[0]) * 0.5)
+                if ok: break
+                print(f'  retry {attempt + 1}: cutout {e.get("w")}x{e.get("h")} much smaller than the drawing', flush=True)
             done += 1
             print(f'[{i + 1}/{len(todo)}] {pid} {st} {time.time() - t0:.0f}s', flush=True)
         except Exception as e:

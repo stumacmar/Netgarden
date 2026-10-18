@@ -163,6 +163,8 @@ def key_white(im):
     a = np.asarray(im, dtype=np.float32)
     dist = 255 - a.min(axis=2)                      # how far from pure white the darkest channel is
     alpha = np.clip((dist - 10) * 4, 0, 255)        # soft key
+    if not os.environ.get('KEY_WITH_U2NET'): 
+        out = im.convert('RGBA'); out.putalpha(Image.fromarray(alpha.astype('uint8'))); return out
     try:
         from rembg import remove, new_session
         global _U2NET
