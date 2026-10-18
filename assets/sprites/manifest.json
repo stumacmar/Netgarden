@@ -7,6 +7,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 511
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/abelia/leaf.png",
+   "h": 474,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 506
   }
  },
  "acanthus": {
@@ -656,6 +664,14 @@
   }
  },
  "aucuba": {
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/aucuba/fruit.png",
+   "h": 465,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 500
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/aucuba/leaf.png",
@@ -673,6 +689,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 504
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/azalea-johanna/leaf.png",
+   "h": 414,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 508
   }
  },
  "basil": {
@@ -696,6 +720,22 @@
   }
  },
  "beech-hedge": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/beech-hedge/autumn.png",
+   "h": 512,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 329
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/beech-hedge/bare.png",
+   "h": 468,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/beech-hedge/leaf.png",
@@ -723,9 +763,33 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 494
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/berberis-darwinii/fruit.png",
+   "h": 472,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 494
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/berberis-darwinii/leaf.png",
+   "h": 484,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 506
   }
  },
  "berberis-nana": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/berberis-nana/autumn.png",
+   "h": 379,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 506
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/berberis-nana/flower.png",
@@ -4160,6 +4224,14 @@
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 465
   },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/plum-opal/bare.png",
+   "h": 424,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 361
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/plum-opal/flower.png",
@@ -4167,9 +4239,41 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 466
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/plum-opal/fruit.png",
+   "h": 439,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 451
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/plum-opal/leaf.png",
+   "h": 437,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 457
   }
  },
  "plum-victoria": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/plum-victoria/autumn.png",
+   "h": 439,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 442
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/plum-victoria/bare.png",
+   "h": 416,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 375
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/plum-victoria/flower.png",
@@ -4177,6 +4281,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 457
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/plum-victoria/fruit.png",
+   "h": 431,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 433
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/plum-victoria/leaf.png",
+   "h": 441,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 442
   }
  },
  "polemonium": {
@@ -4260,6 +4380,22 @@
   }
  },
  "prunus-amanogawa": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/prunus-amanogawa/autumn.png",
+   "h": 426,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 309
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/prunus-amanogawa/bare.png",
+   "h": 370,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 338
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/prunus-amanogawa/flower.png",
@@ -4267,9 +4403,33 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 411
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/prunus-amanogawa/leaf.png",
+   "h": 376,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 206
   }
  },
  "prunus-kanzan": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/prunus-kanzan/autumn.png",
+   "h": 443,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 435
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/prunus-kanzan/bare.png",
+   "h": 415,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 348
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/prunus-kanzan/flower.png",
@@ -4277,9 +4437,33 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 452
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/prunus-kanzan/leaf.png",
+   "h": 430,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 445
   }
  },
  "prunus-serrula": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/prunus-serrula/autumn.png",
+   "h": 454,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 370
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/prunus-serrula/bare.png",
+   "h": 415,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 358
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/prunus-serrula/flower.png",
@@ -4287,6 +4471,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 372
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/prunus-serrula/leaf.png",
+   "h": 450,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 417
   }
  },
  "pulmonaria": {
@@ -4310,6 +4502,22 @@
   }
  },
  "quince": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/quince/autumn.png",
+   "h": 435,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 430
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/quince/bare.png",
+   "h": 402,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 331
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/quince/flower.png",
@@ -4317,6 +4525,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 448
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/quince/fruit.png",
+   "h": 438,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 476
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/quince/leaf.png",
+   "h": 435,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 454
   }
  },
  "raspberry-autumn": {
@@ -4400,6 +4624,22 @@
   }
  },
  "robinia-frisia": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/robinia-frisia/autumn.png",
+   "h": 437,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 338
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/robinia-frisia/bare.png",
+   "h": 409,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 340
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/robinia-frisia/leaf.png",
@@ -4570,6 +4810,22 @@
   }
  },
  "rowan": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/rowan/autumn.png",
+   "h": 429,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 344
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/rowan/bare.png",
+   "h": 410,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 329
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/rowan/flower.png",
@@ -4577,6 +4833,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 352
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/rowan/fruit.png",
+   "h": 462,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 419
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/rowan/leaf.png",
+   "h": 427,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 341
   }
  },
  "rudbeckia": {
@@ -4740,13 +5012,21 @@
   }
  },
  "silver-birch": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/silver-birch/autumn.png",
+   "h": 435,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 300
+  },
   "bare": {
-   "credit": "Roman Eisele",
+   "credit": "",
    "file": "assets/sprites/silver-birch/bare.png",
-   "h": 1200,
-   "license": "CC BY-SA 4.0",
-   "source": "https://commons.wikimedia.org/wiki/File%3AIlsfeld_-_Schozach_-_Schozacher_H%C3%B6he_-_Birke_vor_Sonnenuntergangs-Himmel_%281%29.jpg",
-   "w": 944
+   "h": 444,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 343
   },
   "leaf": {
    "credit": "",
@@ -4788,6 +5068,22 @@
   }
  },
  "sorbus-joseph-rock": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/sorbus-joseph-rock/autumn.png",
+   "h": 440,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 301
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/sorbus-joseph-rock/bare.png",
+   "h": 401,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 349
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/sorbus-joseph-rock/flower.png",
@@ -4795,6 +5091,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 298
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/sorbus-joseph-rock/fruit.png",
+   "h": 453,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 289
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/sorbus-joseph-rock/leaf.png",
+   "h": 432,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 301
   }
  },
  "spiraea-arguta": {
