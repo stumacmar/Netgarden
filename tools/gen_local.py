@@ -68,6 +68,10 @@ def main():
                 ok = init_bbox is None or (e.get('h', 0) >= (init_bbox[3] - init_bbox[1]) * 0.6 and e.get('w', 0) >= (init_bbox[2] - init_bbox[0]) * 0.5)
                 if ok: break
                 print(f'  retry {attempt + 1}: cutout {e.get("w")}x{e.get("h")} much smaller than the drawing', flush=True)
+            else:
+                # three attempts produced nothing usable: record it so the run does not loop on it; the app draws the plant instead
+                m = sprites.load_manifest(); m.setdefault(pid, {})[st] = {'source': 'generated locally: no usable image', 'credit': '', 'license': 'generated', 'file': None, 'failed': True}
+                sprites.save_manifest(m); print(f'  giving up on {pid} {st}', flush=True)
             done += 1
             print(f'[{i + 1}/{len(todo)}] {pid} {st} {time.time() - t0:.0f}s', flush=True)
         except Exception as e:

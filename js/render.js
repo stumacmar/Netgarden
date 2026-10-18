@@ -304,11 +304,19 @@
     const w = Math.max(3, p.s * ppm * sizeF), h = Math.max(3, p.h * ppm * sizeF), rnd = mulberry32(seed);
     ctx.save(); shadowsOff = !!opts.noShadow; if (opts.alpha != null) ctx.globalAlpha = opts.alpha;
     if (hasSprites(p) && opts.t != null) {
-      const blend = global.Phenology.spriteBlend(p, opts.t), a = resolveSprite(p, blend[0].state), b = resolveSprite(p, blend[1].state);
-      const bareA = blend[0].state === 'bare' && !a, bareB = blend[1].state === 'bare' && !b;
-      if ((a || bareA) && (b || bareB)) {
+      const blend = global.Phenology.spriteBlend(p, opts.t);
+      /* a flowering or fruiting photo must not stand in for a leaf-only month: draw those months instead */
+      const usable = (want, got) => got && !((want === 'leaf' || want === 'spring' || want === 'autumn' || want === 'bare') && (got.state === 'flower' || got.state === 'fruit'));
+      let a = resolveSprite(p, blend[0].state), b = resolveSprite(p, blend[1].state);
+      if (!usable(blend[0].state, a)) a = null; if (!usable(blend[1].state, b)) b = null;
+      if (a || b) {
         shadow(ctx, x, y, (a || b) ? h * ((a || b).im.naturalWidth / (a || b).im.naturalHeight) : w);
-        if (bareA || bareB) { ctx.save(); ctx.globalAlpha *= bareA ? blend[0].w : blend[1].w; const bareSt = Object.assign({}, st, { leaf: 0, flower: 0, fruit: 0 }); if (p.type === 'tree') drawTree(ctx, p, bareSt, x, y, w, h, rnd); else if (p.type === 'shrub') drawShrub(ctx, p, bareSt, x, y, w, h, rnd); else if (p.type === 'climber') drawClimber(ctx, p, bareSt, x, y, w, h, rnd); ctx.restore(); }
+        const drawn = (wgt) => { /* the non-photo part of the blend, drawn from the plant's own description at that moment */
+          ctx.save(); ctx.globalAlpha *= wgt; const drawSt = Object.assign({}, st, { flower: 0, fruit: 0 });
+          const f = { tree: drawTree, shrub: drawShrub, climber: drawClimber, perennial: drawPerennial, grass: drawGrass }[p.type];
+          if (f) f(ctx, p, drawSt, x, y, w, h, rnd); else drawBulb(ctx, p, drawSt, x, y, w, h, rnd, ppm); ctx.restore();
+        };
+        if (!a) drawn(blend[0].w); if (!b) drawn(blend[1].w);
         if (a && b && a.im === b.im) drawSprite(ctx, a.im, x, y, h, 1); else { if (a) drawSprite(ctx, a.im, x, y, h, blend[0].w); if (b) drawSprite(ctx, b.im, x, y, h, blend[1].w); }
         ctx.restore(); shadowsOff = false; return { w, h };
       }
