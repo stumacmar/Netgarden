@@ -5423,6 +5423,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 390
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "leucothoe": {
@@ -5539,6 +5545,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 238
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/lilium-casa-blanca/leaf.png",
+   "h": 340,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 361
   }
  },
  "lilium-martagon": {
@@ -5549,6 +5563,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 246
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/lilium-martagon/leaf.png",
+   "h": 239,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 316
   }
  },
  "lily-regale": {
@@ -5559,6 +5581,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 238
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/lily-regale/leaf.png",
+   "h": 316,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 360
   }
  },
  "liquidambar": {
@@ -6059,6 +6089,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 361
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "nandina": {
@@ -6103,6 +6139,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 424
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "narcissus-jetfire": {
@@ -6113,6 +6155,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 333
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "narcissus-thalia": {
@@ -6123,6 +6171,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 299
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "nasturtium": {
@@ -6151,6 +6205,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 231
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "nepeta": {
@@ -6197,6 +6257,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 350
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "nicotiana": {
@@ -8315,6 +8381,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 304
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "sedum": {
@@ -8431,6 +8503,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 321
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "solanum-glasnevin": {
@@ -8889,6 +8967,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 421
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "tulip-purissima": {
@@ -8899,6 +8983,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 483
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/tulip-purissima/leaf.png",
+   "h": 54,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 23
   }
  },
  "tulip-qon": {
@@ -8909,6 +9001,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 348
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "tulip-sprengeri": {
@@ -8919,6 +9017,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 310
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/tulip-sprengeri/leaf.png",
+   "h": 234,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 425
   }
  },
  "tulip-spring-green": {
@@ -8929,6 +9035,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 416
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "verbascum": {
