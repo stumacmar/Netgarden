@@ -739,6 +739,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 272
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/aster-little-carlow/leaf.png",
+   "h": 246,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 271
   }
  },
  "aster-monch": {
@@ -749,6 +757,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 272
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/aster-monch/leaf.png",
+   "h": 249,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 274
   }
  },
  "astilbe": {
@@ -759,6 +775,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 401
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/astilbe/leaf.png",
+   "h": 255,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 399
   }
  },
  "astrantia-roma": {
@@ -769,6 +793,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 411
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/astrantia-roma/leaf.png",
+   "h": 253,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 402
   }
  },
  "athyrium": {
@@ -959,6 +991,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 479
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/bergenia/leaf.png",
+   "h": 224,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 470
   }
  },
  "birch-jacquemontii": {
@@ -1159,6 +1199,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 182
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/broad-bean/fruit.png",
+   "h": 239,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 166
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/broad-bean/leaf.png",
+   "h": 238,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 160
   }
  },
  "brunnera": {
@@ -1169,6 +1225,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 482
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/brunnera/leaf.png",
+   "h": 219,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 481
   }
  },
  "buddleja": {
@@ -1239,6 +1303,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 360
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "calamagrostis-kf": {
