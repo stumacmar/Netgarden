@@ -1693,9 +1693,41 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 404
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/crab-golden-hornet/fruit.png",
+   "h": 430,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 408
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/crab-golden-hornet/leaf.png",
+   "h": 458,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 464
   }
  },
  "crab-john-downie": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/crab-john-downie/autumn.png",
+   "h": 461,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 357
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/crab-john-downie/bare.png",
+   "h": 405,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 373
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/crab-john-downie/flower.png",
@@ -1703,6 +1735,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 353
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/crab-john-downie/fruit.png",
+   "h": 425,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 349
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/crab-john-downie/leaf.png",
+   "h": 438,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 362
   }
  },
  "crocosmia-lucifer": {
@@ -1816,6 +1864,22 @@
   }
  },
  "damson": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/damson/autumn.png",
+   "h": 434,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 460
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/damson/bare.png",
+   "h": 405,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 340
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/damson/flower.png",
@@ -1823,6 +1887,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 434
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/damson/fruit.png",
+   "h": 433,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 435
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/damson/leaf.png",
+   "h": 434,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 440
   }
  },
  "daphne-eternal": {
@@ -2136,6 +2216,30 @@
   }
  },
  "fig-brown-turkey": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/fig-brown-turkey/autumn.png",
+   "h": 461,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 485
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/fig-brown-turkey/bare.png",
+   "h": 413,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 340
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/fig-brown-turkey/fruit.png",
+   "h": 428,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 439
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/fig-brown-turkey/leaf.png",
@@ -2306,6 +2410,22 @@
   }
  },
  "ginkgo": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/ginkgo/autumn.png",
+   "h": 428,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 292
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/ginkgo/bare.png",
+   "h": 415,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 370
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/ginkgo/leaf.png",
@@ -2396,6 +2516,22 @@
   }
  },
  "hawthorn": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/hawthorn/autumn.png",
+   "h": 432,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 412
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/hawthorn/bare.png",
+   "h": 413,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 377
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/hawthorn/flower.png",
@@ -2403,6 +2539,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 400
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/hawthorn/fruit.png",
+   "h": 444,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 418
   }
  },
  "hawthorn-pauls-scarlet": {
