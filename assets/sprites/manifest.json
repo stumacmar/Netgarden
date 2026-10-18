@@ -1329,6 +1329,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 351
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/calendula/leaf.png",
+   "h": 167,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 332
   }
  },
  "callicarpa": {
@@ -1445,6 +1453,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 375
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/campanula-lactiflora/leaf.png",
+   "h": 257,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 263
   }
  },
  "campanula-persicifolia": {
@@ -1455,6 +1471,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 203
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/campanula-persicifolia/leaf.png",
+   "h": 258,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 206
   }
  },
  "campsis": {
@@ -1491,6 +1515,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 282
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cardoon/leaf.png",
+   "h": 256,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 289
   }
  },
  "carex-evergold": {
@@ -1601,6 +1633,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 369
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/centranthus/leaf.png",
+   "h": 455,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 384
   }
  },
  "ceratostigma": {
@@ -1903,6 +1943,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 348
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/chives/leaf.png",
+   "h": 215,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 338
   }
  },
  "choisya": {
@@ -1946,6 +1994,14 @@
    "credit": "",
    "file": "assets/sprites/cirsium/flower.png",
    "h": 446,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 256
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cirsium/leaf.png",
+   "h": 252,
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 256
@@ -2193,6 +2249,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 236
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cleome/leaf.png",
+   "h": 176,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 207
   }
  },
  "colchicum": {
@@ -2233,6 +2297,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 483
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/coreopsis/leaf.png",
+   "h": 257,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 476
   }
  },
  "coriander": {
@@ -2243,6 +2315,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 290
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/coriander/leaf.png",
+   "h": 254,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 295
   }
  },
  "cornflower": {
@@ -2253,6 +2333,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 294
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cornflower/leaf.png",
+   "h": 247,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 213
   }
  },
  "cornus-controversa": {
@@ -2407,6 +2495,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 249
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cosmos/leaf.png",
+   "h": 181,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 247
   }
  },
  "cotinus": {
@@ -2519,6 +2615,20 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 463
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/courgette/fruit.png",
+   "h": 313,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 467
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "crab-evereste": {
@@ -2655,6 +2765,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 223
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/crocosmia-lucifer/leaf.png",
+   "h": 281,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 243
   }
  },
  "crocus": {
@@ -2759,6 +2877,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 254
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/dahlia-bishop/leaf.png",
+   "h": 162,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 234
   }
  },
  "dahlia-cafe-au-lait": {
@@ -2867,6 +2993,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 208
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/delphinium/leaf.png",
+   "h": 251,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 213
   }
  },
  "deschampsia": {
@@ -2913,6 +3047,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 349
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/dianthus-doris/leaf.png",
+   "h": 205,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 352
   }
  },
  "dicentra": {
@@ -2923,6 +3065,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 383
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/dicentra/leaf.png",
+   "h": 249,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 373
   }
  },
  "dill": {
@@ -2933,6 +3083,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 175
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/dill/leaf.png",
+   "h": 243,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 184
   }
  },
  "echinacea": {
@@ -2943,6 +3101,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 266
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/echinacea/leaf.png",
+   "h": 246,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 284
   }
  },
  "echinops": {
@@ -2953,6 +3119,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 276
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/echinops/leaf.png",
+   "h": 255,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 255
   }
  },
  "elaeagnus-ebbingei": {
@@ -3015,6 +3189,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 483
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/epimedium/leaf.png",
+   "h": 176,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 468
   }
  },
  "eranthis": {
@@ -3035,6 +3217,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 490
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/erigeron/leaf.png",
+   "h": 262,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 459
   }
  },
  "eryngium": {
@@ -3045,6 +3235,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 279
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/eryngium/leaf.png",
+   "h": 264,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 330
   }
  },
  "erysimum": {
@@ -3055,6 +3253,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 364
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/erysimum/leaf.png",
+   "h": 471,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 384
   }
  },
  "erythronium": {
@@ -3157,6 +3363,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 269
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/eupatorium/leaf.png",
+   "h": 248,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 254
   }
  },
  "euphorbia-robbiae": {
@@ -3167,6 +3381,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 462
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/euphorbia-robbiae/leaf.png",
+   "h": 190,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 475
   }
  },
  "euphorbia-wulfenii": {
@@ -3177,6 +3399,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 471
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/euphorbia-wulfenii/leaf.png",
+   "h": 274,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 475
   }
  },
  "exochorda": {
@@ -3231,6 +3461,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 189
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/fennel-bronze/leaf.png",
+   "h": 238,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 173
   }
  },
  "fern-dryopteris": {
@@ -3295,6 +3533,12 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 304
+  },
+  "leaf": {
+   "credit": "",
+   "file": null,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)"
   }
  },
  "forsythia": {
@@ -3339,6 +3583,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 205
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/foxglove/leaf.png",
+   "h": 247,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 186
   }
  },
  "foxglove-apricot": {
@@ -3349,6 +3601,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 187
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/foxglove-apricot/leaf.png",
+   "h": 256,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 177
   }
  },
  "fritillaria-imperialis": {
@@ -3467,6 +3727,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 317
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/gaura/leaf.png",
+   "h": 258,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 289
   }
  },
  "geranium-johnsons-blue": {
@@ -3477,6 +3745,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 475
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/geranium-johnsons-blue/leaf.png",
+   "h": 220,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 474
   }
  },
  "geranium-macrorrhizum": {
@@ -3484,6 +3760,14 @@
    "credit": "",
    "file": "assets/sprites/geranium-macrorrhizum/flower.png",
    "h": 266,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 453
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/geranium-macrorrhizum/leaf.png",
+   "h": 159,
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 453
@@ -3497,6 +3781,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 333
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/geranium-phaeum/leaf.png",
+   "h": 254,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 331
   }
  },
  "geranium-rozanne": {
@@ -3507,6 +3799,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 452
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/geranium-rozanne/leaf.png",
+   "h": 186,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 465
   }
  },
  "geum": {
@@ -3517,6 +3817,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 350
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/geum/leaf.png",
+   "h": 427,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 331
   }
  },
  "ginkgo": {
