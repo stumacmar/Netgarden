@@ -1167,9 +1167,33 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 451
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cherry-morello/leaf.png",
+   "h": 433,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 457
   }
  },
  "cherry-stella": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/cherry-stella/autumn.png",
+   "h": 433,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 411
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/cherry-stella/bare.png",
+   "h": 420,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 362
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/cherry-stella/flower.png",
@@ -1177,9 +1201,41 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 409
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/cherry-stella/fruit.png",
+   "h": 471,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 436
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cherry-stella/leaf.png",
+   "h": 432,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 397
   }
  },
  "cherry-sunburst": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/cherry-sunburst/autumn.png",
+   "h": 443,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 446
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/cherry-sunburst/bare.png",
+   "h": 409,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 345
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/cherry-sunburst/flower.png",
@@ -1187,6 +1243,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 473
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/cherry-sunburst/fruit.png",
+   "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 458
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cherry-sunburst/leaf.png",
+   "h": 432,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 430
   }
  },
  "chimonanthus": {
@@ -1410,6 +1482,22 @@
   }
  },
  "cornus-controversa": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/cornus-controversa/autumn.png",
+   "h": 434,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 437
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/cornus-controversa/bare.png",
+   "h": 402,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 354
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/cornus-controversa/flower.png",
@@ -1417,9 +1505,33 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 466
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cornus-controversa/leaf.png",
+   "h": 437,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 455
   }
  },
  "cornus-kousa": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/cornus-kousa/autumn.png",
+   "h": 430,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 359
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/cornus-kousa/bare.png",
+   "h": 411,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 356
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/cornus-kousa/flower.png",
@@ -1427,6 +1539,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 347
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/cornus-kousa/fruit.png",
+   "h": 431,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 361
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cornus-kousa/leaf.png",
+   "h": 451,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 357
   }
  },
  "cornus-midwinter-fire": {
@@ -1500,6 +1628,22 @@
   }
  },
  "crab-evereste": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/crab-evereste/autumn.png",
+   "h": 430,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 407
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/crab-evereste/bare.png",
+   "h": 397,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 364
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/crab-evereste/flower.png",
@@ -1507,6 +1651,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 431
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/crab-evereste/fruit.png",
+   "h": 447,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 380
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/crab-evereste/leaf.png",
+   "h": 446,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 413
   }
  },
  "crab-golden-hornet": {
