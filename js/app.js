@@ -114,15 +114,45 @@
 
   /* ---------------- canvas ---------------- */
   const canvas = $('view'), ctx = canvas.getContext('2d'), wrap = $('canvasWrap');
-  const view = { scale: 1, ox: 0, oy: 0, dpr: 1 };
+  const view = { scale: 1, ox: 0, oy: 0, dpr: 1, base: 1, zoom: 1, panX: 0, panY: 0, cw: 0, ch: 0 };
   let needsDraw = false;
   function invalidate() { if (!needsDraw) { needsDraw = true; requestAnimationFrame(draw); } }
-  function fit() {
-    const r = wrap.getBoundingClientRect(); view.dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.round(r.width * view.dpr); canvas.height = Math.round(r.height * view.dpr);
-    if (state.photo) { view.scale = Math.min(r.width / state.photo.w, r.height / state.photo.h); view.ox = (r.width - state.photo.w * view.scale) / 2; view.oy = (r.height - state.photo.h * view.scale) / 2; }
-    invalidate();
+  function layout() {
+    if (!state.photo) return;
+    view.scale = view.base * view.zoom;
+    const iw = state.photo.w * view.scale, ih = state.photo.h * view.scale;
+    /* keep the photo on screen: when it is smaller than the frame it is centred, when larger it cannot leave a gap */
+    const clampPan = (pan, img, frame) => img <= frame ? 0 : Math.max(frame - img, Math.min(0, pan));
+    view.panX = clampPan(view.panX, iw, view.cw); view.panY = clampPan(view.panY, ih, view.ch);
+    view.ox = iw <= view.cw ? (view.cw - iw) / 2 : view.panX; view.oy = ih <= view.ch ? (view.ch - ih) / 2 : view.panY;
+    $('zoomVal').textContent = view.zoom === 1 ? '' : `${view.zoom.toFixed(1)}×`;
   }
+  function fit() {
+    const r = wrap.getBoundingClientRect(); view.dpr = window.devicePixelRatio || 1; view.cw = r.width; view.ch = r.height;
+    canvas.width = Math.round(r.width * view.dpr); canvas.height = Math.round(r.height * view.dpr);
+    if (state.photo) view.base = Math.min(r.width / state.photo.w, r.height / state.photo.h);
+    layout(); invalidate();
+  }
+  /* zoom keeping the photo point under (clientX, clientY) still */
+  function zoomAt(factor, clientX, clientY) {
+    const r = canvas.getBoundingClientRect(), px = clientX - r.left, py = clientY - r.top;
+    const ix = (px - view.ox) / view.scale, iy = (py - view.oy) / view.scale;
+    view.zoom = Math.max(1, Math.min(5, view.zoom * factor));
+    const sc = view.base * view.zoom;
+    view.panX = px - ix * sc; view.panY = py - iy * sc;
+    layout(); invalidate();
+  }
+  function inPhoto(pt) { return pt.x >= 0 && pt.y >= 0 && pt.x <= state.photo.w && pt.y <= state.photo.h; }
+  $('zoomIn').addEventListener('click', () => zoomAt(1.4, canvas.getBoundingClientRect().left + view.cw / 2, canvas.getBoundingClientRect().top + view.ch / 2));
+  $('zoomOut').addEventListener('click', () => zoomAt(1 / 1.4, canvas.getBoundingClientRect().left + view.cw / 2, canvas.getBoundingClientRect().top + view.ch / 2));
+  $('zoomFit').addEventListener('click', () => { view.zoom = 1; view.panX = view.panY = 0; layout(); invalidate(); });
+  canvas.addEventListener('wheel', (ev) => { ev.preventDefault(); zoomAt(ev.deltaY < 0 ? 1.15 : 1 / 1.15, ev.clientX, ev.clientY); }, { passive: false });
+  /* pinch zoom with two pointers */
+  const pointers = new Map(); let pinch = null;
+  canvas.addEventListener('pointerdown', (ev) => { pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY }); if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = { d0: Math.hypot(a.x - b.x, a.y - b.y), zoom0: view.zoom, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, panX0: view.panX, panY0: view.panY, ox0: view.ox, oy0: view.oy, scale0: view.scale }; state.drag = null; state.drawingBedTouch = true; } }, true);
+  canvas.addEventListener('pointermove', (ev) => { if (!pointers.has(ev.pointerId)) return; pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY }); if (pinch && pointers.size === 2) { const [a, b] = [...pointers.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2; const r = canvas.getBoundingClientRect(); const ix = (pinch.mx - r.left - pinch.ox0) / pinch.scale0, iy = (pinch.my - r.top - pinch.oy0) / pinch.scale0; view.zoom = Math.max(1, Math.min(5, pinch.zoom0 * d / Math.max(1, pinch.d0))); const sc = view.base * view.zoom; view.panX = (mx - r.left) - ix * sc; view.panY = (my - r.top) - iy * sc; layout(); invalidate(); } }, true);
+  const endPointer = (ev) => { pointers.delete(ev.pointerId); if (pointers.size < 2) pinch = null; };
+  canvas.addEventListener('pointerup', endPointer, true); canvas.addEventListener('pointercancel', endPointer, true);
   new ResizeObserver(fit).observe(wrap);
   function toImg(ev) { const r = canvas.getBoundingClientRect(); return { x: (ev.clientX - r.left - view.ox) / view.scale, y: (ev.clientY - r.top - view.oy) / view.scale }; }
 
@@ -131,9 +161,17 @@
     if (pts.length > 2) { window.Beds.drawBed(c, bed, cam, { alpha, lineWidth: 2 / view.scale }); return; }
     c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y)); c.strokeStyle = `rgba(40,28,18,${0.9 * alpha})`; c.lineWidth = 2 / view.scale; c.stroke();
   }
+  let bedLayer = null, bedKey = '';
+  function bedsCanvas() {
+    const key = JSON.stringify([state.beds, state.ground, state.photo.w]);
+    if (bedLayer && bedKey === key) return bedLayer;
+    const c = document.createElement('canvas'); c.width = state.photo.w; c.height = state.photo.h;
+    const saved = view.scale; view.scale = 1; state.beds.forEach(b => drawBed(c.getContext('2d'), b, 1)); view.scale = saved;
+    bedLayer = c; bedKey = key; return c;
+  }
   function drawScene(c, forExport, plantsOnly) {
     const ph = state.photo;
-    if (!plantsOnly) { c.drawImage(ph.img, 0, 0, ph.w, ph.h); state.beds.forEach(b => drawBed(c, b, 1)); }
+    if (!plantsOnly) { c.drawImage(ph.img, 0, 0, ph.w, ph.h); if (state.beds.length) c.drawImage(bedsCanvas(), 0, 0); }
     const env = { cam, sun: state.sun, light: state.light || window.Compose.autoLight(state.stats || {}), stats: state.stats, quality: forExport ? 'best' : 'normal' };
     const items = sortedPlants().map(pl => ({ kind: 'plant', Z: pl.Z, pl })).concat(state.masks.filter(m => m.Z != null).map(m => ({ kind: 'mask', Z: m.Z, m })));
     items.sort((a, b) => b.Z - a.Z);
@@ -205,7 +243,8 @@
 
   /* ---------------- pointer handling ---------------- */
   canvas.addEventListener('pointerdown', (ev) => {
-    if (!cam) return; const pt = toImg(ev); canvas.setPointerCapture(ev.pointerId);
+    if (!cam || pinch) return; const pt = toImg(ev); canvas.setPointerCapture(ev.pointerId);
+    if (!inPhoto(pt)) { if (view.zoom > 1) state.drag = { kind: 'pan', x0: ev.clientX, y0: ev.clientY, panX0: view.panX, panY0: view.panY, moved: false }; return; }
     if (state.step === 'photo') {
       const g = state.ground, tol = 16 / view.scale;
       if (state.refClicks != null) {
@@ -240,7 +279,8 @@
       if (p.rootstocks) np.rootstock = Object.keys(p.rootstocks)[1] || Object.keys(p.rootstocks)[0];
       state.plants.push(np); state.sel = np.id; afterChange(); toast(`Planted ${p.name}. Drag it to move, tap again to place another.`, 2600); return;
     }
-    if (state.sel) { state.sel = null; renderSelected(); invalidate(); }
+    /* empty space: pan when zoomed in, otherwise deselect */
+    state.drag = { kind: 'pan', x0: ev.clientX, y0: ev.clientY, panX0: view.panX, panY0: view.panY, moved: false };
   });
   canvas.addEventListener('pointermove', (ev) => {
     if (!cam) return; const pt = toImg(ev); state.hoverPt = pt;
@@ -250,7 +290,12 @@
       else if (d.kind === 'ref1') { g.ref.x1 = pt.x; g.ref.y1 = pt.y; rebuild(); }
       else if (d.kind === 'ref2') { g.ref.x2 = pt.x; g.ref.y2 = pt.y; rebuild(); }
       else if (d.kind === 'paint') { const m = state.masks.find(x => x.id === d.id); if (m) { window.Masks.line(m, d.last.x, d.last.y, pt.x, pt.y, state.brush, state.erase || ev.altKey); d.last = pt; invalidate(); } }
-      else if (d.kind === 'plant') { const pl = cam.toPlan(pt.x - d.dx, pt.y - d.dy); if (pl) { const p = state.plants.find(x => x.id === d.id); p.X = pl.X; p.Z = pl.Z; d.moved = true; invalidate(); } }
+      else if (d.kind === 'plant') {
+        /* keep the plant's base inside the photo and on the ground */
+        const bx = Math.max(0, Math.min(state.photo.w, pt.x - d.dx)), by = Math.max(cam.horizonY + 2, Math.min(state.photo.h, pt.y - d.dy));
+        const pl = cam.toPlan(bx, by); if (pl) { const p = state.plants.find(x => x.id === d.id); p.X = pl.X; p.Z = pl.Z; d.moved = true; invalidate(); }
+      }
+      else if (d.kind === 'pan') { const dx = ev.clientX - d.x0, dy = ev.clientY - d.y0; if (Math.abs(dx) + Math.abs(dy) > 4) d.moved = true; if (view.zoom > 1) { view.panX = d.panX0 + dx; view.panY = d.panY0 + dy; layout(); invalidate(); } }
       return;
     }
     if (state.mode === 'plant' && ev.pointerType !== 'touch') { const h = hitPlant(pt); state.hover = h ? h.id : null; canvas.style.cursor = state.libSel ? 'crosshair' : (h ? 'move' : 'default'); }
@@ -259,6 +304,7 @@
   canvas.addEventListener('pointerup', () => {
     if (!state.drag) return; const d = state.drag; state.drag = null;
     if (d.kind === 'plant') { if (d.moved) afterChange(); else renderSelected(); }
+    else if (d.kind === 'pan') { if (!d.moved && state.sel) { state.sel = null; renderSelected(); invalidate(); } }
     else if (d.kind === 'paint') { save(); renderMasks(); }
     else { save(); renderPhoto(); }
   });
@@ -478,9 +524,9 @@
     const o = document.createElement('canvas'); o.width = Math.round(w * k); o.height = Math.round(h * k); o.getContext('2d').drawImage(c, x0, y0, w, h, 0, 0, o.width, o.height);
     const blob = await new Promise(r => o.toBlob(r, 'image/png'));
     await idbPut(`${pid}/${st}`, blob); (userSprites[pid] = userSprites[pid] || {})[st] = await blobEntry(blob);
-    applyUserSprites(); delete thumbCache[pid]; renderCredits(); renderSelected(); invalidate(); toast('Photo added');
+    applyUserSprites(); delete thumbCache[pid]; window.Compose.clearCache(); renderCredits(); renderSelected(); invalidate(); toast('Photo added');
   }
-  async function removeUserSprite(pid, st) { await idbDel(`${pid}/${st}`); if (userSprites[pid]) { delete userSprites[pid][st]; if (window.SPRITE_MANIFEST[pid]) delete window.SPRITE_MANIFEST[pid][st]; } delete thumbCache[pid]; renderCredits(); renderSelected(); invalidate(); }
+  async function removeUserSprite(pid, st) { await idbDel(`${pid}/${st}`); if (userSprites[pid]) { delete userSprites[pid][st]; if (window.SPRITE_MANIFEST[pid]) delete window.SPRITE_MANIFEST[pid][st]; } delete thumbCache[pid]; window.Compose.clearCache(); renderCredits(); renderSelected(); invalidate(); }
   function renderCredits() {
     const rows = [];
     Object.entries(window.SPRITE_MANIFEST || {}).forEach(([pid, states]) => Object.entries(states).forEach(([st, e]) => { if (!e || !e.file || e.license === 'own') return; const p = LIB.byId[pid]; if (!p) return; rows.push(`<li>${p.name} (${st}): ${e.source && e.source.startsWith('http') ? `<a href="${e.source}" target="_blank" rel="noopener">Wikimedia Commons</a>` : e.source}${e.credit ? ' by ' + e.credit : ''}, ${e.license}</li>`); }));
@@ -492,6 +538,7 @@
   function renderPhoto() {
     if (!cam) return; const g = state.ground;
     $('photoName').textContent = /sample/.test(state.photo.name) ? 'Using the sample garden' : state.photo.name;
+    $('usePhotoBtn').classList.toggle('hidden', !/sample/.test(state.photo.name));
     $('horizon').value = g.horizon; $('horizonVal').textContent = `${Math.round(g.horizon * 100)}% down the photo`;
     $('refLen').value = g.refLen; $('lens').value = String(g.lens);
     const fz = fenceZ();
@@ -516,12 +563,15 @@
   ['brightness', 'warmth', 'contrast', 'saturation', 'shadow', 'grain'].forEach(k => { const el = $('light-' + k); el.addEventListener('input', (e) => { state.light = Object.assign({}, state.light || window.Compose.autoLight(state.stats || {}), { [k]: +e.target.value, auto: false }); renderPhoto(); invalidate(); }); el.addEventListener('change', save); });
   $('lightAuto').addEventListener('click', () => { state.light = Object.assign(window.Compose.autoLight(state.stats || {}), { auto: true }); renderPhoto(); invalidate(); save(); });
   $('showGrid').addEventListener('change', invalidate);
+  $('usePhotoBtn').addEventListener('click', () => { showStep('photo'); $('photoFile').click(); });
+  $('cameraFile').addEventListener('change', (e) => { const f = e.target.files[0]; if (f) { const dt = new DataTransfer(); dt.items.add(f); $('photoFile').files = dt.files; $('photoFile').dispatchEvent(new Event('change')); } });
   $('photoFile').addEventListener('change', async (e) => {
     const file = e.target.files[0]; if (!file) return;
     const url = URL.createObjectURL(file); await loadPhoto(url, file.name, true); URL.revokeObjectURL(url);
     state.ground = defaultGround(); state.beds = []; state.plants = []; state.sel = null; state.masks = []; state.maskSel = null; state.stats = null; state.light = null; state.undo = []; state.redo = [];
+    view.zoom = 1; view.panX = view.panY = 0;
     buildCamera(); fit(); lastSnap = snapshot(); save(); renderPhoto(); renderBeds(); renderMasks(); renderReview(); renderBands(); updateUndoButtons();
-    toast('New photo. Set eye level and mark the fence, then go to Beds.', 4000);
+    showStep('photo'); toast('Your photo is in. Drag the yellow line to your eye level and mark the fence.', 5000);
   });
 
   /* ---------------- review ---------------- */

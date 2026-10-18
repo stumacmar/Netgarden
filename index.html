@@ -37,6 +37,8 @@
         <button id="sbClose" title="Deselect">✕</button>
       </div>
       <label class="gridChk"><input type="checkbox" id="showGrid"> 1 m grid</label>
+      <div class="zoomCtl"><button id="zoomIn" title="Zoom in">+</button><button id="zoomOut" title="Zoom out">−</button><button id="zoomFit" title="Fit">⊡</button><span id="zoomVal"></span></div>
+      <button id="usePhotoBtn" class="primary usePhoto">📷 Use a photo of your garden</button>
     </div>
     <div class="timebar">
       <button id="play" class="icon" title="Play through the year">▶</button>
@@ -54,7 +56,8 @@
 
     <section class="panel hidden" id="panel-photo">
       <h3>Your photo</h3>
-      <div class="row"><label class="btn primary">Choose a photo <input type="file" id="photoFile" accept="image/*" hidden></label><span class="small" id="photoName"></span></div>
+      <div class="row"><label class="btn primary">Choose a photo <input type="file" id="photoFile" accept="image/*" hidden></label><label class="btn">📷 Take a photo <input type="file" id="cameraFile" accept="image/*" capture="environment" hidden></label></div>
+      <p class="small" id="photoName"></p>
       <p class="small">Take it from where you usually look at the garden, phone held level. Nothing leaves your browser.</p>
       <h3>Three quick questions</h3>
       <div class="q"><b>1. Where was your eye level?</b>

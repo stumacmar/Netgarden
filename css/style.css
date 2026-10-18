@@ -155,3 +155,9 @@ details summary { cursor: pointer; color: var(--muted); font-size: 13px; margin:
   .chips button { flex: 0 0 auto; }
   .panel { padding: 8px 12px; }
 }
+
+.zoomCtl { position: absolute; right: 10px; top: 44px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.zoomCtl button { width: 34px; height: 34px; padding: 0; justify-content: center; min-height: 0; background: rgba(255,255,255,0.92); font-size: 18px; }
+.zoomCtl span { color: #fff; font-size: 11px; text-shadow: 0 1px 2px #000; }
+.usePhoto { position: absolute; left: 10px; top: 10px; }
+@media (max-width: 900px) { .usePhoto { font-size: 12px; padding: 6px 8px; } .zoomCtl { top: 44px; } }
