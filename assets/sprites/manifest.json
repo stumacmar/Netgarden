@@ -1499,6 +1499,16 @@
    "w": 364
   }
  },
+ "erythronium": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/erythronium/flower.png",
+   "h": 429,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 435
+  }
+ },
  "escallonia": {
   "flower": {
    "credit": "",
@@ -1517,6 +1527,16 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 317
+  }
+ },
+ "eucomis": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/eucomis/flower.png",
+   "h": 512,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 428
   }
  },
  "euonymus-emerald-gaiety": {
@@ -1669,6 +1689,26 @@
    "w": 187
   }
  },
+ "fritillaria-imperialis": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/fritillaria-imperialis/flower.png",
+   "h": 503,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 329
+  }
+ },
+ "fritillaria-meleagris": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/fritillaria-meleagris/flower.png",
+   "h": 400,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 332
+  }
+ },
  "fuchsia-magellanica": {
   "flower": {
    "credit": "",
@@ -1777,6 +1817,16 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 259
+  }
+ },
+ "gladiolus-byzantinus": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/gladiolus-byzantinus/flower.png",
+   "h": 489,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 222
   }
  },
  "globe-artichoke": {
@@ -2069,6 +2119,16 @@
    "w": 462
   }
  },
+ "hyacinth": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/hyacinth/flower.png",
+   "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 398
+  }
+ },
  "hydrangea-annabelle": {
   "flower": {
    "credit": "",
@@ -2177,6 +2237,16 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 211
+  }
+ },
+ "iris-reticulata": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/iris-reticulata/flower.png",
+   "h": 224,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 418
   }
  },
  "iris-sibirica": {
@@ -2379,6 +2449,16 @@
    "w": 338
   }
  },
+ "leucojum": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/leucojum/flower.png",
+   "h": 512,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 390
+  }
+ },
  "leucothoe": {
   "leaf": {
    "credit": "",
@@ -2427,6 +2507,36 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 508
+  }
+ },
+ "lilium-casa-blanca": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/lilium-casa-blanca/flower.png",
+   "h": 493,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 238
+  }
+ },
+ "lilium-martagon": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/lilium-martagon/flower.png",
+   "h": 492,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 246
+  }
+ },
+ "lily-regale": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/lily-regale/flower.png",
+   "h": 467,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 238
   }
  },
  "liquidambar": {
@@ -2639,6 +2749,16 @@
    "w": 440
   }
  },
+ "muscari": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/muscari/flower.png",
+   "h": 305,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 361
+  }
+ },
  "nandina": {
   "flower": {
    "credit": "",
@@ -2649,6 +2769,36 @@
    "w": 428
   }
  },
+ "narcissus-actaea": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/narcissus-actaea/flower.png",
+   "h": 512,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 424
+  }
+ },
+ "narcissus-jetfire": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/narcissus-jetfire/flower.png",
+   "h": 349,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 333
+  }
+ },
+ "narcissus-thalia": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/narcissus-thalia/flower.png",
+   "h": 451,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 299
+  }
+ },
  "nasturtium": {
   "flower": {
    "credit": "",
@@ -2657,6 +2807,16 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 445
+  }
+ },
+ "nectaroscordum": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/nectaroscordum/flower.png",
+   "h": 497,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 231
   }
  },
  "nepeta": {
@@ -2677,6 +2837,16 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 466
+  }
+ },
+ "nerine": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/nerine/flower.png",
+   "h": 512,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 350
   }
  },
  "nicotiana": {
@@ -3569,6 +3739,16 @@
    "w": 460
   }
  },
+ "scilla": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/scilla/flower.png",
+   "h": 209,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 304
+  }
+ },
  "sedum": {
   "flower": {
    "credit": "",
@@ -3625,6 +3805,16 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 512
+  }
+ },
+ "snowdrop": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/snowdrop/flower.png",
+   "h": 244,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 321
   }
  },
  "solanum-glasnevin": {
@@ -3835,6 +4025,56 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 220
+  }
+ },
+ "tulip-ballerina": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/tulip-ballerina/flower.png",
+   "h": 511,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 421
+  }
+ },
+ "tulip-purissima": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/tulip-purissima/flower.png",
+   "h": 512,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 483
+  }
+ },
+ "tulip-qon": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/tulip-qon/flower.png",
+   "h": 506,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 348
+  }
+ },
+ "tulip-sprengeri": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/tulip-sprengeri/flower.png",
+   "h": 512,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 310
+  }
+ },
+ "tulip-spring-green": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/tulip-spring-green/flower.png",
+   "h": 509,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 416
   }
  },
  "verbascum": {
