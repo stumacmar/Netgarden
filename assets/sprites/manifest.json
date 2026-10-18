@@ -1669,6 +1669,66 @@
    "w": 263
   }
  },
+ "hellebore": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/hellebore/flower.png",
+   "h": 477,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 477
+  }
+ },
+ "helleborus-foetidus": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/helleborus-foetidus/flower.png",
+   "h": 510,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 384
+  }
+ },
+ "helleborus-niger": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/helleborus-niger/flower.png",
+   "h": 328,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 461
+  }
+ },
+ "hemerocallis": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/hemerocallis/flower.png",
+   "h": 357,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 469
+  }
+ },
+ "heuchera": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/heuchera/flower.png",
+   "h": 413,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 469
+  }
+ },
+ "heuchera-marmalade": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/heuchera-marmalade/flower.png",
+   "h": 408,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 468
+  }
+ },
  "hibiscus": {
   "flower": {
    "credit": "",
@@ -1707,6 +1767,36 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 325
+  }
+ },
+ "hosta": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/hosta/flower.png",
+   "h": 404,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 466
+  }
+ },
+ "hosta-halcyon": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/hosta-halcyon/flower.png",
+   "h": 322,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 463
+  }
+ },
+ "hosta-patriot": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/hosta-patriot/flower.png",
+   "h": 310,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 462
   }
  },
  "hydrangea-annabelle": {
@@ -1799,6 +1889,26 @@
    "w": 324
   }
  },
+ "iris-germanica": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/iris-germanica/flower.png",
+   "h": 485,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 211
+  }
+ },
+ "iris-sibirica": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/iris-sibirica/flower.png",
+   "h": 457,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 308
+  }
+ },
  "ivy-goldheart": {
   "leaf": {
    "credit": "",
@@ -1859,6 +1969,16 @@
    "w": 74
   }
  },
+ "kale": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/kale/leaf.png",
+   "h": 251,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 269
+  }
+ },
  "kerria": {
   "flower": {
    "credit": "",
@@ -1879,6 +1999,16 @@
    "w": 293
   }
  },
+ "kniphofia": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/kniphofia/flower.png",
+   "h": 403,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 254
+  }
+ },
  "laburnum": {
   "flower": {
    "credit": "",
@@ -1887,6 +2017,16 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 361
+  }
+ },
+ "lamium": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/lamium/flower.png",
+   "h": 176,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 467
   }
  },
  "laurel-hedge": {
@@ -1919,6 +2059,46 @@
    "w": 498
   }
  },
+ "leek": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/leek/leaf.png",
+   "h": 198,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 266
+  }
+ },
+ "lemon-balm": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/lemon-balm/flower.png",
+   "h": 503,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 485
+  }
+ },
+ "lettuce": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/lettuce/leaf.png",
+   "h": 145,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 241
+  }
+ },
+ "leucanthemum": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/leucanthemum/flower.png",
+   "h": 457,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 338
+  }
+ },
  "leucothoe": {
   "leaf": {
    "credit": "",
@@ -1927,6 +2107,26 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 485
+  }
+ },
+ "liatris": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/liatris/flower.png",
+   "h": 371,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 380
+  }
+ },
+ "ligularia": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/ligularia/flower.png",
+   "h": 495,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 320
   }
  },
  "lilac-madame-lemoine": {
@@ -1959,6 +2159,16 @@
    "w": 277
   }
  },
+ "lobelia": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/lobelia/flower.png",
+   "h": 186,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 343
+  }
+ },
  "lonicera-graham-thomas": {
   "flower": {
    "credit": "",
@@ -1987,6 +2197,26 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 512
+  }
+ },
+ "lupin": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/lupin/flower.png",
+   "h": 445,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 271
+  }
+ },
+ "lychnis": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/lychnis/flower.png",
+   "h": 482,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 354
   }
  },
  "magnolia-soulangeana": {
@@ -2039,6 +2269,26 @@
    "w": 369
   }
  },
+ "marigold-french": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/marigold-french/flower.png",
+   "h": 334,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 347
+  }
+ },
+ "matteuccia": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/matteuccia/leaf.png",
+   "h": 250,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 321
+  }
+ },
  "medlar": {
   "flower": {
    "credit": "",
@@ -2047,6 +2297,26 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 455
+  }
+ },
+ "mint": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/mint/flower.png",
+   "h": 312,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 478
+  }
+ },
+ "monarda": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/monarda/flower.png",
+   "h": 451,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 307
   }
  },
  "mulberry": {
@@ -2069,6 +2339,56 @@
    "w": 428
   }
  },
+ "nasturtium": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/nasturtium/flower.png",
+   "h": 172,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 445
+  }
+ },
+ "nepeta": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/nepeta/flower.png",
+   "h": 461,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 484
+  }
+ },
+ "nepeta-walkers-low": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/nepeta-walkers-low/flower.png",
+   "h": 494,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 466
+  }
+ },
+ "nicotiana": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/nicotiana/flower.png",
+   "h": 445,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 236
+  }
+ },
+ "nigella": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/nigella/flower.png",
+   "h": 487,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 305
+  }
+ },
  "olive": {
   "leaf": {
    "credit": "",
@@ -2077,6 +2397,36 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 400
+  }
+ },
+ "onion": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/onion/leaf.png",
+   "h": 273,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 206
+  }
+ },
+ "oregano": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/oregano/flower.png",
+   "h": 387,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 478
+  }
+ },
+ "origanum": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/origanum/flower.png",
+   "h": 476,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 462
   }
  },
  "osmanthus-burkwoodii": {
@@ -2089,6 +2439,46 @@
    "w": 496
   }
  },
+ "pachysandra": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/pachysandra/leaf.png",
+   "h": 121,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 448
+  }
+ },
+ "pansy-winter": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/pansy-winter/flower.png",
+   "h": 216,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 230
+  }
+ },
+ "papaver": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/papaver/flower.png",
+   "h": 413,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 356
+  }
+ },
+ "parsley": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/parsley/leaf.png",
+   "h": 202,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 342
+  }
+ },
  "passion-flower": {
   "flower": {
    "credit": "",
@@ -2097,6 +2487,16 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 266
+  }
+ },
+ "pea": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/pea/flower.png",
+   "h": 435,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 256
   }
  },
  "pear-concorde": {
