@@ -1942,6 +1942,14 @@
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 510
   },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/cornus-midwinter-fire/bare.png",
+   "h": 421,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/cornus-midwinter-fire/flower.png",
@@ -1949,9 +1957,33 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 508
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cornus-midwinter-fire/leaf.png",
+   "h": 473,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 493
   }
  },
  "cornus-sibirica": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/cornus-sibirica/autumn.png",
+   "h": 497,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 505
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/cornus-sibirica/bare.png",
+   "h": 424,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/cornus-sibirica/flower.png",
@@ -1959,6 +1991,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 498
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cornus-sibirica/leaf.png",
+   "h": 505,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
   }
  },
  "cosmos": {
@@ -1972,6 +2012,22 @@
   }
  },
  "cotinus": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/cotinus/autumn.png",
+   "h": 474,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 490
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/cotinus/bare.png",
+   "h": 433,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/cotinus/flower.png",
@@ -1979,9 +2035,33 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 492
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cotinus/leaf.png",
+   "h": 465,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 489
   }
  },
  "cotoneaster-horizontalis": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/cotoneaster-horizontalis/autumn.png",
+   "h": 201,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 485
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/cotoneaster-horizontalis/bare.png",
+   "h": 163,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 368
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/cotoneaster-horizontalis/flower.png",
@@ -1989,6 +2069,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 480
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/cotoneaster-horizontalis/fruit.png",
+   "h": 205,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 454
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cotoneaster-horizontalis/leaf.png",
+   "h": 210,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 498
   }
  },
  "cotoneaster-lacteus": {
@@ -1999,6 +2095,22 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 512
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/cotoneaster-lacteus/fruit.png",
+   "h": 467,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 493
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/cotoneaster-lacteus/leaf.png",
+   "h": 468,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 504
   }
  },
  "courgette": {
@@ -2297,6 +2409,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 485
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/daphne-eternal/leaf.png",
+   "h": 475,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 503
   }
  },
  "daphne-odora": {
@@ -2307,6 +2427,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 505
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/daphne-odora/leaf.png",
+   "h": 465,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 491
   }
  },
  "delphinium": {
@@ -2330,6 +2458,14 @@
   }
  },
  "deutzia": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/deutzia/bare.png",
+   "h": 361,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/deutzia/flower.png",
@@ -2337,6 +2473,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 505
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/deutzia/leaf.png",
+   "h": 418,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 511
   }
  },
  "dianthus-doris": {
@@ -2397,9 +2541,33 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 417
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/elaeagnus-ebbingei/leaf.png",
+   "h": 458,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 384
   }
  },
  "elaeagnus-quicksilver": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/elaeagnus-quicksilver/autumn.png",
+   "h": 484,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 490
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/elaeagnus-quicksilver/bare.png",
+   "h": 438,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/elaeagnus-quicksilver/flower.png",
@@ -2407,6 +2575,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 510
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/elaeagnus-quicksilver/leaf.png",
+   "h": 452,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 500
   }
  },
  "epimedium": {
@@ -2477,6 +2653,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 511
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/escallonia/leaf.png",
+   "h": 481,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 509
   }
  },
  "eucalyptus-gunnii": {
@@ -2510,6 +2694,30 @@
   }
  },
  "euonymus-fire": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/euonymus-fire/autumn.png",
+   "h": 410,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 491
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/euonymus-fire/bare.png",
+   "h": 375,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
+  "fruit": {
+   "credit": "",
+   "file": "assets/sprites/euonymus-fire/fruit.png",
+   "h": 412,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 492
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/euonymus-fire/leaf.png",
@@ -2550,6 +2758,14 @@
   }
  },
  "exochorda": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/exochorda/bare.png",
+   "h": 307,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 487
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/exochorda/flower.png",
@@ -2557,6 +2773,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 506
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/exochorda/leaf.png",
+   "h": 355,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 508
   }
  },
  "fatsia": {
@@ -2567,6 +2791,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 493
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/fatsia/leaf.png",
+   "h": 477,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 510
   }
  },
  "fennel-bronze": {
@@ -2644,10 +2876,34 @@
   }
  },
  "forsythia": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/forsythia/autumn.png",
+   "h": 485,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/forsythia/bare.png",
+   "h": 452,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/forsythia/flower.png",
    "h": 456,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/forsythia/leaf.png",
+   "h": 474,
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 512
@@ -2694,6 +2950,14 @@
   }
  },
  "fuchsia-magellanica": {
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/fuchsia-magellanica/bare.png",
+   "h": 419,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/fuchsia-magellanica/flower.png",
@@ -2701,13 +2965,45 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 507
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/fuchsia-magellanica/leaf.png",
+   "h": 473,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 499
   }
  },
  "fuchsia-popple": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/fuchsia-popple/autumn.png",
+   "h": 485,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 507
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/fuchsia-popple/bare.png",
+   "h": 435,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "flower": {
    "credit": "",
    "file": "assets/sprites/fuchsia-popple/flower.png",
    "h": 481,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 500
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/fuchsia-popple/leaf.png",
+   "h": 479,
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 500
@@ -2731,6 +3027,14 @@
    "license": "generated",
    "source": "generated locally (sd-turbo image-to-image from the app drawing)",
    "w": 509
+  },
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/garrya/leaf.png",
+   "h": 509,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 504
   }
  },
  "gaura": {
@@ -2850,6 +3154,22 @@
   }
  },
  "gooseberry": {
+  "autumn": {
+   "credit": "",
+   "file": "assets/sprites/gooseberry/autumn.png",
+   "h": 505,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 491
+  },
+  "bare": {
+   "credit": "",
+   "file": "assets/sprites/gooseberry/bare.png",
+   "h": 434,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 512
+  },
   "leaf": {
    "credit": "",
    "file": "assets/sprites/gooseberry/leaf.png",
