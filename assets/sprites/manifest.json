@@ -239,6 +239,66 @@
    "w": 313
   }
  },
+ "fig-brown-turkey": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/fig-brown-turkey/leaf.png",
+   "h": 426,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 440
+  }
+ },
+ "ginkgo": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/ginkgo/leaf.png",
+   "h": 447,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 258
+  }
+ },
+ "hawthorn": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/hawthorn/flower.png",
+   "h": 429,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 398
+  }
+ },
+ "hawthorn-pauls-scarlet": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/hawthorn-pauls-scarlet/flower.png",
+   "h": 480,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 390
+  }
+ },
+ "hazel-cob": {
+  "flower": {
+   "credit": "",
+   "file": "assets/sprites/hazel-cob/flower.png",
+   "h": 442,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 387
+  }
+ },
+ "holly": {
+  "leaf": {
+   "credit": "",
+   "file": "assets/sprites/holly/leaf.png",
+   "h": 432,
+   "license": "generated",
+   "source": "generated locally (sd-turbo image-to-image from the app drawing)",
+   "w": 346
+  }
+ },
  "silver-birch": {
   "bare": {
    "credit": "Roman Eisele",
