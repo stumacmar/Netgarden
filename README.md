@@ -42,6 +42,14 @@ and open http://localhost:8000/.
    succession), jobs for the month on the slider, the year-round calendar,
    a plan view, a shopping list, export and the realistic render.
 
+On a phone the panel is a sheet that slides up over the photo: swipe its handle
+up for the full plant list, down to see the whole photo. Choosing a plant drops
+the sheet out of the way; tapping a placed plant brings its details back up.
+Done and Cancel for whatever you are doing sit in the strip at the bottom of
+the photo. Pinch to zoom, drag with two fingers to pan, and drag the flower
+bands to scrub through the year. You can add it to your home screen and it
+runs full screen.
+
 Undo and Redo are always in the top bar (also Ctrl+Z and Ctrl+Shift+Z).
 Zoom with the buttons, the mouse wheel or a pinch, and drag the photo to
 pan, to place small plants precisely. Plants cannot leave the photo.

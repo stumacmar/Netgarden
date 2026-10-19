@@ -110,7 +110,17 @@
   function placedBounds(pl) { const q = placedImage(pl); return window.Render.bounds(dims(pl), q.x, q.y, cam.ppm(pl.X, pl.Z), sizeOf(pl)); }
   function sortedPlants() { return state.plants.slice().sort((a, b) => placedImage(a).y - placedImage(b).y); }
   function toast(msg, ms) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), ms || 1800); }
-  function hint(s) { $('hint').textContent = s; }
+  function hint(s) { $('hint').textContent = s; updateCtxbar(); }
+  function updateCtxbar() { const bar = $('ctxbar'); const btns = !$('doneBtn').classList.contains('hidden') || !$('cancelBtn').classList.contains('hidden'); bar.classList.toggle('empty', !$('hint').textContent && !btns); bar.classList.toggle('task', btns); }
+  const mqPhone = window.matchMedia('(max-width: 900px)'), mqSheet = window.matchMedia('(max-width: 900px) and (orientation: portrait)'), mqCoarse = window.matchMedia('(pointer: coarse)');
+  const isPhone = () => mqPhone.matches;
+  const HANDLE_R = () => mqCoarse.matches ? 13 : 8;
+  /* in-app confirmation (the native confirm() looks foreign on a phone) */
+  function confirmDialog(text, okLabel) {
+    const d = $('confirmDlg'); if (!d || typeof d.showModal !== 'function') return Promise.resolve(window.confirm(text));
+    $('confirmText').textContent = text; $('confirmOk').textContent = okLabel || 'OK';
+    return new Promise(resolve => { const done = () => { d.removeEventListener('close', done); resolve(d.returnValue === 'ok'); }; d.addEventListener('close', done); d.returnValue = ''; d.showModal(); });
+  }
 
   /* ---------------- canvas ---------------- */
   const canvas = $('view'), ctx = canvas.getContext('2d'), wrap = $('canvasWrap');
@@ -128,31 +138,39 @@
     $('zoomVal').textContent = view.zoom === 1 ? '' : `${view.zoom.toFixed(1)}×`;
   }
   function fit() {
-    const r = wrap.getBoundingClientRect(); view.dpr = window.devicePixelRatio || 1; view.cw = r.width; view.ch = r.height;
+    const r = wrap.getBoundingClientRect(); view.dpr = window.devicePixelRatio || 1; view.cw = Math.max(1, r.width); view.ch = Math.max(1, r.height);
     canvas.width = Math.round(r.width * view.dpr); canvas.height = Math.round(r.height * view.dpr);
-    if (state.photo) view.base = Math.min(r.width / state.photo.w, r.height / state.photo.h);
+    if (state.photo) view.base = Math.max(1e-4, Math.min(view.cw / state.photo.w, view.ch / state.photo.h));
     layout(); invalidate();
   }
   /* zoom keeping the photo point under (clientX, clientY) still */
-  function zoomAt(factor, clientX, clientY) {
+  const ZOOM_MIN = 1, ZOOM_MAX = 5;
+  function zoomAt(factor, clientX, clientY, soft) {
     const r = canvas.getBoundingClientRect(), px = clientX - r.left, py = clientY - r.top;
     const ix = (px - view.ox) / view.scale, iy = (py - view.oy) / view.scale;
-    view.zoom = Math.max(1, Math.min(5, view.zoom * factor));
+    const lo = soft ? 0.7 : ZOOM_MIN, hi = soft ? 6.5 : ZOOM_MAX;
+    view.zoom = Math.max(lo, Math.min(hi, view.zoom * factor));
     const sc = view.base * view.zoom;
     view.panX = px - ix * sc; view.panY = py - iy * sc;
     layout(); invalidate();
   }
   function inPhoto(pt) { return pt.x >= 0 && pt.y >= 0 && pt.x <= state.photo.w && pt.y <= state.photo.h; }
-  $('zoomIn').addEventListener('click', () => zoomAt(1.4, canvas.getBoundingClientRect().left + view.cw / 2, canvas.getBoundingClientRect().top + view.ch / 2));
-  $('zoomOut').addEventListener('click', () => zoomAt(1 / 1.4, canvas.getBoundingClientRect().left + view.cw / 2, canvas.getBoundingClientRect().top + view.ch / 2));
-  $('zoomFit').addEventListener('click', () => { view.zoom = 1; view.panX = view.panY = 0; layout(); invalidate(); });
+  /* after a pinch overshoots, ease the zoom back inside its limits */
+  let zoomAnim = null;
+  function settleZoom(cx, cy) {
+    const target = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, view.zoom)); if (target === view.zoom) return;
+    const from = view.zoom, t0 = performance.now(), dur = 220; cancelAnimationFrame(zoomAnim);
+    const step = (now) => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); const z = from + (target - from) * e; zoomAt(z / view.zoom, cx, cy, true); if (k < 1) zoomAnim = requestAnimationFrame(step); else { view.zoom = target; layout(); invalidate(); } };
+    zoomAnim = requestAnimationFrame(step);
+  }
+  const zoomCentre = () => { const r = canvas.getBoundingClientRect(); return [r.left + view.cw / 2, r.top + view.ch / 2]; };
+  let zoomIdleT = null;
+  function wakeZoom() { $('zoomCtl').classList.remove('idle'); clearTimeout(zoomIdleT); zoomIdleT = setTimeout(() => $('zoomCtl').classList.add('idle'), 2500); }
+  $('zoomIn').addEventListener('click', () => { wakeZoom(); zoomAt(1.4, ...zoomCentre()); });
+  $('zoomOut').addEventListener('click', () => { wakeZoom(); zoomAt(1 / 1.4, ...zoomCentre()); });
+  $('zoomFit').addEventListener('click', () => { wakeZoom(); view.zoom = 1; view.panX = view.panY = 0; layout(); invalidate(); });
+  $('gridBtn').addEventListener('click', () => { const c = $('showGrid'); c.checked = !c.checked; $('gridBtn').setAttribute('aria-pressed', String(c.checked)); wakeZoom(); invalidate(); });
   canvas.addEventListener('wheel', (ev) => { ev.preventDefault(); zoomAt(ev.deltaY < 0 ? 1.15 : 1 / 1.15, ev.clientX, ev.clientY); }, { passive: false });
-  /* pinch zoom with two pointers */
-  const pointers = new Map(); let pinch = null;
-  canvas.addEventListener('pointerdown', (ev) => { pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY }); if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = { d0: Math.hypot(a.x - b.x, a.y - b.y), zoom0: view.zoom, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, panX0: view.panX, panY0: view.panY, ox0: view.ox, oy0: view.oy, scale0: view.scale }; state.drag = null; state.drawingBedTouch = true; } }, true);
-  canvas.addEventListener('pointermove', (ev) => { if (!pointers.has(ev.pointerId)) return; pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY }); if (pinch && pointers.size === 2) { const [a, b] = [...pointers.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2; const r = canvas.getBoundingClientRect(); const ix = (pinch.mx - r.left - pinch.ox0) / pinch.scale0, iy = (pinch.my - r.top - pinch.oy0) / pinch.scale0; view.zoom = Math.max(1, Math.min(5, pinch.zoom0 * d / Math.max(1, pinch.d0))); const sc = view.base * view.zoom; view.panX = (mx - r.left) - ix * sc; view.panY = (my - r.top) - iy * sc; layout(); invalidate(); } }, true);
-  const endPointer = (ev) => { pointers.delete(ev.pointerId); if (pointers.size < 2) pinch = null; };
-  canvas.addEventListener('pointerup', endPointer, true); canvas.addEventListener('pointercancel', endPointer, true);
   new ResizeObserver(fit).observe(wrap);
   function toImg(ev) { const r = canvas.getBoundingClientRect(); return { x: (ev.clientX - r.left - view.ox) / view.scale, y: (ev.clientY - r.top - view.oy) / view.scale }; }
 
@@ -172,13 +190,15 @@
   function drawScene(c, forExport, plantsOnly) {
     const ph = state.photo;
     if (!plantsOnly) { c.drawImage(ph.img, 0, 0, ph.w, ph.h); if (state.beds.length) c.drawImage(bedsCanvas(), 0, 0); }
-    const env = { cam, sun: state.sun, light: state.light || window.Compose.autoLight(state.stats || {}), stats: state.stats, quality: forExport ? 'best' : 'normal' };
+    /* while the time slider moves, draw quickly at quarter-month steps; the frame after it stops is drawn in full */
+    const fast = !forExport && scrubbing, tq = fast ? Math.round(tEff() * 4) / 4 : tEff();
+    const env = { cam, sun: state.sun, light: state.light || window.Compose.autoLight(state.stats || {}), stats: state.stats, quality: forExport ? 'best' : fast ? 'fast' : 'normal' };
     const items = sortedPlants().map(pl => ({ kind: 'plant', Z: pl.Z, pl })).concat(state.masks.filter(m => m.Z != null).map(m => ({ kind: 'mask', Z: m.Z, m })));
     items.sort((a, b) => b.Z - a.Z);
     items.forEach(it => {
       if (it.kind === 'mask') { if (!plantsOnly) c.drawImage(window.Masks.maskedPhoto(it.m, ph), 0, 0); return; }
       const pl = it.pl, p = dims(pl); if (!p) return;
-      window.Compose.drawPlant(c, { p, st: stateAt(p, tEff()), t: tEff(), seed: pl.seed, size: sizeOf(pl), flip: !!pl.flip !== (window.Render.hasSprites(p) && state.sun.az > 0), X: pl.X, Z: pl.Z }, env);
+      window.Compose.drawPlant(c, { p, st: stateAt(p, tq), t: tq, seed: pl.seed, size: sizeOf(pl), flip: !!pl.flip !== (window.Render.hasSprites(p) && state.sun.az > 0), X: pl.X, Z: pl.Z }, env);
     });
   }
   function compositeCanvas(plantsOnly) {
@@ -197,7 +217,7 @@
       state.drawingBed.forEach(p => { const q = cam.toImage(p.X, p.Z); ctx.beginPath(); ctx.arc(q.x, q.y, lw(5), 0, Math.PI * 2); ctx.fill(); });
     }
     if ($('showGrid').checked || state.step === 'photo') {
-      ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = lw(1);
+      ctx.save(); ctx.beginPath(); ctx.rect(0, 0, state.photo.w, state.photo.h); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = lw(1);
       const near = Math.max(0.5, cam.hc * 0.4);
       for (let X = -12; X <= 12; X++) { const a = cam.toImage(X, near), b = cam.toImage(X, 40); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
       for (let Z = 1; Z <= 40; Z += (Z < 10 ? 1 : 5)) { if (Z < near) continue; const a = cam.toImage(-12, Z), b = cam.toImage(12, Z); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
@@ -206,9 +226,7 @@
     if (state.mode === 'mask') {
       const m = state.masks.find(x => x.id === state.maskSel);
       if (m) {
-        const tint = document.createElement('canvas'); tint.width = m.canvas.width; tint.height = m.canvas.height;
-        const tc = tint.getContext('2d'); tc.drawImage(m.canvas, 0, 0); tc.globalCompositeOperation = 'source-in'; tc.fillStyle = '#ff3b6b'; tc.fillRect(0, 0, tint.width, tint.height);
-        ctx.save(); ctx.globalAlpha = 0.45; ctx.drawImage(tint, 0, 0, state.photo.w, state.photo.h); ctx.restore();
+        ctx.save(); ctx.globalAlpha = 0.45; ctx.drawImage(maskTint(m), 0, 0, state.photo.w, state.photo.h); ctx.restore();
         if (m.Z != null) { const g = cam.toImage(0, m.Z); ctx.save(); ctx.strokeStyle = '#ff3b6b'; ctx.lineWidth = lw(1.5); ctx.setLineDash([lw(8), lw(6)]); ctx.beginPath(); ctx.moveTo(0, g.y); ctx.lineTo(state.photo.w, g.y); ctx.stroke(); ctx.restore(); }
       }
       if (state.hoverPt) { ctx.save(); ctx.strokeStyle = state.erase ? '#fff' : '#ff3b6b'; ctx.lineWidth = lw(1.5); ctx.beginPath(); ctx.arc(state.hoverPt.x, state.hoverPt.y, state.brush, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
@@ -220,12 +238,13 @@
       ctx.fillStyle = '#ffd86b'; ctx.font = `${lw(13)}px system-ui`; ctx.fillText('eye level (drag)', lw(10), cam.horizonY - lw(8));
       if (g.ref) {
         ctx.strokeStyle = '#6bd0ff'; ctx.lineWidth = lw(3); ctx.beginPath(); ctx.moveTo(g.ref.x1, g.ref.y1); ctx.lineTo(g.ref.x2, g.ref.y2); ctx.stroke(); ctx.fillStyle = '#6bd0ff';
-        [[g.ref.x1, g.ref.y1], [g.ref.x2, g.ref.y2]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, lw(8), 0, Math.PI * 2); ctx.fill(); });
+        const hr = lw(HANDLE_R());
+        [[g.ref.x1, g.ref.y1], [g.ref.x2, g.ref.y2]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, hr, 0, Math.PI * 2); ctx.fill(); if (mqCoarse.matches) { ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = lw(2); ctx.stroke(); ctx.restore(); } });
         ctx.fillText(`${g.refLen} m`, (g.ref.x1 + g.ref.x2) / 2 + lw(8), (g.ref.y1 + g.ref.y2) / 2 - lw(8));
       }
       ctx.restore();
     }
-    if (state.mode === 'plant' && state.libSel && state.hoverPt && !state.drag) {
+    if (state.mode === 'plant' && state.libSel && state.hoverPt && !(press && press.moved)) {
       const pl = cam.toPlan(state.hoverPt.x, state.hoverPt.y), p = LIB.byId[state.libSel];
       if (pl) window.Render.drawPlant(ctx, p, stateAt(p, tEff()), state.hoverPt.x, state.hoverPt.y, cam.ppm(pl.X, pl.Z), 12345, { alpha: 0.55, t: tEff(), size: window.Site.growth(p, state.years) });
     }
@@ -237,79 +256,169 @@
       const fs = lw(12); ctx.font = `${fs}px system-ui`; const tw = ctx.measureText(p.name).width + lw(10), lx = (b.x0 + b.x1) / 2 - tw / 2, ly = b.y0 - lw(20);
       ctx.fillStyle = 'rgba(20,30,18,0.8)'; ctx.fillRect(lx, ly, tw, lw(17)); ctx.fillStyle = '#fff'; ctx.fillText(p.name, lx + lw(5), ly + lw(12.5)); ctx.restore();
     });
+    drawLoupe();
+  }
+  /* the mask painted in pink, rebuilt only when the mask changes */
+  const tintCache = {};
+  function maskTint(m) {
+    const e = tintCache[m.id]; if (e && e.v === m.version && e.c.width === m.canvas.width) return e.c;
+    const c = (e && e.c) || document.createElement('canvas'); c.width = m.canvas.width; c.height = m.canvas.height;
+    const tc = c.getContext('2d'); tc.clearRect(0, 0, c.width, c.height); tc.drawImage(m.canvas, 0, 0); tc.globalCompositeOperation = 'source-in'; tc.fillStyle = '#ff3b6b'; tc.fillRect(0, 0, c.width, c.height);
+    tintCache[m.id] = { v: m.version, c }; return c;
+  }
+  /* a magnified view above the finger while a calibration handle is dragged, so the finger does not hide it */
+  function drawLoupe() {
+    const p = press; if (!p || !p.touch || !p.drag || !/^(horizon|ref1|ref2)$/.test(p.drag.kind) || !p.client) return;
+    const dpr = view.dpr, R = 54, mag = 2.2, r = canvas.getBoundingClientRect();
+    const fx = p.client.x - r.left, fy = p.client.y - r.top;
+    let cx = fx, cy = fy - R - 46; if (cy - R < 8) cy = fy + R + 46; cx = Math.max(R + 8, Math.min(view.cw - R - 8, cx));
+    const sw = (R * 2) / mag, sh = sw;
+    ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.closePath();
+    ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 14; ctx.fillStyle = '#1b2318'; ctx.fill(); ctx.shadowBlur = 0;
+    ctx.clip();
+    ctx.drawImage(canvas, (fx - sw / 2) * dpr, (fy - sh / 2) * dpr, sw * dpr, sh * dpr, cx - R, cy - R, R * 2, R * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R); ctx.stroke();
+    ctx.restore();
+    ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
   }
 
   function hitPlant(pt) { for (const pl of sortedPlants().reverse()) { const b = placedBounds(pl); if (pt.x >= b.x0 && pt.x <= b.x1 && pt.y >= b.y0 && pt.y <= b.y1) return pl; } return null; }
 
-  /* ---------------- pointer handling ---------------- */
-  canvas.addEventListener('pointerdown', (ev) => {
-    if (!cam || pinch) return; const pt = toImg(ev); canvas.setPointerCapture(ev.pointerId);
-    if (!inPhoto(pt)) { if (view.zoom > 1) state.drag = { kind: 'pan', x0: ev.clientX, y0: ev.clientY, panX0: view.panX, panY0: view.panY, moved: false }; return; }
+  /* ---------------- gestures ----------------
+   * One pointer: a press that is a tap until it moves more than a few pixels, then a drag.
+   * Two pointers: pinch to zoom and pan; whatever the first finger had started is undone. */
+  const pointers = new Map(); let pinch = null, press = null;
+  const TAP_SLOP = 6;
+  function blurInputs() { const a = document.activeElement; if (a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) a.blur(); }
+  function cancelPress() {
+    const p = press; press = null; if (!p || !p.drag) return;
+    const d = p.drag, g = state.ground;
+    if (d.kind === 'plant') { const pl = state.plants.find(x => x.id === d.id); if (pl && d.orig) { pl.X = d.orig.X; pl.Z = d.orig.Z; } }
+    else if (d.kind === 'paint') { const m = state.masks.find(x => x.id === d.id); if (m && d.snap) { const mc = m.canvas.getContext('2d'); mc.clearRect(0, 0, m.canvas.width, m.canvas.height); mc.drawImage(d.snap, 0, 0); m.version++; } }
+    else if (d.kind === 'horizon' && d.orig != null) { g.horizon = d.orig; rebuild(); }
+    else if ((d.kind === 'ref1' || d.kind === 'ref2') && d.orig) { g.ref = d.orig; rebuild(); }
+    invalidate();
+  }
+  function startPinch() {
+    const [a, b] = [...pointers.values()];
+    pinch = { d0: Math.hypot(a.x - b.x, a.y - b.y), zoom0: view.zoom, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, ox0: view.ox, oy0: view.oy, scale0: view.scale, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 };
+  }
+  function movePinch() {
+    const [a, b] = [...pointers.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2; const r = canvas.getBoundingClientRect();
+    const ix = (pinch.mx - r.left - pinch.ox0) / pinch.scale0, iy = (pinch.my - r.top - pinch.oy0) / pinch.scale0;
+    let z = pinch.zoom0 * d / Math.max(1, pinch.d0);
+    /* rubber band beyond the limits */
+    if (z < ZOOM_MIN) z = ZOOM_MIN - (ZOOM_MIN - z) * 0.35; if (z > ZOOM_MAX) z = ZOOM_MAX + (z - ZOOM_MAX) * 0.35;
+    view.zoom = Math.max(0.7, Math.min(6.5, z));
+    const sc = view.base * view.zoom; view.panX = (mx - r.left) - ix * sc; view.panY = (my - r.top) - iy * sc; pinch.cx = mx; pinch.cy = my;
+    layout(); invalidate();
+  }
+  function pressIntent(ev, pt) {
+    /* what this press will do if it moves (drag) and if it does not (tap) */
+    const touch = ev.pointerType === 'touch', tol = (touch ? 28 : 16) / view.scale;
+    if (!inPhoto(pt)) return { drag: { kind: 'pan' }, tap: null };
     if (state.step === 'photo') {
-      const g = state.ground, tol = 16 / view.scale;
+      const g = state.ground;
       if (state.refClicks != null) {
-        if (state.refClicks === 0) { g.ref = { x1: pt.x, y1: pt.y, x2: pt.x, y2: pt.y }; state.refClicks = 1; state.drag = { kind: 'ref2' }; }
-        else { g.ref.x2 = pt.x; g.ref.y2 = pt.y; state.refClicks = null; setContext(null); }
-        rebuild(); updateHint(); return;
+        if (state.refClicks === 0) { g.ref = { x1: pt.x, y1: pt.y, x2: pt.x, y2: pt.y }; state.refClicks = 1; rebuild(); updateHint(); return { drag: { kind: 'ref2', orig: null }, tap: null, started: true }; }
+        g.ref.x2 = pt.x; g.ref.y2 = pt.y; state.refClicks = null; setContext(null); rebuild(); updateHint(); return { drag: { kind: 'ref2', orig: null }, tap: null, started: true };
       }
-      if (g.ref && Math.hypot(pt.x - g.ref.x1, pt.y - g.ref.y1) < tol) state.drag = { kind: 'ref1' };
-      else if (g.ref && Math.hypot(pt.x - g.ref.x2, pt.y - g.ref.y2) < tol) state.drag = { kind: 'ref2' };
-      else if (Math.abs(pt.y - cam.horizonY) < tol * 1.5) state.drag = { kind: 'horizon' };
-      return;
+      if (g.ref && Math.hypot(pt.x - g.ref.x1, pt.y - g.ref.y1) < tol) return { drag: { kind: 'ref1', orig: Object.assign({}, g.ref) }, tap: null };
+      if (g.ref && Math.hypot(pt.x - g.ref.x2, pt.y - g.ref.y2) < tol) return { drag: { kind: 'ref2', orig: Object.assign({}, g.ref) }, tap: null };
+      if (Math.abs(pt.y - cam.horizonY) < tol * 1.5) return { drag: { kind: 'horizon', orig: g.horizon }, tap: null };
+      return { drag: { kind: 'pan' }, tap: null };
     }
     if (state.mode === 'mask') {
-      let m = state.masks.find(x => x.id === state.maskSel);
-      if (state.maskSetDepth) { const pl = cam.toPlan(pt.x, pt.y); if (!pl) { toast('Tap the ground, below the horizon'); return; } if (m) { m.Z = pl.Z; state.maskSetDepth = false; save(); renderMasks(); setContext(null); setMode('plant'); toast('Distance set'); } return; }
-      if (!m) m = newMask();
-      state.drag = { kind: 'paint', id: m.id, last: pt }; window.Masks.paint(m, pt.x, pt.y, state.brush, state.erase || ev.altKey); invalidate(); return;
+      if (state.maskSetDepth) return { drag: { kind: 'pan' }, tap: 'depth' };
+      let m = state.masks.find(x => x.id === state.maskSel); if (!m) m = newMask();
+      const snap = document.createElement('canvas'); snap.width = m.canvas.width; snap.height = m.canvas.height; snap.getContext('2d').drawImage(m.canvas, 0, 0);
+      window.Masks.paint(m, pt.x, pt.y, state.brush, state.erase || ev.altKey); invalidate();
+      return { drag: { kind: 'paint', id: m.id, last: pt, snap }, tap: null, started: true };
     }
-    if (state.mode === 'bed') {
+    if (state.mode === 'bed') return { drag: { kind: 'pan' }, tap: 'corner' };
+    if (state.libSel) return { drag: { kind: 'pan' }, tap: 'plant' };
+    const hit = hitPlant(pt);
+    if (hit) { state.sel = hit.id; const q = placedImage(hit); renderSelected(); invalidate(); return { drag: { kind: 'plant', id: hit.id, dx: pt.x - q.x, dy: pt.y - q.y, orig: { X: hit.X, Z: hit.Z } }, tap: 'select' }; }
+    return { drag: { kind: 'pan' }, tap: 'clear' };
+  }
+  function pressTap(p) {
+    const pt = p.pt;
+    if (p.tap === 'depth') { const pl = cam.toPlan(pt.x, pt.y); if (!pl) { toast('Tap the ground, below the horizon'); return; } const m = state.masks.find(x => x.id === state.maskSel); if (m) { m.Z = pl.Z; state.maskSetDepth = false; save(); renderMasks(); setContext(null); setMode('plant'); toast('Distance set'); } return; }
+    if (p.tap === 'corner') {
       const pl = cam.toPlan(pt.x, pt.y); if (!pl) { toast('Tap on the ground, below the horizon'); return; }
       if (!state.drawingBed) state.drawingBed = [];
       const last = state.drawingBed[state.drawingBed.length - 1]; if (last && Math.hypot(last.X - pl.X, last.Z - pl.Z) < 0.05) return;
       state.drawingBed.push(pl); $('doneBtn').disabled = state.drawingBed.length < 3; invalidate(); updateHint(); return;
     }
-    /* plant mode: a chosen library plant always plants; otherwise tap selects */
-    const hit = state.libSel ? null : hitPlant(pt);
-    if (hit) { state.sel = hit.id; const q = placedImage(hit); state.drag = { kind: 'plant', id: hit.id, dx: pt.x - q.x, dy: pt.y - q.y, moved: false }; renderSelected(); invalidate(); return; }
-    if (state.libSel) {
+    if (p.tap === 'plant') {
       const pl = cam.toPlan(pt.x, pt.y); if (!pl) { toast('Tap on the ground, below the horizon'); return; }
-      const p = LIB.byId[state.libSel];
-      const np = { id: uid(), pid: p.id, X: pl.X, Z: pl.Z, seed: Math.floor(Math.random() * 1e9), size: 1 };
-      if (p.rootstocks) np.rootstock = Object.keys(p.rootstocks)[1] || Object.keys(p.rootstocks)[0];
-      state.plants.push(np); state.sel = np.id; afterChange(); toast(`Planted ${p.name}. Drag it to move, tap again to place another.`, 2600); return;
+      const lp = LIB.byId[state.libSel];
+      const np = { id: uid(), pid: lp.id, X: pl.X, Z: pl.Z, seed: Math.floor(Math.random() * 1e9), size: 1 };
+      if (lp.rootstocks) np.rootstock = Object.keys(lp.rootstocks)[1] || Object.keys(lp.rootstocks)[0];
+      state.plants.push(np); state.sel = np.id; afterChange(); toast(isPhone() ? `Planted ${lp.name}` : `Planted ${lp.name}. Tap again for another.`, 1800); return;
     }
-    /* empty space: pan when zoomed in, otherwise deselect */
-    state.drag = { kind: 'pan', x0: ev.clientX, y0: ev.clientY, panX0: view.panX, panY0: view.panY, moved: false };
+    if (p.tap === 'select') { renderSelected(); if (sheet.pos === 'peek') setSheet('half'); return; }
+    if (p.tap === 'clear') { if (state.sel) { state.sel = null; renderSelected(); invalidate(); } }
+  }
+  function pressMove(p, ev) {
+    const pt = toImg(ev), d = p.drag, g = state.ground;
+    if (d.kind === 'horizon') { g.horizon = Math.max(0.02, Math.min(0.9, pt.y / state.photo.h)); rebuild(); }
+    else if (d.kind === 'ref1') { g.ref.x1 = pt.x; g.ref.y1 = pt.y; rebuild(); }
+    else if (d.kind === 'ref2') { g.ref.x2 = pt.x; g.ref.y2 = pt.y; rebuild(); }
+    else if (d.kind === 'paint') { const m = state.masks.find(x => x.id === d.id); if (m) { window.Masks.line(m, d.last.x, d.last.y, pt.x, pt.y, state.brush, state.erase || ev.altKey); d.last = pt; } }
+    else if (d.kind === 'plant') {
+      const bx = Math.max(0, Math.min(state.photo.w, pt.x - d.dx)), by = Math.max(cam.horizonY + 2, Math.min(state.photo.h, pt.y - d.dy));
+      const pl = cam.toPlan(bx, by); if (pl) { const plant = state.plants.find(x => x.id === d.id); if (plant) { plant.X = pl.X; plant.Z = pl.Z; } }
+    }
+    else if (d.kind === 'pan') { if (view.zoom > 1) { view.panX = d.panX0 + (ev.clientX - p.x0); view.panY = d.panY0 + (ev.clientY - p.y0); layout(); } }
+    invalidate();
+  }
+  function pressEnd(p) {
+    const d = p.drag;
+    if (d.kind === 'plant') afterChange();
+    else if (d.kind === 'paint') { save(); renderMasks(); }
+    else if (d.kind !== 'pan') { save(); renderPhoto(); }
+    invalidate();
+  }
+  canvas.addEventListener('pointerdown', (ev) => {
+    if (ev.button > 0) return; blurInputs(); wakeZoom();
+    pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY }); try { canvas.setPointerCapture(ev.pointerId); } catch (e) { }
+    if (pointers.size === 2) { cancelPress(); startPinch(); return; }
+    if (pointers.size > 2 || pinch || !cam) return;
+    const pt = toImg(ev), intent = pressIntent(ev, pt);
+    press = { id: ev.pointerId, pt, x0: ev.clientX, y0: ev.clientY, client: { x: ev.clientX, y: ev.clientY }, touch: ev.pointerType === 'touch', moved: !!intent.started, drag: intent.drag, tap: intent.tap };
+    if (press.drag.kind === 'pan') { press.drag.panX0 = view.panX; press.drag.panY0 = view.panY; }
+    state.hoverPt = pt; invalidate();
   });
   canvas.addEventListener('pointermove', (ev) => {
-    if (!cam) return; const pt = toImg(ev); state.hoverPt = pt;
-    if (state.drag) {
-      const d = state.drag, g = state.ground;
-      if (d.kind === 'horizon') { g.horizon = Math.max(0.02, Math.min(0.9, pt.y / state.photo.h)); rebuild(); }
-      else if (d.kind === 'ref1') { g.ref.x1 = pt.x; g.ref.y1 = pt.y; rebuild(); }
-      else if (d.kind === 'ref2') { g.ref.x2 = pt.x; g.ref.y2 = pt.y; rebuild(); }
-      else if (d.kind === 'paint') { const m = state.masks.find(x => x.id === d.id); if (m) { window.Masks.line(m, d.last.x, d.last.y, pt.x, pt.y, state.brush, state.erase || ev.altKey); d.last = pt; invalidate(); } }
-      else if (d.kind === 'plant') {
-        /* keep the plant's base inside the photo and on the ground */
-        const bx = Math.max(0, Math.min(state.photo.w, pt.x - d.dx)), by = Math.max(cam.horizonY + 2, Math.min(state.photo.h, pt.y - d.dy));
-        const pl = cam.toPlan(bx, by); if (pl) { const p = state.plants.find(x => x.id === d.id); p.X = pl.X; p.Z = pl.Z; d.moved = true; invalidate(); }
-      }
-      else if (d.kind === 'pan') { const dx = ev.clientX - d.x0, dy = ev.clientY - d.y0; if (Math.abs(dx) + Math.abs(dy) > 4) d.moved = true; if (view.zoom > 1) { view.panX = d.panX0 + dx; view.panY = d.panY0 + dy; layout(); invalidate(); } }
-      return;
+    if (pointers.has(ev.pointerId)) pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    if (pinch) { if (pointers.size === 2) movePinch(); return; }
+    if (!cam) return;
+    if (press && ev.pointerId === press.id) {
+      press.client = { x: ev.clientX, y: ev.clientY };
+      if (!press.moved) { if (Math.hypot(ev.clientX - press.x0, ev.clientY - press.y0) < TAP_SLOP) return; press.moved = true; }
+      state.hoverPt = toImg(ev); pressMove(press, ev); return;
     }
-    if (state.mode === 'plant' && ev.pointerType !== 'touch') { const h = hitPlant(pt); state.hover = h ? h.id : null; canvas.style.cursor = state.libSel ? 'crosshair' : (h ? 'move' : 'default'); }
-    invalidate();
+    if (ev.pointerType === 'mouse') {
+      const pt = toImg(ev); state.hoverPt = pt;
+      if (state.mode === 'plant') { const h = hitPlant(pt); state.hover = h ? h.id : null; canvas.style.cursor = state.libSel ? 'crosshair' : (h ? 'move' : 'default'); }
+      invalidate();
+    }
   });
-  canvas.addEventListener('pointerup', () => {
-    if (!state.drag) return; const d = state.drag; state.drag = null;
-    if (d.kind === 'plant') { if (d.moved) afterChange(); else renderSelected(); }
-    else if (d.kind === 'pan') { if (!d.moved && state.sel) { state.sel = null; renderSelected(); invalidate(); } }
-    else if (d.kind === 'paint') { save(); renderMasks(); }
-    else { save(); renderPhoto(); }
-  });
-  canvas.addEventListener('pointerleave', () => { state.hoverPt = null; state.hover = null; invalidate(); });
+  const endPointer = (ev) => {
+    pointers.delete(ev.pointerId);
+    if (pinch) { if (pointers.size < 2) { const c = pinch; pinch = null; settleZoom(c.cx, c.cy); } return; }
+    if (!press || ev.pointerId !== press.id) return;
+    const p = press; press = null;
+    if (ev.type === 'pointercancel') { invalidate(); return; }
+    if (p.moved) pressEnd(p); else if (p.tap) pressTap(p); else pressEnd(p);
+    if (p.touch) { state.hoverPt = null; invalidate(); }
+  };
+  canvas.addEventListener('pointerup', endPointer); canvas.addEventListener('pointercancel', endPointer);
+  canvas.addEventListener('pointerleave', (ev) => { if (ev.pointerType === 'mouse' && !press) { state.hoverPt = null; state.hover = null; invalidate(); } });
   canvas.addEventListener('dblclick', () => { if (state.mode === 'bed') finishBed(); });
+  canvas.addEventListener('contextmenu', (ev) => ev.preventDefault());
   window.addEventListener('keydown', (ev) => {
     if (ev.target.matches('input, select, textarea')) return;
     const mod = ev.ctrlKey || ev.metaKey;
@@ -322,23 +431,106 @@
     if (ev.key === '[') { state.brush = Math.max(4, state.brush * 0.8); renderMasks(); invalidate(); } if (ev.key === ']') { state.brush = Math.min(400, state.brush * 1.25); renderMasks(); invalidate(); }
   });
 
+  /* ---------------- bottom sheet (phones held upright) ----------------
+   * The panel slides over the photo with three resting positions. The stage above it is
+   * resized only when the sheet settles, so dragging stays smooth. */
+  const sheet = { pos: 'half', v: 0, peek: 150 };   /* v: visible height of the sheet at rest */
+  const sideEl = $('side'), layoutEl = $('layout'), sheetHead = $('sheetHead');
+  function sheetMetrics() { const tb = $('timebar'); sheet.peek = sheetHead.offsetHeight + (tb.parentElement === sideEl ? tb.offsetHeight : 0); sheet.L = layoutEl.clientHeight; }
+  function sheetV(pos) { return pos === 'full' ? Math.max(sheet.peek, sheet.L - 8) : pos === 'half' ? Math.max(sheet.peek, Math.round(sheet.L * 0.5)) : sheet.peek; }
+  /* animate from the current visual position to a resting height */
+  function snapTo(v) {
+    const cur = sheet.v - (parseFloat(sideEl.style.getPropertyValue('--sheet-dy')) || 0);
+    sheet.v = v; sideEl.style.height = v + 'px'; layoutEl.style.setProperty('--peek', v + 'px');
+    sideEl.classList.add('dragging'); sideEl.style.setProperty('--sheet-dy', (v - cur) + 'px'); void sideEl.offsetHeight;
+    sideEl.classList.remove('dragging'); sideEl.style.setProperty('--sheet-dy', '0px');
+  }
+  function setSheet(pos) {
+    sheet.pos = pos; $('sheetToggle').textContent = pos === 'peek' ? '⌃' : '⌄'; $('sheetToggle').setAttribute('aria-label', pos === 'peek' ? 'Show panel' : 'Hide panel');
+    if (!mqSheet.matches) return;
+    sheetMetrics(); snapTo(sheetV(pos)); sideEl.classList.toggle('peek', pos === 'peek'); layoutEl.classList.toggle('sheetFull', pos === 'full');
+  }
+  let sheetDrag = null;
+  function sheetDown(y) { sheetMetrics(); sheetDrag = { y0: y, v0: sheet.v, v: sheet.v, last: y, lastT: performance.now(), vel: 0, moved: false }; sideEl.classList.add('dragging'); }
+  function sheetMove(y) {
+    if (!sheetDrag) return; const d = sheetDrag, now = performance.now(), dt = Math.max(1, now - d.lastT);
+    d.vel = 0.6 * d.vel + 0.4 * ((d.last - y) / dt); d.last = y; d.lastT = now; if (Math.abs(y - d.y0) > 4) d.moved = true;
+    let v = d.v0 + (d.y0 - y); const lo = sheetV('peek'), hi = sheetV('full');
+    if (v > hi) v = hi + (v - hi) * 0.3; if (v < lo) v = lo - (lo - v) * 0.3;
+    d.v = v; sideEl.style.setProperty('--sheet-dy', (d.v0 - v) + 'px'); sideEl.classList.remove('peek');
+  }
+  function sheetUp() {
+    if (!sheetDrag) return; const d = sheetDrag; sheetDrag = null; sideEl.classList.remove('dragging');
+    if (!d.moved) { setSheet(sheet.pos); return; }
+    const proj = d.v + d.vel * 160; let best = 'half', bd = Infinity;
+    ['full', 'half', 'peek'].forEach(p => { const dd = Math.abs(sheetV(p) - proj); if (dd < bd) { bd = dd; best = p; } });
+    setSheet(best);
+  }
+  sheetHead.addEventListener('pointerdown', (ev) => { if (ev.button > 0 || !mqSheet.matches || ev.target.closest('button')) return; blurInputs(); try { sheetHead.setPointerCapture(ev.pointerId); } catch (e) { } sheetDown(ev.clientY); });
+  sheetHead.addEventListener('pointermove', (ev) => sheetMove(ev.clientY));
+  const sheetHeadUp = (ev) => { if (!sheetDrag) return; const moved = sheetDrag.moved; sheetUp(); if (!moved && ev.type === 'pointerup') setSheet(sheet.pos === 'peek' ? 'half' : sheet.pos === 'half' ? 'full' : 'half'); };
+  sheetHead.addEventListener('pointerup', sheetHeadUp); sheetHead.addEventListener('pointercancel', sheetHeadUp);
+  /* pulling the panel content down when it is at the top, or up when the sheet is not yet full, moves the sheet */
+  let panelTouch = null;
+  document.querySelectorAll('.panel').forEach(panel => {
+    panel.addEventListener('touchstart', (ev) => { if (!mqSheet.matches || ev.touches.length !== 1) { panelTouch = null; return; } panelTouch = { y: ev.touches[0].clientY, top: panel.scrollTop, decided: false, drag: false }; }, { passive: true });
+    panel.addEventListener('touchmove', (ev) => {
+      if (!panelTouch || ev.touches.length !== 1) return; const y = ev.touches[0].clientY, dy = y - panelTouch.y;
+      if (!panelTouch.decided) { if (Math.abs(dy) < 3) return; panelTouch.decided = true; panelTouch.drag = (dy > 0 && panel.scrollTop <= 0) || (dy < 0 && sheet.pos !== 'full'); if (panelTouch.drag) sheetDown(panelTouch.y); }
+      if (panelTouch.drag) { ev.preventDefault(); sheetMove(y); }
+    }, { passive: false });
+    const end = () => { if (panelTouch && panelTouch.drag) sheetUp(); panelTouch = null; };
+    panel.addEventListener('touchend', end); panel.addEventListener('touchcancel', end);
+  });
+  /* the time bar lives in the sheet on an upright phone and under the photo everywhere else */
+  function relayout() {
+    const tb = $('timebar'), stage = $('stage');
+    if (mqSheet.matches) { if (tb.parentElement !== sideEl) sideEl.insertBefore(tb, sheetHead.nextSibling); setSheet(sheet.pos); }
+    else { if (tb.parentElement !== stage) stage.appendChild(tb); sideEl.style.removeProperty('--sheet-dy'); sideEl.style.removeProperty('height'); sideEl.classList.remove('peek', 'dragging'); layoutEl.classList.remove('sheetFull'); layoutEl.style.removeProperty('--peek'); }
+    renderBands(); fit();
+  }
+  mqSheet.addEventListener('change', relayout);
+  /* nothing may scroll the app frame itself (a focused input or a tap can try) */
+  layoutEl.addEventListener('scroll', () => { layoutEl.scrollTop = 0; layoutEl.scrollLeft = 0; });
+  window.addEventListener('resize', () => { if (mqSheet.matches) setSheet(sheet.pos); });
+  window.addEventListener('focusout', () => { if (isPhone()) setTimeout(() => window.scrollTo(0, 0), 50); });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', () => { if (isPhone() && !document.activeElement.matches('input, select, textarea')) window.scrollTo(0, 0); });
+
+  /* ---------------- photo step as a short guided flow on phones ---------------- */
+  const wiz = { page: 0, n: 5 };
+  function renderWiz() {
+    const pages = document.querySelectorAll('#panel-photo .wizPage'); if (!pages.length) return;
+    wiz.page = Math.max(0, Math.min(wiz.n - 1, wiz.page));
+    pages.forEach(p => p.classList.toggle('on', +p.dataset.page === wiz.page));
+    $('wizDots').innerHTML = Array.from({ length: wiz.n }, (_, i) => `<i class="${i === wiz.page ? 'on' : ''}"></i>`).join('');
+    $('wizBack').disabled = wiz.page === 0; $('wizNext').classList.toggle('hidden', wiz.page === wiz.n - 1);
+    document.querySelector('#panel-photo .wizEnd').classList.toggle('on', wiz.page === wiz.n - 1);
+    $('showGrid').checked = $('showGrid').checked || (isPhone() && (wiz.page === 1 || wiz.page === 2));
+    updateHint(); invalidate();
+  }
+  $('wizBack').addEventListener('click', () => { wiz.page--; renderWiz(); $('panel-photo').scrollTop = 0; });
+  $('wizNext').addEventListener('click', () => { wiz.page++; renderWiz(); $('panel-photo').scrollTop = 0; });
+
   /* ---------------- steps, modes, contextual Done/Cancel ---------------- */
   const TITLES = { photo: 'Photo and your garden', beds: 'Beds and what is in front', plants: 'Plants', review: 'Review' };
   function showStep(name) {
     state.step = name;
+    if (name !== 'plants' && state.libSel) { state.libSel = null; setContext(null); renderLibrary(); }
+    if ((name === 'photo' || name === 'beds') && state.sel) { state.sel = null; renderSelected(); }
     document.querySelectorAll('.steps button').forEach(b => b.classList.toggle('active', b.dataset.step === name));
     document.querySelectorAll('.panel').forEach(p => p.classList.toggle('hidden', p.id !== 'panel-' + name));
-    $('panelTitle').textContent = TITLES[name]; $('side').classList.remove('collapsed'); $('sheetToggle').textContent = 'Hide';
+    $('panelTitle').textContent = TITLES[name]; setSheet(name === 'plants' && state.libSel ? 'peek' : 'half');
+    if (name === 'photo') renderWiz();
     if (state.mode !== 'plant') setMode('plant');
     if (name === 'review') renderReview(); if (name === 'photo') renderPhoto(); if (name === 'beds') { renderBeds(); renderMasks(); }
     updateHint(); invalidate();
   }
   document.querySelectorAll('.steps button').forEach(b => b.addEventListener('click', () => showStep(b.dataset.step)));
   document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => showStep(b.dataset.goto)));
-  $('sheetToggle').addEventListener('click', () => { const s = $('side'); s.classList.toggle('collapsed'); $('sheetToggle').textContent = s.classList.contains('collapsed') ? 'Show' : 'Hide'; setTimeout(fit, 50); });
+  $('sheetToggle').addEventListener('click', () => setSheet(sheet.pos === 'peek' ? 'half' : 'peek'));
 
   let context = null; /* { done, cancel } */
-  function setContext(c) { context = c; $('doneBtn').classList.toggle('hidden', !c || !c.done); $('cancelBtn').classList.toggle('hidden', !c); $('doneBtn').disabled = !!(c && c.disabled); }
+  function setContext(c) { context = c; $('doneBtn').classList.toggle('hidden', !c || !c.done); $('cancelBtn').classList.toggle('hidden', !c); $('doneBtn').disabled = !!(c && c.disabled); updateCtxbar(); if (c && mqSheet.matches) setSheet('peek'); }
   $('doneBtn').addEventListener('click', () => { if (context && context.done) context.done(); });
   $('cancelBtn').addEventListener('click', cancelContext);
   function cancelContext() {
@@ -347,16 +539,22 @@
     updateHint(); invalidate();
   }
   function setMode(m) {
-    state.mode = m; state.drawingBed = null; state.maskSetDepth = false; state.refClicks = null; state.drag = null;
+    state.mode = m; state.drawingBed = null; state.maskSetDepth = false; state.refClicks = null; press = null;
+    if (m !== 'plant' && state.sel) { state.sel = null; renderSelected(); }
     $('brushRow').classList.toggle('hidden', m !== 'mask');
     updateHint(); invalidate();
   }
   function updateHint() {
-    if (state.step === 'photo') hint(state.refClicks != null ? (state.refClicks === 0 ? 'Tap one end of the back fence.' : 'Now tap the other end.') : 'Drag the yellow line to your eye level. Drag the blue ends onto the fence. The grid should lie flat on the lawn.');
-    else if (state.mode === 'mask') hint(state.maskSetDepth ? 'Tap the ground where this object stands.' : `Paint over the object. ${state.erase ? 'Erasing.' : 'Tick "erase" to remove paint.'} Then press Done.`);
-    else if (state.mode === 'bed') hint(state.drawingBed && state.drawingBed.length ? `${state.drawingBed.length} corner${state.drawingBed.length > 1 ? 's' : ''}. Keep tapping, then press Done.` : 'Tap the corners of the border on the lawn, then press Done.');
-    else if (state.libSel) hint(`Tap the lawn or a border to plant ${LIB.byId[state.libSel].name}. Cancel to stop.`);
-    else hint(state.step === 'plants' ? (window.innerWidth <= 900 ? 'Choose a plant below, then tap where it should go.' : 'Choose a plant on the right, then tap where it should go. Drag plants to move them.') : '');
+    const ph = isPhone();
+    if (state.step === 'photo') {
+      if (state.refClicks != null) hint(state.refClicks === 0 ? 'Tap one end of the back fence.' : 'Now tap the other end.');
+      else if (ph) hint(['Choose a photo, or keep the sample.', 'Drag the yellow line to your eye level.', 'Drag the blue ends onto the fence.', '', ''][wiz.page] || '');
+      else hint('Drag the yellow line to your eye level. Drag the blue ends onto the fence. The grid should lie flat on the lawn.');
+    }
+    else if (state.mode === 'mask') hint(state.maskSetDepth ? 'Tap the ground where this object stands.' : (ph ? (state.erase ? 'Rub out paint, then Done.' : 'Paint over the object, then Done.') : `Paint over the object. ${state.erase ? 'Erasing.' : 'Tick "erase" to remove paint.'} Then press Done.`));
+    else if (state.mode === 'bed') hint(state.drawingBed && state.drawingBed.length ? `${state.drawingBed.length} corner${state.drawingBed.length > 1 ? 's' : ''}. ${ph ? 'Keep tapping, then Done.' : 'Keep tapping, then press Done.'}` : (ph ? 'Tap the corners of the border.' : 'Tap the corners of the border on the lawn, then press Done.'));
+    else if (state.libSel) hint(ph ? `Tap the lawn to plant ${LIB.byId[state.libSel].name}.` : `Tap the lawn or a border to plant ${LIB.byId[state.libSel].name}. Cancel to stop.`);
+    else hint(state.step === 'plants' ? (ph ? 'Pick a plant, then tap the lawn.' : 'Choose a plant on the right, then tap where it should go. Drag plants to move them.') : '');
   }
 
   /* ---------------- beds ---------------- */
@@ -462,10 +660,12 @@
       if (state.libSel && state.mode !== 'plant') setMode('plant');
       setContext(state.libSel ? { cancel: () => { state.libSel = null; renderLibrary(); updateHint(); } } : null);
       renderLibrary(); renderSelected(); updateHint(); invalidate();
-      if (state.libSel) toast(`Now tap the photo where the ${LIB.byId[state.libSel].name} should go`, 2500);
+      if (state.libSel) { setSheet('peek'); blurInputs(); if (!isPhone()) toast(`Now tap the photo where the ${LIB.byId[state.libSel].name} should go`, 2500); }
     }));
   }
   $('search').addEventListener('input', (e) => { state.search = e.target.value; renderLibrary(); });
+  $('search').addEventListener('focus', () => { if (mqSheet.matches) setSheet('full'); });
+  $('search').addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.blur(); });
 
   /* ---------------- selected plant ---------------- */
   const SPRITE_STATES = ['leaf', 'flower', 'fruit', 'autumn', 'spring', 'bare'];
@@ -531,7 +731,7 @@
   function renderCredits() {
     const rows = [];
     Object.entries(window.SPRITE_MANIFEST || {}).forEach(([pid, states]) => Object.entries(states).forEach(([st, e]) => { if (!e || !e.file || e.license === 'own') return; const p = LIB.byId[pid]; if (!p) return; rows.push(`<li>${p.name} (${st}): ${e.source && e.source.startsWith('http') ? `<a href="${e.source}" target="_blank" rel="noopener">Wikimedia Commons</a>` : e.source}${e.credit ? ' by ' + e.credit : ''}, ${e.license}</li>`); }));
-    $('credits').innerHTML = rows.length ? `<ul class="small">${rows.join('')}</ul>` : '<p class="small">No bundled photo sprites yet. See tools/sprites.py in the repository.</p>';
+    $('credits').innerHTML = rows.length ? `<details class="credits"><summary>${rows.length} photo credits</summary><ul class="small">${rows.join('')}</ul></details>` : '<p class="small">No bundled photo sprites yet. See tools/sprites.py in the repository.</p>';
   }
 
   /* ---------------- photo step ---------------- */
@@ -543,7 +743,7 @@
     $('horizon').value = g.horizon; $('horizonVal').textContent = `${Math.round(g.horizon * 100)}% down the photo`;
     $('refLen').value = g.refLen; $('lens').value = String(g.lens);
     const fz = fenceZ();
-    $('camReadout').innerHTML = g.ref ? `The fence is about <b>${fz.toFixed(1)} m</b> away and the camera was <b>${cam.hc.toFixed(2)} m</b> up.` + (cam.hc < 0.6 || cam.hc > 3 ? ' <span style="color:#a33a2a">That camera height looks wrong: check the eye-level line and the length.</span>' : ' That looks right for a phone at chest height.') : 'Nothing marked yet, so the camera is assumed to be 1.5 m up.';
+    $('camReadout').innerHTML = g.ref && fz == null ? '<span style="color:#a33a2a">The fence ends are above the eye-level line. Move the yellow line up, above the fence.</span>' : g.ref ? `The fence is about <b>${fz.toFixed(1)} m</b> away and the camera was <b>${cam.hc.toFixed(2)} m</b> up.` + (cam.hc < 0.6 || cam.hc > 3 ? ' <span style="color:#a33a2a">That camera height looks wrong: check the eye-level line and the length.</span>' : ' That looks right for a phone at chest height.') : 'Nothing marked yet, so the camera is assumed to be 1.5 m up.';
     $('heading').value = state.profile.heading || ''; $('region').value = state.profile.region; $('soil').value = state.profile.soil; $('drainage').value = state.profile.drainage; $('ph').value = state.profile.ph; $('exposure').value = state.profile.exposure;
     const L = state.light || window.Compose.autoLight(state.stats || {});
     $('sunAz').value = state.sun.az; $('sunEl').value = state.sun.el;
@@ -572,7 +772,7 @@
     state.ground = defaultGround(); state.beds = []; state.plants = []; state.sel = null; state.masks = []; state.maskSel = null; state.stats = null; state.light = null; state.undo = []; state.redo = [];
     view.zoom = 1; view.panX = view.panY = 0;
     buildCamera(); fit(); lastSnap = snapshot(); save(); renderPhoto(); renderBeds(); renderMasks(); renderReview(); renderBands(); updateUndoButtons();
-    showStep('photo'); toast('Your photo is in. Drag the yellow line to your eye level and mark the fence.', 5000);
+    wiz.page = 1; showStep('photo'); toast(isPhone() ? 'Photo in. Now set your eye level.' : 'Your photo is in. Drag the yellow line to your eye level and mark the fence.', 4000);
   });
 
   /* ---------------- review ---------------- */
@@ -637,7 +837,7 @@
     $('shopping').innerHTML = rows.length ? `<table class="shop">${rows.map(r => `<tr><td>${r.n} ×</td><td><b>${r.p.name}</b><br><i class="small">${r.p.latin}</i></td><td class="small">${r.pot}</td><td><a class="small" href="https://www.rhs.org.uk/plants/search-results?query=${encodeURIComponent(r.p.latin)}" target="_blank" rel="noopener">RHS</a></td></tr>`).join('')}</table>` : '<p class="small">Empty until you place plants.</p>';
     $('shopCopy').onclick = () => { const txt = rows.map(r => `${r.n} x ${r.p.name} (${r.p.latin}), ${r.pot}`).join('\n'); if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast('Shopping list copied')); };
   }
-  $('clearAll').addEventListener('click', () => { if (confirm('Remove every plant and border from this design? You can undo.')) { state.plants = []; state.beds = []; state.sel = null; afterChange(); renderBeds(); } });
+  $('clearAll').addEventListener('click', async () => { if (await confirmDialog('Remove every plant and border from this design? You can undo.', 'Clear design')) { state.plants = []; state.beds = []; state.sel = null; afterChange(); renderBeds(); } });
   $('exportJson').addEventListener('click', () => { const blob = new Blob([JSON.stringify({ version: 2, ground: state.ground, beds: state.beds, plants: state.plants, sun: state.sun, light: state.light, profile: state.profile, masks: state.masks.map(window.Masks.serialize), photoName: state.photo.name, photoData: state.photo.dataUrl })], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'netgarden-design.json'; a.click(); });
   $('importJson').addEventListener('change', async (e) => {
     const file = e.target.files[0]; if (!file) return;
@@ -667,8 +867,10 @@
   try { const k = localStorage.getItem('netgarden.apikey'); if (k) $('apiKey').value = k; } catch (e) { }
 
   /* ---------------- time, play, flower bands ---------------- */
+  let scrubbing = false, scrubTimer = null;
+  function markScrub() { scrubbing = true; clearTimeout(scrubTimer); scrubTimer = setTimeout(() => { scrubbing = false; invalidate(); }, 160); }
   function setTime(t) {
-    state.t = ((t % 12) + 12) % 12; $('time').value = state.t; $('timeLabel').textContent = timeLabel(state.t);
+    markScrub(); state.t = ((t % 12) + 12) % 12; $('time').value = state.t; $('timeLabel').textContent = timeLabel(state.t);
     invalidate(); renderPlan(); if (state.step === 'review') { renderCalendar(); const month = Math.floor(((tEff() % 12) + 12) % 12) + 1; $('jobsMonth').textContent = MONTHS[month - 1]; $('jobs').innerHTML = window.Site.jobs(state.plants, LIB.byId, month).map(j => `<li>${j.plant ? `<b>${j.plant}:</b> ` : ''}${j.text}</li>`).join('') || '<li class="small">Nothing specific this month.</li>'; }
     drawBandCursor();
   }
@@ -689,12 +891,16 @@
     bandImage = bctx.getImageData(0, 0, bands.width, bands.height); drawBandCursor();
   }
   function drawBandCursor() { if (!bandImage) return; bctx.putImageData(bandImage, 0, 0); const dpr = window.devicePixelRatio || 1, w = bands.width / dpr; bctx.setTransform(dpr, 0, 0, dpr, 0, 0); bctx.fillStyle = 'rgba(38,58,34,0.9)'; bctx.fillRect(state.t / 12 * w - 1, 0, 2, 34); }
-  bands.addEventListener('click', (ev) => { const r = bands.getBoundingClientRect(); setTime((ev.clientX - r.left) / r.width * 12); save(); });
-  bands.addEventListener('mousemove', (ev) => { const r = bands.getBoundingClientRect(), m = Math.floor((ev.clientX - r.left) / r.width * 12) + 1; const ids = [...new Set(state.plants.map(p => p.pid))].map(id => LIB.byId[id]).filter(p => p && p.flower && p.flower.m.includes(m)); bands.title = `${MONTHS[m - 1]}: ${ids.length ? ids.map(p => p.name).join(', ') : 'nothing in flower'}`; });
+  function inFlowerText(m) { const ids = [...new Set(state.plants.map(p => p.pid))].map(id => LIB.byId[id]).filter(p => p && p.flower && p.flower.m.includes(m)); return `${MONTHS[m - 1]}: ${ids.length ? ids.map(p => p.name).join(', ') : 'nothing in flower'}`; }
+  let scrub = null;
+  bands.addEventListener('pointerdown', (ev) => { if (ev.button > 0) return; blurInputs(); try { bands.setPointerCapture(ev.pointerId); } catch (e) { } const r = bands.getBoundingClientRect(); scrub = { x0: ev.clientX, moved: false, r }; if (state.playing) $('play').click(); setTime((ev.clientX - r.left) / r.width * 12); });
+  bands.addEventListener('pointermove', (ev) => { if (scrub) { if (Math.abs(ev.clientX - scrub.x0) > 3) scrub.moved = true; setTime((ev.clientX - scrub.r.left) / scrub.r.width * 12); return; } if (ev.pointerType === 'mouse') { const r = bands.getBoundingClientRect(); bands.title = inFlowerText(Math.max(1, Math.min(12, Math.floor((ev.clientX - r.left) / r.width * 12) + 1))); } });
+  const endScrub = (ev) => { if (!scrub) return; const s = scrub; scrub = null; save(); if (!s.moved && ev.pointerType !== 'mouse') toast(inFlowerText(Math.floor(state.t) + 1), 2200); };
+  bands.addEventListener('pointerup', endScrub); bands.addEventListener('pointercancel', endScrub);
   window.addEventListener('resize', renderBands);
 
   /* ---------------- boot ---------------- */
-  window.netgarden = { state, invalidate, get cam() { return cam; }, draw, save, showStep, setTime, undo, redo };
+  window.netgarden = { state, invalidate, get cam() { return cam; }, draw, save, showStep, setTime, undo, redo, setSheet, view, get sheet() { return sheet; }, get press() { return press; }, get pinch() { return pinch; }, get pointers() { return pointers.size; } };
   async function boot() {
     window.Render.api.onImageLoad = invalidate;
     await loadUserSprites();
@@ -707,10 +913,10 @@
       if (saved.sun) state.sun = saved.sun; if (saved.light) state.light = saved.light; if (saved.profile) state.profile = Object.assign({}, window.Site.DEFAULT_PROFILE, saved.profile);
       if (saved.masks) state.masks = await Promise.all(saved.masks.map(m => window.Masks.restore(m, state.photo.w, state.photo.h)));
     }
-    buildCamera(); fit(); lastSnap = snapshot();
-    renderCredits(); renderLibrary(); renderPhoto(); renderBeds(); renderMasks(); renderSelected(); renderReview(); renderBands(); updateUndoButtons();
-    const firstRun = !saved; showStep(firstRun && !/sample/.test(state.photo.name) ? 'photo' : 'plants'); setTime(state.t);
-    if (firstRun) toast('Welcome. Pick a plant below or on the right, then tap the lawn.', 4000);
+    buildCamera(); relayout(); fit(); lastSnap = snapshot();
+    renderCredits(); renderLibrary(); renderPhoto(); renderBeds(); renderMasks(); renderSelected(); renderReview(); renderBands(); updateUndoButtons(); renderWiz();
+    const firstRun = !saved; showStep(firstRun && !/sample/.test(state.photo.name) ? 'photo' : 'plants'); setTime(state.t); wakeZoom();
+    if (firstRun) toast(isPhone() ? 'Welcome. Pick a plant, then tap the lawn.' : 'Welcome. Pick a plant below or on the right, then tap the lawn.', 4000);
   }
   boot();
 })();

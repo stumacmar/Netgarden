@@ -2,13 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-visual">
 <title>Netgarden</title>
+<meta name="description" content="Plan your garden on a photo of it and watch it through the year.">
+<meta name="theme-color" content="#263a22">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Netgarden">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><span class="leaf">❧</span> Netgarden</div>
+  <div class="brand"><span class="leaf">❧</span><span class="word"> Netgarden</span></div>
   <nav class="steps" aria-label="Steps">
     <button data-step="photo"><span class="n">1</span> Photo</button>
     <button data-step="beds"><span class="n">2</span> Beds</button>
@@ -16,32 +26,40 @@
     <button data-step="review"><span class="n">4</span> Review</button>
   </nav>
   <div class="actions">
-    <button id="undoBtn" title="Undo (Ctrl+Z)" disabled>↶<span class="lbl"> Undo</span></button>
-    <button id="redoBtn" title="Redo (Ctrl+Shift+Z)" disabled>↷<span class="lbl"> Redo</span></button>
-    <button id="doneBtn" class="primary hidden">Done</button>
-    <button id="cancelBtn" class="hidden">Cancel</button>
+    <button id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>↶<span class="lbl"> Undo</span></button>
+    <button id="redoBtn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled>↷<span class="lbl"> Redo</span></button>
   </div>
 </header>
 
-<main class="layout">
-  <section class="stage">
+<main class="layout" id="layout">
+  <section class="stage" id="stage">
     <div class="canvasWrap" id="canvasWrap">
       <canvas id="view"></canvas>
-      <div class="hint" id="hint"></div>
-      <div class="toast" id="toast"></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <button id="usePhotoBtn" class="primary usePhoto">📷<span class="long"> Use a photo of your garden</span><span class="short"> Your photo</span></button>
+      <div class="zoomCtl" id="zoomCtl">
+        <button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+        <button id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button>
+        <button id="zoomFit" title="Fit" aria-label="Fit to screen">⊡</button>
+        <button id="gridBtn" title="Show the 1 m grid" aria-label="1 m grid" aria-pressed="false">▦</button>
+        <input type="checkbox" id="showGrid" hidden>
+        <span id="zoomVal"></span>
+      </div>
       <div class="selbar hidden" id="selbar">
         <span id="selName"></span>
-        <button id="sbFlip" title="Mirror to face the light">Flip</button>
-        <button id="sbDup">Duplicate</button>
-        <button id="sbDel" class="danger">Delete</button>
-        <button id="sbClose" title="Deselect">✕</button>
+        <button id="sbFlip" title="Mirror to face the light" aria-label="Flip">⇋<span class="lbl"> Flip</span></button>
+        <button id="sbDup" title="Duplicate" aria-label="Duplicate">⧉<span class="lbl"> Duplicate</span></button>
+        <button id="sbDel" class="danger" title="Delete" aria-label="Delete">🗑<span class="lbl"> Delete</span></button>
+        <button id="sbClose" title="Deselect" aria-label="Deselect">✕</button>
       </div>
-      <label class="gridChk"><input type="checkbox" id="showGrid"> 1 m grid</label>
-      <div class="zoomCtl"><button id="zoomIn" title="Zoom in">+</button><button id="zoomOut" title="Zoom out">−</button><button id="zoomFit" title="Fit">⊡</button><span id="zoomVal"></span></div>
-      <button id="usePhotoBtn" class="primary usePhoto">📷 Use a photo of your garden</button>
+      <div class="ctxbar" id="ctxbar">
+        <span class="hint" id="hint"></span>
+        <button id="cancelBtn" class="hidden">Cancel</button>
+        <button id="doneBtn" class="primary hidden">Done</button>
+      </div>
     </div>
-    <div class="timebar">
-      <button id="play" class="icon" title="Play through the year">▶</button>
+    <div class="timebar" id="timebar">
+      <button id="play" class="icon" title="Play through the year" aria-label="Play through the year">▶</button>
       <div class="sliderWrap">
         <input type="range" id="time" min="0" max="11.99" step="0.02" value="6.5" aria-label="Time of year">
         <canvas id="bands" height="34" title="What is in flower through the year"></canvas>
@@ -52,44 +70,58 @@
   </section>
 
   <aside class="side" id="side">
-    <div class="sheetHead" id="sheetHead"><span id="panelTitle">Plants</span><button id="sheetToggle" class="mini">Hide</button></div>
+    <div class="sheetHead" id="sheetHead">
+      <div class="handle" aria-hidden="true"></div>
+      <div class="sheetRow"><span id="panelTitle">Plants</span><button id="sheetToggle" class="mini" aria-label="Hide panel">⌄</button></div>
+    </div>
 
     <section class="panel hidden" id="panel-photo">
-      <h3>Your photo</h3>
-      <div class="row"><label class="btn primary">Choose a photo <input type="file" id="photoFile" accept="image/*" hidden></label><label class="btn">📷 Take a photo <input type="file" id="cameraFile" accept="image/*" capture="environment" hidden></label></div>
-      <p class="small" id="photoName"></p>
-      <p class="small">Take it from where you usually look at the garden, phone held level. Nothing leaves your browser.</p>
-      <h3>Three quick questions</h3>
-      <div class="q"><b>1. Where was your eye level?</b>
-        <label>Drag the yellow line on the photo, or use this. <span id="horizonVal" class="count"></span><input type="range" id="horizon" min="0" max="1" step="0.001"></label>
-        <p class="small">For a 1.8 m fence, a little below its top.</p></div>
-      <div class="q"><b>2. How long is something in the photo?</b>
-        <div class="row"><button id="markRef">Mark the back fence</button><label class="inline">metres <input type="number" id="refLen" min="0.5" max="50" step="0.1" value="6.5"></label></div>
-        <p class="small" id="camReadout"></p></div>
-      <div class="q"><b>3. Which way is the camera facing?</b>
-        <select id="heading"><option value="">Not sure</option><option value="N">North</option><option value="NE">North-east</option><option value="E">East</option><option value="SE">South-east</option><option value="S">South</option><option value="SW">South-west</option><option value="W">West</option><option value="NW">North-west</option></select>
-        <p class="small">Use the compass on your phone, standing where the photo was taken. This drives the sun and shade checks.</p></div>
-      <div class="box small">Check: the 1 m grid is showing on the photo. It should lie flat on the lawn and the squares should look square. If the grid tilts, adjust eye level.</div>
-      <h3>Your garden</h3>
-      <label>Region <select id="region"><option value="south">Southern England</option><option value="midlands">Midlands and Wales</option><option value="north">Northern England</option><option value="scotland">Scotland</option></select></label>
-      <label>Soil <select id="soil"><option value="unknown">Not sure</option><option value="clay">Clay (sticky, cracks in summer)</option><option value="loam">Loam (crumbly, dark)</option><option value="sand">Sandy (gritty, dries fast)</option><option value="chalk">Chalky (pale, stony)</option></select></label>
-      <label>Drainage <select id="drainage"><option value="average">Average</option><option value="wet">Wet, puddles linger</option><option value="dry">Dry, fast draining</option></select></label>
-      <label>Soil pH <select id="ph"><option value="unknown">Not sure (a test kit costs a few pounds)</option><option value="acid">Acid</option><option value="neutral">Neutral</option><option value="alkaline">Alkaline (chalk or lime)</option></select></label>
-      <label>Exposure <select id="exposure"><option value="sheltered">Sheltered</option><option value="exposed">Exposed or windy</option></select></label>
-      <details><summary>Advanced: lens, sun and light</summary>
-        <label>Camera lens <select id="lens"><option value="0.72">Phone, standard (26 mm)</option><option value="0.667">Phone, wide (24 mm)</option><option value="0.36">Phone, ultra-wide (13 mm)</option><option value="1.39">Phone, 2× telephoto (50 mm)</option></select></label>
-        <label>Sun direction <span id="sunAzVal" class="count"></span><input type="range" id="sunAz" min="-180" max="180" step="5"></label>
-        <label>Sun height <span id="sunElVal" class="count"></span><input type="range" id="sunEl" min="8" max="70" step="1"></label>
-        <p class="small">Match an existing shadow in the photo.</p>
-        <label>Brightness <input type="range" id="light-brightness" min="0.6" max="1.4" step="0.02"></label>
-        <label>Warmth <input type="range" id="light-warmth" min="-1" max="1" step="0.05"></label>
-        <label>Contrast <input type="range" id="light-contrast" min="0.7" max="1.3" step="0.02"></label>
-        <label>Saturation <input type="range" id="light-saturation" min="0.5" max="1.4" step="0.02"></label>
-        <label>Shadow strength <input type="range" id="light-shadow" min="0" max="0.8" step="0.05"></label>
-        <label>Grain <input type="range" id="light-grain" min="0" max="1" step="0.05"></label>
-        <button id="lightAuto">Auto</button>
-      </details>
-      <div class="row end"><button class="primary" data-goto="beds">Next: beds →</button></div>
+      <div class="wizPage" data-page="0">
+        <h3>Your photo</h3>
+        <div class="row"><label class="btn primary">Choose a photo <input type="file" id="photoFile" accept="image/*" hidden></label><label class="btn">📷 Take a photo <input type="file" id="cameraFile" accept="image/*" capture="environment" hidden></label></div>
+        <p class="small" id="photoName"></p>
+        <p class="small">Take it from where you usually look at the garden, phone held level. Nothing leaves your browser.</p>
+      </div>
+      <div class="wizPage" data-page="1">
+        <h3>Three quick questions</h3>
+        <div class="q"><b>1. Where was your eye level?</b>
+          <label>Drag the yellow line on the photo, or use this. <span id="horizonVal" class="count"></span><input type="range" id="horizon" min="0" max="1" step="0.001"></label>
+          <p class="small">For a 1.8 m fence, a little below its top.</p></div>
+      </div>
+      <div class="wizPage" data-page="2">
+        <div class="q"><b>2. How long is something in the photo?</b>
+          <div class="row"><button id="markRef">Mark the back fence</button><label class="inline">metres <input type="number" id="refLen" min="0.5" max="50" step="0.1" value="6.5" inputmode="decimal"></label></div>
+          <p class="small" id="camReadout"></p></div>
+        <div class="box small">Check: the 1 m grid is showing on the photo. It should lie flat on the lawn and the squares should look square. If the grid tilts, adjust eye level.</div>
+      </div>
+      <div class="wizPage" data-page="3">
+        <div class="q"><b>3. Which way is the camera facing?</b>
+          <select id="heading"><option value="">Not sure</option><option value="N">North</option><option value="NE">North-east</option><option value="E">East</option><option value="SE">South-east</option><option value="S">South</option><option value="SW">South-west</option><option value="W">West</option><option value="NW">North-west</option></select>
+          <p class="small">Use the compass on your phone, standing where the photo was taken. This drives the sun and shade checks.</p></div>
+      </div>
+      <div class="wizPage" data-page="4">
+        <h3>Your garden</h3>
+        <label>Region <select id="region"><option value="south">Southern England</option><option value="midlands">Midlands and Wales</option><option value="north">Northern England</option><option value="scotland">Scotland</option></select></label>
+        <label>Soil <select id="soil"><option value="unknown">Not sure</option><option value="clay">Clay (sticky, cracks in summer)</option><option value="loam">Loam (crumbly, dark)</option><option value="sand">Sandy (gritty, dries fast)</option><option value="chalk">Chalky (pale, stony)</option></select></label>
+        <label>Drainage <select id="drainage"><option value="average">Average</option><option value="wet">Wet, puddles linger</option><option value="dry">Dry, fast draining</option></select></label>
+        <label>Soil pH <select id="ph"><option value="unknown">Not sure (a test kit costs a few pounds)</option><option value="acid">Acid</option><option value="neutral">Neutral</option><option value="alkaline">Alkaline (chalk or lime)</option></select></label>
+        <label>Exposure <select id="exposure"><option value="sheltered">Sheltered</option><option value="exposed">Exposed or windy</option></select></label>
+        <details><summary>Advanced: lens, sun and light</summary>
+          <label>Camera lens <select id="lens"><option value="0.72">Phone, standard (26 mm)</option><option value="0.667">Phone, wide (24 mm)</option><option value="0.36">Phone, ultra-wide (13 mm)</option><option value="1.39">Phone, 2× telephoto (50 mm)</option></select></label>
+          <label>Sun direction <span id="sunAzVal" class="count"></span><input type="range" id="sunAz" min="-180" max="180" step="5"></label>
+          <label>Sun height <span id="sunElVal" class="count"></span><input type="range" id="sunEl" min="8" max="70" step="1"></label>
+          <p class="small">Match an existing shadow in the photo.</p>
+          <label>Brightness <input type="range" id="light-brightness" min="0.6" max="1.4" step="0.02"></label>
+          <label>Warmth <input type="range" id="light-warmth" min="-1" max="1" step="0.05"></label>
+          <label>Contrast <input type="range" id="light-contrast" min="0.7" max="1.3" step="0.02"></label>
+          <label>Saturation <input type="range" id="light-saturation" min="0.5" max="1.4" step="0.02"></label>
+          <label>Shadow strength <input type="range" id="light-shadow" min="0" max="0.8" step="0.05"></label>
+          <label>Grain <input type="range" id="light-grain" min="0" max="1" step="0.05"></label>
+          <button id="lightAuto">Auto</button>
+        </details>
+      </div>
+      <div class="row wizNav" id="wizNav"><button id="wizBack">← Back</button><span class="wizDots" id="wizDots"></span><button id="wizNext" class="primary">Next →</button></div>
+      <div class="row end wizEnd"><button class="primary" data-goto="beds">Next: beds →</button></div>
     </section>
 
     <section class="panel hidden" id="panel-beds">
@@ -107,7 +139,7 @@
 
     <section class="panel" id="panel-plants">
       <div id="selectedBox" class="hidden"></div>
-      <input type="search" id="search" placeholder="Search 400+ plants… (e.g. lavender, apple, shade)">
+      <input type="search" id="search" placeholder="Search 400+ plants… (e.g. lavender, apple, shade)" autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="search">
       <div class="chips" id="roleChips"></div>
       <div class="chips filters" id="filterChips"></div>
       <div class="list grid" id="plantList"></div>
@@ -148,6 +180,13 @@
 <dialog id="renderDlg">
   <div class="dlgHead"><b id="renderTitle">Rendered</b><span class="small">Hold "Before" to compare.</span><button id="renderBefore">Before</button><a id="renderDl" class="btn" href="#" download>Download</a><button id="renderClose">Close</button></div>
   <img id="renderImg" alt="Rendered garden">
+</dialog>
+
+<dialog id="confirmDlg" class="confirm">
+  <form method="dialog">
+    <p id="confirmText"></p>
+    <div class="row end"><button value="cancel">Cancel</button><button id="confirmOk" value="ok" class="danger">Clear</button></div>
+  </form>
 </dialog>
 
 <script src="assets/sprites/manifest.js"></script>
