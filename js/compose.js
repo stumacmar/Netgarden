@@ -72,6 +72,7 @@
 
   /* Draw one placed plant with the full treatment.
    * spec: { p, st, t, seed, size, flip, X, Z, heightM }   env: { cam, sun, light, stats, quality } */
+  const HAS_FILTER = typeof CanvasRenderingContext2D !== 'undefined' && 'filter' in CanvasRenderingContext2D.prototype;
   function drawPlant(ctx, spec, env) {
     const { cam, sun, light } = env;
     const q = cam.toImage(spec.X, spec.Z), ppm = cam.ppm(spec.X, spec.Z);
@@ -83,7 +84,7 @@
     const sat = light.saturation * (1 - hazeK * 0.6);
     const filt = [`brightness(${light.brightness.toFixed(3)})`, `contrast(${light.contrast.toFixed(3)})`, `saturate(${sat.toFixed(3)})`, env.quality !== 'fast' ? `blur(${(0.25 + hazeK * 1.5).toFixed(2)}px)` : ''].join(' ');
     const blurPx = Math.max(1, ppm * 0.04);
-    const key = [spec.p.id, spec.seed, W, H, Math.round(spec.t * 10) / 10, light.grain, light.warmth.toFixed(2), hazeK.toFixed(2), filt, blurPx.toFixed(1), global.Render.hasSprites(spec.p) ? 's' : 'd'].join('|');
+    const key = [spec.p.id, spec.seed, W, H, Math.round(spec.t * 10) / 10, light.grain, light.warmth.toFixed(2), hazeK.toFixed(2), filt, blurPx.toFixed(1), global.Render.hasSprites(spec.p) ? 's' : 'd', env.quality === 'fast' ? 'f' : 'n'].join('|');
     let hit = cacheGet(key), pc, sc;
     if (hit) { pc = hit.plant; sc = hit.sil; }
     else {
@@ -99,9 +100,15 @@
       /* silhouette, pre-blurred for the cast shadow */
       sc = document.createElement('canvas'); sc.width = W; sc.height = H;
       const sx2 = sc.getContext('2d'); sx2.drawImage(pc, 0, 0); sx2.globalCompositeOperation = 'source-in'; sx2.fillStyle = '#0b1408'; sx2.fillRect(0, 0, W, H);
-      const sb = document.createElement('canvas'); sb.width = W; sb.height = H; const sbx = sb.getContext('2d'); sbx.filter = `blur(${blurPx}px)`; sbx.drawImage(sc, 0, 0); sc = sb;
+      const sb = document.createElement('canvas'); sb.width = W; sb.height = H; const sbx = sb.getContext('2d');
+      if (env.quality === 'fast') sbx.drawImage(sc, 0, 0);
+      else if (HAS_FILTER) { sbx.filter = `blur(${blurPx}px)`; sbx.drawImage(sc, 0, 0); }
+      else { /* no canvas filters (older Safari): soften by stacking offset copies */ const n = 8; sbx.globalAlpha = 1 / n * 1.6; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; sbx.drawImage(sc, Math.cos(a) * blurPx, Math.sin(a) * blurPx); } }
+      sc = sb;
       /* bake the exposure match and feather into the plant image */
-      const fc = document.createElement('canvas'); fc.width = W; fc.height = H; const fx = fc.getContext('2d'); fx.filter = filt; fx.drawImage(pc, 0, 0); pc = fc;
+      if (env.quality === 'fast') { /* no exposure match while scrubbing: speed over polish */ }
+      else if (HAS_FILTER) { const fc = document.createElement('canvas'); fc.width = W; fc.height = H; const fx = fc.getContext('2d'); fx.filter = filt; fx.drawImage(pc, 0, 0); pc = fc; }
+      else if (Math.abs(light.brightness - 1) > 0.02) { /* approximate the exposure match without filters */ px.save(); px.globalCompositeOperation = 'source-atop'; px.globalAlpha = Math.min(0.5, Math.abs(light.brightness - 1)); px.fillStyle = light.brightness > 1 ? '#fff' : '#000'; px.fillRect(0, 0, W, H); px.restore(); }
       cachePut(key, pc, sc);
     }
     const cx = W / 2, cy = H - pad;
