@@ -10,7 +10,7 @@
   /* ---------------- state ---------------- */
   const state = {
     photo: null, ground: null, beds: [], plants: [], masks: [],
-    t: 6.5, years: 15,
+    t: 6.5, years: 3,
     sun: { az: -35, el: 25 }, light: null, stats: null,
     profile: Object.assign({}, window.Site.DEFAULT_PROFILE),
     step: 'plants', mode: 'plant',          /* mode: plant | bed | mask | setup(ref marking) */
@@ -367,7 +367,10 @@
       const lp = LIB.byId[state.libSel];
       const np = { id: uid(), pid: lp.id, X: pl.X, Z: pl.Z, seed: Math.floor(Math.random() * 1e9), size: 1 };
       if (lp.rootstocks) np.rootstock = Object.keys(lp.rootstocks)[1] || Object.keys(lp.rootstocks)[0];
-      state.plants.push(np); state.sel = np.id; afterChange(); toast(isPhone() ? `Planted ${lp.name}` : `Planted ${lp.name}. Tap again for another.`, 1800); return;
+      state.plants.push(np); state.sel = np.id; afterChange();
+      if (!pressTap.explainedAge && state.years < 15) { pressTap.explainedAge = true; toast(`Planted ${lp.name}, shown ${state.years} years after planting. Garden age is in Review.`, 4500); }
+      else toast(isPhone() ? `Planted ${lp.name}` : `Planted ${lp.name}. Tap again for another.`, 1800);
+      return;
     }
     if (p.tap === 'select') { renderSelected(); if (sheet.pos === 'peek' && !state.libSel) setSheet('half'); return; }
     if (p.tap === 'clear') { if (state.sel) { state.sel = null; renderSelected(); invalidate(); } }
@@ -534,7 +537,7 @@
     if (state.refClicks != null) cancelContext();
     if (name !== 'plants' && state.libSel) { state.libSel = null; setContext(null); renderLibrary(); }
     if ((name === 'photo' || name === 'beds') && state.sel) { state.sel = null; renderSelected(); }
-    document.querySelectorAll('.steps button').forEach(b => b.classList.toggle('active', b.dataset.step === name));
+    document.querySelectorAll('.steps button').forEach(b => { b.classList.toggle('active', b.dataset.step === name); if (b.dataset.step === name) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
     document.querySelectorAll('.panel').forEach(p => p.classList.toggle('hidden', p.id !== 'panel-' + name));
     $('panelTitle').textContent = TITLES[name]; setSheet(name === 'plants' && state.libSel ? 'peek' : 'half');
     if (name === 'photo') renderWiz();
@@ -598,7 +601,7 @@
   function newMask() { const m = { id: uid(), Z: null, name: `Object ${state.masks.length + 1}`, canvas: window.Masks.makeMaskCanvas(state.photo.w, state.photo.h), version: 1 }; state.masks.push(m); state.maskSel = m.id; renderMasks(); return m; }
   function startMask(m) {
     showStepQuiet('beds'); setMode('mask'); if (m) state.maskSel = m.id; else newMask();
-    setContext({ done: () => { const cur = state.masks.find(x => x.id === state.maskSel); if (cur && window.Masks.isEmpty(cur)) { state.masks = state.masks.filter(x => x !== cur); state.maskSel = null; } save(); renderMasks(); setContext(null); if (cur && cur.Z == null && !window.Masks.isEmpty(cur)) { startDepth(); } else { setMode('plant'); afterChange(true); } }, cancel: () => { setMode('plant'); renderMasks(); } });
+    setContext({ done: () => { const cur = state.masks.find(x => x.id === state.maskSel); if (cur && window.Masks.isEmpty(cur)) { state.masks = state.masks.filter(x => x !== cur); state.maskSel = null; } save(); renderMasks(); setContext(null); if (cur && cur.Z == null && !window.Masks.isEmpty(cur)) { startDepth(); toast('Painted. Now tap the ground where it stands, so plants behind it are hidden.', 4500); } else { setMode('plant'); afterChange(true); } }, cancel: () => { setMode('plant'); renderMasks(); } });
     updateHint();
   }
   function startDepth() {
@@ -612,8 +615,9 @@
   $('eraseChk').addEventListener('change', (e) => { state.erase = e.target.checked; updateHint(); });
   function renderMasks() {
     $('brushVal').textContent = `${Math.round(state.brush)} px`; $('brush').value = state.brush; $('eraseChk').checked = state.erase;
-    $('maskList').innerHTML = state.masks.length ? state.masks.map(m => `<div class="card ${m.id === state.maskSel ? 'active' : ''}" data-mask="${m.id}"><div class="sw" style="background:#ff3b6b"></div><div><div class="nm">${m.name}</div><div class="meta">${m.Z == null ? '<span style="color:#a33a2a">distance not set</span>' : m.Z.toFixed(1) + ' m away'}</div></div><button data-maskdel="${m.id}" title="Delete">×</button></div>`).join('') : '<p class="small">Nothing painted yet.</p>';
+    $('maskList').innerHTML = state.masks.length ? state.masks.map(m => `<div class="card ${m.id === state.maskSel ? 'active' : ''}" data-mask="${m.id}"><div class="sw" style="background:#ff3b6b"></div><div><div class="nm">${m.name}</div><div class="meta">${m.Z == null ? `<button class="mini" data-setdepth="${m.id}">Set how far away it is</button>` : m.Z.toFixed(1) + ' m away'}</div></div><button data-maskdel="${m.id}" title="Delete" aria-label="Delete object">×</button></div>`).join('') : '<p class="small">Nothing painted yet.</p>';
     $('maskList').querySelectorAll('[data-mask]').forEach(c => c.addEventListener('click', () => { startMask(state.masks.find(m => m.id === c.dataset.mask)); }));
+    $('maskList').querySelectorAll('[data-setdepth]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); state.maskSel = b.dataset.setdepth; startDepth(); }));
     $('maskList').querySelectorAll('[data-maskdel]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); state.masks = state.masks.filter(x => x.id !== b.dataset.maskdel); if (state.maskSel === b.dataset.maskdel) state.maskSel = null; save(); renderMasks(); invalidate(); }));
   }
 
@@ -644,9 +648,11 @@
       rc.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { state.role = b.dataset.k; renderLibrary(); }));
       fc.innerHTML = FILTERS.map(([k, v]) => `<button data-k="${k}">${v}</button>`).join('');
       fc.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { if (state.filters.has(b.dataset.k)) state.filters.delete(b.dataset.k); else state.filters.add(b.dataset.k); renderLibrary(); }));
+      [rc, fc].forEach(el => { const upd = () => el.classList.toggle('atEnd', el.scrollLeft + el.clientWidth >= el.scrollWidth - 4); el.addEventListener('scroll', upd, { passive: true }); setTimeout(upd, 0); });
     }
-    rc.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.k === state.role));
-    fc.querySelectorAll('button').forEach(b => b.classList.toggle('active', state.filters.has(b.dataset.k)));
+    rc.querySelectorAll('button').forEach(b => { b.classList.toggle('active', b.dataset.k === state.role); b.setAttribute('aria-pressed', String(b.dataset.k === state.role)); });
+    fc.querySelectorAll('button').forEach(b => { b.classList.toggle('active', state.filters.has(b.dataset.k)); b.setAttribute('aria-pressed', String(state.filters.has(b.dataset.k))); });
+    $('quickPlace').classList.toggle('hidden', !state.libSel);
     const q = state.search.trim().toLowerCase(), F = state.filters;
     const list = LIB.all.filter(p => {
       if (state.role !== 'all' && p.role !== state.role && !(state.role === p.type && !p.group)) return false;
@@ -664,11 +670,11 @@
     $('plantList').innerHTML = shown.map(p => {
       const issues = suitsIssues(p).filter(i => i.level !== 'note');
       const sp = (window.SPRITE_MANIFEST || {})[p.id] || {}, spFile = (sp.flower && sp.flower.file) || (sp.leaf && sp.leaf.file) || (sp.fruit && sp.fruit.file);
-      return `<div class="card ${state.libSel === p.id ? 'active' : ''}" data-id="${p.id}" title="${p.notes || ''}">
+      return `<button type="button" class="card ${state.libSel === p.id ? 'active' : ''}" data-id="${p.id}" aria-pressed="${state.libSel === p.id}" aria-label="${p.name}, ${p.latin}">
         ${spFile ? `<img class="th" src="${spFile}" alt="" loading="lazy">` : `<canvas data-thumb="${p.id}" width="150" height="90"></canvas>`}
         <div class="nm">${p.name}</div><div class="lt">${p.latin}</div>
         <div class="meta">${p.h} × ${p.s} m · ${p.sun} sun${p.ev ? ' · evergreen' : ''}${p.flower ? ' · flowers ' + monthsText(p.flower.m) : ''}${p.fruit ? ' · fruit ' + monthsText(p.fruit.m) : ''}</div>
-        ${issues.length ? `<div class="flag">⚠ ${issues[0].text.split(';')[0]}</div>` : ''}</div>`;
+        ${issues.length ? `<div class="flag">⚠ ${issues[0].text.split(';')[0]}</div>` : ''}</button>`;
     }).join('') + (list.length > shown.length ? `<p class="small">${list.length - shown.length} more: narrow the search.</p>` : '') || '<p class="small">Nothing matches.</p>';
     /* thumbnails drawn lazily as cards scroll into view */
     const io = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { const c = e.target, p = LIB.byId[c.dataset.thumb]; const im = new Image(); im.onload = () => c.getContext('2d').drawImage(im, 0, 0); im.src = thumb(p); io.unobserve(c); } }); }, { root: $('panel-plants') });
@@ -698,7 +704,7 @@
     box.innerHTML = `<div class="nm"><b>${p.name}</b> <span class="small"><i>${p.latin}</i></span></div>
       <p class="small">${p.notes || ''}</p>
       ${issues.length ? `<ul class="flags">${issues.map(i => `<li class="${i.level}">${i.level === 'bad' ? '✖' : i.level === 'warn' ? '⚠' : 'ℹ'} ${p.name} ${i.text}.</li>`).join('')}</ul>` : ''}
-      ${p.rootstocks ? `<label>Rootstock <select id="selRoot">${Object.entries(p.rootstocks).map(([k, v]) => `<option value="${k}"${sel.rootstock === k ? ' selected' : ''}>${k}: about ${v[0]} m tall</option>`).join('')}</select></label>` : ''}
+      ${p.rootstocks ? `<label>Rootstock <span class="count">(controls how big the tree grows)</span> <select id="selRoot" aria-label="Rootstock">${Object.entries(p.rootstocks).map(([k, v]) => `<option value="${k}"${sel.rootstock === k ? ' selected' : ''}>${k}: about ${v[0]} m tall</option>`).join('')}</select></label>` : ''}
       ${p.pollination === 'partner' ? '<p class="small">Needs a different variety of the same fruit nearby to pollinate.</p>' : ''}
       <div class="row selActions"><button data-act="flip">⇋ Flip</button><button data-act="dup">⧉ Duplicate</button><button data-act="del" class="danger">Delete</button></div>
       <label>Size <span class="count">${Math.round(sel.size * 100)}% (${(d.h * sizeOf(sel)).toFixed(1)} m tall ${state.years < 15 ? 'at ' + state.years + ' years' : 'mature'})</span>
@@ -719,6 +725,16 @@
   function renderPlantTools() { const n = state.plants.length; $('plantTools').classList.toggle('hidden', !n); $('plantCount').textContent = n === 1 ? '1 plant placed' : `${n} plants placed`; }
   async function removeAllPlants() { if (!state.plants.length) { toast('Nothing to remove'); return; } if (await confirmDialog(`Remove all ${state.plants.length} plants? Borders stay. You can undo.`, 'Remove all')) { state.plants = []; state.sel = null; state.libSel = null; setContext(null); afterChange(); renderLibrary(); toast('All plants removed. Undo is in the top bar.'); } }
   $('removeAll').addEventListener('click', removeAllPlants);
+  document.querySelectorAll('#quickPlace [data-place]').forEach(b => b.addEventListener('click', () => {
+    if (!state.libSel || !cam) return; const lp = LIB.byId[state.libSel], far = maxPlantZ(), near = Math.max(1, cam.hc * 0.8);
+    const Z = b.dataset.place === 'back' ? far - 0.8 : b.dataset.place === 'front' ? near + 0.6 : (far + near) / 2;
+    const taken = (X) => state.plants.some(q => Math.abs(q.X - X) < 0.6 && Math.abs(q.Z - Z) < 0.6);
+    let X = 0; for (let k = 0; k < 12 && taken(X); k++) X = (k % 2 ? -1 : 1) * Math.ceil((k + 1) / 2) * 0.8;
+    const np = { id: uid(), pid: lp.id, X, Z, seed: Math.floor(Math.random() * 1e9), size: 1 }; if (lp.rootstocks) np.rootstock = Object.keys(lp.rootstocks)[1] || Object.keys(lp.rootstocks)[0];
+    state.plants.push(np); state.sel = np.id; afterChange(); toast(`Planted ${lp.name} ${b.dataset.place === 'back' ? 'at the back' : b.dataset.place === 'front' ? 'at the front' : 'in the middle'}. Drag it to move.`);
+  }));
+  /* the canvas describes itself for screen readers */
+  function describeCanvas() { const n = state.plants.length; const names = [...new Set(state.plants.map(p => LIB.byId[p.pid] && LIB.byId[p.pid].name))].filter(Boolean); canvas.setAttribute('aria-label', n ? `Garden photo with ${n} plant${n === 1 ? '' : 's'}: ${names.slice(0, 8).join(', ')}${names.length > 8 ? ' and more' : ''}` : 'Garden photo with no plants yet'); }
   /* the ⋯ menu: things people look for from anywhere */
   $('menuBtn').addEventListener('click', () => { const d = $('menuDlg'); if (typeof d.showModal !== 'function') return; d.returnValue = ''; d.showModal(); });
   $('menuDlg').addEventListener('close', async () => {
@@ -730,7 +746,7 @@
     else if (v === 'importJson') $('importJson').click();
   });
   function removePlant(id) { state.plants = state.plants.filter(p => p.id !== id); if (state.sel === id) state.sel = null; afterChange(); toast('Removed. Undo is in the top bar.'); }
-  function renderPlaced() { renderPlantTools(); }
+  function renderPlaced() { renderPlantTools(); describeCanvas(); }
   function duplicateSel() { const sel = state.plants.find(p => p.id === state.sel); if (!sel) return; const p = LIB.byId[sel.pid]; const np = Object.assign({}, sel, { id: uid(), X: sel.X + p.s * 0.9, seed: Math.floor(Math.random() * 1e9) }); state.plants.push(np); state.sel = np.id; afterChange(); }
   $('sbFlip').addEventListener('click', () => { const sel = state.plants.find(p => p.id === state.sel); if (sel) { sel.flip = !sel.flip; afterChange(); } });
   $('sbDup').addEventListener('click', duplicateSel);
@@ -816,10 +832,11 @@
     $('yearsVal').textContent = state.years >= 15 ? 'mature' : `${state.years} year${state.years === 1 ? '' : 's'} after planting`; $('years').value = state.years;
     const site = { heading: state.profile.heading, fenceZ: fenceZ() };
     const checks = window.Site.checks(state.plants, state.beds, LIB.byId, site, state.profile, dims);
-    $('checks').innerHTML = checks.length ? checks.map(c => `<li class="${c.level}" data-go="${c.id}">${c.text}</li>`).join('') : `<li class="ok">${state.plants.length ? 'No sun, soil, spacing or pollination problems found.' : 'Checks appear here once you have placed plants.'}${state.profile.heading ? '' : ' Set which way the camera faces (Photo step) for sun checks.'}</li>`;
+    const seen = new Map(); checks.forEach(c => { const k = c.level + '|' + c.text; if (seen.has(k)) seen.get(k).n++; else seen.set(k, Object.assign({ n: 1 }, c)); });
+    $('checks').innerHTML = checks.length ? [...seen.values()].map(c => `<li class="${c.level}" data-go="${c.id}"><b>${c.level === 'warn' ? 'Warning:' : c.level === 'note' ? 'Note:' : ''}</b>${c.n > 1 ? `${c.n} × ` : ''}${c.text}</li>`).join('') : `<li class="ok">${state.plants.length ? 'No sun, soil, spacing or pollination problems found.' : 'Checks appear here once you have placed plants.'}${state.profile.heading ? '' : ' Set which way the camera faces (Photo step) for sun checks.'}</li>`;
     $('checks').querySelectorAll('[data-go]').forEach(li => li.addEventListener('click', () => { state.sel = li.dataset.go; showStep('plants'); renderSelected(); invalidate(); }));
     const tips = window.Site.designRules(state.plants, state.beds, LIB.byId, state.profile);
-    $('tips').innerHTML = tips.length ? tips.map(t => `<li class="${t.level}">${t.text}</li>`).join('') : `<li class="ok">${state.plants.length ? 'Nothing to add: layering, evergreen backbone and grouping all look reasonable.' : 'Tips about layering, grouping and succession appear once borders have plants in them.'}</li>`;
+    $('tips').innerHTML = tips.length ? tips.map(t => `<li class="${t.level}"><b>Tip:</b>${t.text}</li>`).join('') : `<li class="ok">${state.plants.length ? 'Nothing to add: layering, evergreen backbone and grouping all look reasonable.' : 'Tips about layering, grouping and succession appear once borders have plants in them.'}</li>`;
     const month = Math.floor(((tEff() % 12) + 12) % 12) + 1;
     $('jobsMonth').textContent = MONTHS[month - 1];
     const jobs = window.Site.jobs(state.plants, LIB.byId, month);
@@ -872,7 +889,6 @@
     $('shopping').innerHTML = rows.length ? `<table class="shop">${rows.map(r => `<tr><td>${r.n} ×</td><td><b>${r.p.name}</b><br><i class="small">${r.p.latin}</i></td><td class="small">${r.pot}</td><td><a class="small" href="https://www.rhs.org.uk/plants/search-results?query=${encodeURIComponent(r.p.latin)}" target="_blank" rel="noopener">RHS</a></td></tr>`).join('')}</table>` : '<p class="small">Empty until you place plants.</p>';
     $('shopCopy').onclick = () => { const txt = rows.map(r => `${r.n} x ${r.p.name} (${r.p.latin}), ${r.pot}`).join('\n'); if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast('Shopping list copied')); };
   }
-  $('clearAll').addEventListener('click', async () => { if (await confirmDialog('Remove every plant and border from this design? You can undo.', 'Clear design')) { state.plants = []; state.beds = []; state.sel = null; afterChange(); renderBeds(); } });
   $('exportJson').addEventListener('click', () => { const blob = new Blob([JSON.stringify({ version: 2, ground: state.ground, beds: state.beds, plants: state.plants, sun: state.sun, light: state.light, profile: state.profile, masks: state.masks.map(window.Masks.serialize), photoName: state.photo.name, photoData: state.photo.dataUrl })], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'netgarden-design.json'; a.click(); });
   $('importJson').addEventListener('change', async (e) => {
     const file = e.target.files[0]; if (!file) return;

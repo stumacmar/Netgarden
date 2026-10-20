@@ -74,10 +74,13 @@ const results = []; const check = (name, ok, detail) => results.push(`${ok ? 'PA
   await page.locator('#doneBtn').tap({ timeout: 3000 }); await page.waitForTimeout(400);
   const beds = await ng(() => window.netgarden.state.beds.length); check('bed: four corner taps then Done makes a border', corners === 4 && beds === 1, `corners=${corners} beds=${beds}`);
   await ng(() => window.netgarden.showStep('review')); await page.waitForTimeout(400); await shot('8-review');
-  await page.locator('#clearAll').tap({ timeout: 5000 }); await page.waitForTimeout(300);
+  await page.locator('#menuBtn').tap(); await page.waitForTimeout(300); await page.locator('#menuDlg button[value=removeAll]').tap(); await page.waitForTimeout(400);
   const dlgOpen = await ng(() => document.getElementById('confirmDlg').open);
   await page.locator('#confirmDlg button[value=cancel]').tap(); await page.waitForTimeout(300);
-  const still = await ng(() => window.netgarden.state.plants.length); check('clear design asks in-app and cancel keeps the plants', dlgOpen && still === 1, `open=${dlgOpen} plants=${still}`);
+  const still = await ng(() => window.netgarden.state.plants.length); check('menu: Remove all plants asks in-app and cancel keeps the plants', dlgOpen && still === 1, `open=${dlgOpen} plants=${still}`);
+  /* screen-reader and keyboard essentials */
+  const a11y = await ng(() => ({ cardsAreButtons: document.querySelector('#plantList .card').tagName === 'BUTTON', hintLive: document.getElementById('hint').getAttribute('aria-live') === 'polite', canvasLabel: /Garden photo/.test(document.getElementById('view').getAttribute('aria-label') || ''), searchLabel: !!document.getElementById('search').getAttribute('aria-label'), stepCurrent: !!document.querySelector('.steps [aria-current=step]'), chipsPressed: document.querySelectorAll('.chips [aria-pressed]').length > 10 }));
+  check('cards are buttons, hint is live, canvas and search are labelled, steps and chips carry state', Object.values(a11y).every(Boolean), JSON.stringify(a11y));
   const small = await ng(() => { const bad = []; document.querySelectorAll('input:not([hidden]):not([type=range]):not([type=checkbox]):not([type=file]), select').forEach(el => { if (el.offsetParent === null) return; if (parseFloat(getComputedStyle(el).fontSize) < 16) bad.push(el.id || el.tagName); }); return bad; });
   check('visible text inputs and selects are 16px or larger (no Safari auto-zoom)', small.length === 0, small.join(','));
   const tiny = await ng(() => { const bad = []; document.querySelectorAll('button, .btn, .card, .chips button').forEach(el => { if (el.offsetParent === null || el.closest('.hidden')) return; const r = el.getBoundingClientRect(); if (r.height < 36 && r.width < 44) bad.push((el.id || el.className) + ':' + Math.round(r.width) + 'x' + Math.round(r.height)); }); return bad.slice(0, 10); });

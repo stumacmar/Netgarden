@@ -87,7 +87,7 @@
       <div class="wizPage" data-page="1">
         <h3>Three quick questions</h3>
         <div class="q"><b>1. Where was your eye level?</b>
-          <label>Drag the yellow line on the photo, or use this. <span id="horizonVal" class="count"></span><input type="range" id="horizon" min="0.05" max="0.9" step="0.001"></label>
+          <label>Drag the yellow line on the photo, or use this. <span id="horizonVal" class="count"></span><input type="range" id="horizon" min="0.05" max="0.9" step="0.001" aria-label="Eye level, fraction down the photo"></label>
           <p class="small">For a 1.8 m fence, a little below its top.</p></div>
       </div>
       <div class="wizPage" data-page="2">
@@ -98,7 +98,7 @@
       </div>
       <div class="wizPage" data-page="3">
         <div class="q"><b>3. Which way is the camera facing?</b>
-          <select id="heading"><option value="">Not sure</option><option value="N">North</option><option value="NE">North-east</option><option value="E">East</option><option value="SE">South-east</option><option value="S">South</option><option value="SW">South-west</option><option value="W">West</option><option value="NW">North-west</option></select>
+          <select id="heading" aria-label="Which way the camera is facing"><option value="">Not sure</option><option value="N">North</option><option value="NE">North-east</option><option value="E">East</option><option value="SE">South-east</option><option value="S">South</option><option value="SW">South-west</option><option value="W">West</option><option value="NW">North-west</option></select>
           <p class="small">Use the compass on your phone, standing where the photo was taken. This drives the sun and shade checks.</p></div>
       </div>
       <div class="wizPage" data-page="4">
@@ -107,7 +107,7 @@
         <label>Soil <select id="soil"><option value="unknown">Not sure</option><option value="clay">Clay (sticky, cracks in summer)</option><option value="loam">Loam (crumbly, dark)</option><option value="sand">Sandy (gritty, dries fast)</option><option value="chalk">Chalky (pale, stony)</option></select></label>
         <label>Drainage <select id="drainage"><option value="average">Average</option><option value="wet">Wet, puddles linger</option><option value="dry">Dry, fast draining</option></select></label>
         <label>Soil pH <select id="ph"><option value="unknown">Not sure (a test kit costs a few pounds)</option><option value="acid">Acid</option><option value="neutral">Neutral</option><option value="alkaline">Alkaline (chalk or lime)</option></select></label>
-        <label>Exposure <select id="exposure"><option value="sheltered">Sheltered</option><option value="exposed">Exposed or windy</option></select></label>
+        <label>Wind <select id="exposure"><option value="sheltered">Sheltered</option><option value="exposed">Exposed or windy</option></select></label>
         <details><summary>Advanced: lens, sun and light</summary>
           <label>Camera lens <select id="lens"><option value="0.72">Phone, standard (26 mm)</option><option value="0.667">Phone, wide (24 mm)</option><option value="0.36">Phone, ultra-wide (13 mm)</option><option value="1.39">Phone, 2× telephoto (50 mm)</option></select></label>
           <label>Sun direction <span id="sunAzVal" class="count"></span><input type="range" id="sunAz" min="-180" max="180" step="5"></label>
@@ -134,7 +134,7 @@
       <h3>Things in front</h3>
       <p class="small">Paint over anything that stands in front of where you will plant, such as the existing shrub or the stone edge, so new plants behind it are hidden by it.</p>
       <div class="row"><button id="maskNew">Paint an object</button><button id="maskDepth">Set its distance</button></div>
-      <div class="row brushRow hidden" id="brushRow"><label class="inline">Brush <span id="brushVal" class="count"></span></label><input type="range" id="brush" min="4" max="300" step="1"><label class="inline"><input type="checkbox" id="eraseChk"> erase</label></div>
+      <div class="row brushRow hidden" id="brushRow"><label class="inline">Brush <span id="brushVal" class="count"></span></label><input type="range" id="brush" min="4" max="300" step="1" aria-label="Brush size"><label class="inline"><input type="checkbox" id="eraseChk"> erase</label></div>
       <div id="maskList" class="list compact"></div>
       <div class="row end"><button data-goto="photo">← Photo</button><button class="primary" data-goto="plants">Next: plants →</button></div>
     </section>
@@ -142,7 +142,8 @@
     <section class="panel" id="panel-plants">
       <div id="selectedBox" class="hidden"></div>
       <div class="row between hidden" id="plantTools"><span class="small" id="plantCount"></span><button id="removeAll" class="mini danger">Remove all plants</button></div>
-      <input type="search" id="search" placeholder="Search 400+ plants… (e.g. lavender, apple, shade)" autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="search">
+      <div class="row quickPlace hidden" id="quickPlace"><span class="small">Or place it:</span><button class="mini" data-place="back">at the back</button><button class="mini" data-place="middle">in the middle</button><button class="mini" data-place="front">at the front</button></div>
+      <input type="search" id="search" placeholder="Search plants" aria-label="Search plants" autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="search">
       <div class="chips" id="roleChips"></div>
       <div class="chips filters" id="filterChips"></div>
       <div class="list grid" id="plantList"></div>
@@ -150,7 +151,7 @@
 
     <section class="panel hidden" id="panel-review">
       <h3>Garden age <span id="yearsVal" class="count"></span></h3>
-      <input type="range" id="years" min="1" max="15" step="1">
+      <input type="range" id="years" min="1" max="15" step="1" aria-label="Garden age in years after planting">
       <h3>Checks</h3>
       <ul id="checks" class="checks"></ul>
       <h3>Design tips</h3>
@@ -168,14 +169,16 @@
       <div id="shopping"></div>
       <h3>Save and share</h3>
       <div class="row"><button id="exportPng">Save picture</button><button id="exportJson">Export design</button><label class="btn">Import <input type="file" id="importJson" accept="application/json" hidden></label></div>
-      <h3>Realistic render</h3>
-      <p class="small">Re-renders the planted areas with an image model so they look photographed in place. Needs your own OpenAI API key, kept in this browser. A few pence each.</p>
-      <input type="password" id="apiKey" placeholder="sk-…" autocomplete="off">
-      <div class="row"><select id="renderQuality"><option value="low">Quick</option><option value="medium" selected>Standard</option><option value="high">Best</option></select><button id="renderBtn">Render this month</button></div>
-      <h3>Plant photos</h3>
-      <p class="small">Plants with a photo in <code>assets/sprites</code> are drawn from photographs. Credits:</p>
-      <div id="credits"></div>
-      <div class="row"><button id="clearAll" class="danger">Clear design</button></div>
+      <details class="advanced"><summary>Advanced: realistic render and photo credits</summary>
+        <h3>Realistic render</h3>
+        <p class="small">Re-renders the planted areas with an image model so they look photographed in place. Needs your own OpenAI API key, kept in this browser. A few pence each.</p>
+        <input type="password" id="apiKey" placeholder="sk-…" autocomplete="off" aria-label="OpenAI API key">
+        <div class="row"><select id="renderQuality" aria-label="Render quality"><option value="low">Quick</option><option value="medium" selected>Standard</option><option value="high">Best</option></select><button id="renderBtn">Render this month</button></div>
+        <h3>Plant photos</h3>
+        <p class="small">Most plants are drawn from generated photographs; the rest are drawn by the app.</p>
+        <div id="credits"></div>
+      </details>
+      <p class="small">To remove everything, use the ⋯ menu in the top bar.</p>
     </section>
   </aside>
 </main>
@@ -187,17 +190,17 @@
   <img id="renderImg" alt="Rendered garden">
 </dialog>
 
-<dialog id="menuDlg" class="menu">
+<dialog id="menuDlg" class="menu" aria-label="More actions">
   <form method="dialog">
     <button value="removeAll" class="danger">Remove all plants</button>
     <button value="startAgain" class="danger">Start again: new photo, empty design</button>
     <button value="exportPng">Save picture</button>
     <button value="exportJson">Export design file</button>
     <button value="importJson">Import design file</button>
-    <button value="cancel" class="cancel">Cancel</button>
+    <button value="cancel" class="cancel" autofocus>Cancel</button>
   </form>
 </dialog>
-<dialog id="confirmDlg" class="confirm">
+<dialog id="confirmDlg" class="confirm" aria-labelledby="confirmText">
   <form method="dialog">
     <p id="confirmText"></p>
     <div class="row end"><button value="cancel">Cancel</button><button id="confirmOk" value="ok" class="danger">Clear</button></div>
