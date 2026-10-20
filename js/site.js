@@ -72,7 +72,7 @@
       const ex = exposure(pl, plants, lib, site);
       if (p.sun === 'full' && ex === 'shade') out.push({ id: pl.id, level: 'warn', kind: 'sun', text: `${p.name} wants full sun but will be in shade here.` });
       else if (p.sun === 'full' && ex === 'partial') out.push({ id: pl.id, level: 'note', kind: 'sun', text: `${p.name} prefers more sun than this spot gets.` });
-      else if (p.sun === 'shade' && ex === 'full') out.push({ id: pl.id, level: 'warn', kind: 'sun', text: `${p.name} is a shade plant and may scorch in full sun here.` });
+      else if (p.sun === 'shade' && ex === 'full' && site.heading != null) out.push({ id: pl.id, level: 'warn', kind: 'sun', text: `${p.name} is a shade plant and may scorch in full sun here.` });
       suitability(p, prof).forEach(i => out.push({ id: pl.id, level: i.level === 'bad' ? 'warn' : i.level, kind: 'site', text: `${p.name} ${i.text}.` }));
     });
     /* spacing: mature spreads overlapping by more than 40 %; hedging, bulbs and climbers exempt */

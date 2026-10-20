@@ -52,7 +52,7 @@
         const w = Math.round(img.width * k), h = Math.round(img.height * k);
         let useImg = img, du = null;
         if (k < 1 || keepData) {
-          const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h);
+          const c = document.createElement('canvas'); c.width = w; c.height = h; const cx = c.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
           try { du = c.toDataURL('image/jpeg', 0.85); useImg = new Image(); useImg.src = du; } catch (e) { useImg = img; du = null; }
         }
         const finish = () => { state.photo = { img: useImg, w, h, dataUrl: du, name }; resolve(); };
@@ -70,10 +70,12 @@
   /* ---------------- persistence ---------------- */
   const KEY = 'netgarden.v2';
   function save() {
+    if (state.staleTab) return;
     try {
       localStorage.setItem(KEY, JSON.stringify({ t: state.t, years: state.years, ground: state.ground, beds: state.beds, plants: state.plants, sun: state.sun, light: state.light, profile: state.profile, masks: state.masks.map(window.Masks.serialize), photoName: state.photo.name, photoData: state.photo.dataUrl && !/sample/.test(state.photo.name) ? state.photo.dataUrl : null }));
     } catch (e) { /* storage full or blocked */ }
   }
+  window.addEventListener('storage', (ev) => { if (ev.key !== KEY || !ev.newValue || state.staleTab) return; state.staleTab = true; toast('This design was changed in another tab. Reload this tab to see it; changes here are no longer being saved.', 8000); });
   function loadSaved() {
     try {
       const v2 = JSON.parse(localStorage.getItem(KEY) || 'null'); if (v2) return v2;
@@ -645,16 +647,16 @@
     const rc = $('roleChips'), fc = $('filterChips');
     if (!rc.children.length) {
       rc.innerHTML = ROLES.map(([k, v]) => `<button data-k="${k}">${v}</button>`).join('');
-      rc.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { state.role = b.dataset.k; renderLibrary(); }));
+      rc.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { state.role = b.dataset.k; state.libLimit = 60; renderLibrary(); }));
       fc.innerHTML = FILTERS.map(([k, v]) => `<button data-k="${k}">${v}</button>`).join('');
-      fc.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { if (state.filters.has(b.dataset.k)) state.filters.delete(b.dataset.k); else state.filters.add(b.dataset.k); renderLibrary(); }));
+      fc.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { if (state.filters.has(b.dataset.k)) state.filters.delete(b.dataset.k); else state.filters.add(b.dataset.k); state.libLimit = 60; renderLibrary(); }));
       [rc, fc].forEach(el => { const upd = () => el.classList.toggle('atEnd', el.scrollLeft + el.clientWidth >= el.scrollWidth - 4); el.addEventListener('scroll', upd, { passive: true }); setTimeout(upd, 0); });
     }
     rc.querySelectorAll('button').forEach(b => { b.classList.toggle('active', b.dataset.k === state.role); b.setAttribute('aria-pressed', String(b.dataset.k === state.role)); });
     fc.querySelectorAll('button').forEach(b => { b.classList.toggle('active', state.filters.has(b.dataset.k)); b.setAttribute('aria-pressed', String(state.filters.has(b.dataset.k))); });
     $('quickPlace').classList.toggle('hidden', !state.libSel);
     const q = state.search.trim().toLowerCase(), F = state.filters;
-    const list = LIB.all.filter(p => {
+    const base = LIB.all.filter(p => {
       if (state.role !== 'all' && p.role !== state.role && !(state.role === p.type && !p.group)) return false;
       if (F.has('suits') && suitsIssues(p).some(i => i.level !== 'note')) return false;
       if (F.has('pollinator') && !p.pollinator) return false;
@@ -663,10 +665,20 @@
       if (F.has('shade') && p.sun !== 'shade') return false;
       if (F.has('fruit') && !p.fruit) return false;
       if (F.has('small') && p.h > 1) return false;
-      if (q) return (p.name + ' ' + p.latin + ' ' + p.type + ' ' + (p.group || '') + ' ' + p.sun + ' ' + (p.notes || '')).toLowerCase().includes(q);
       return true;
     });
-    const shown = list.slice(0, 200);
+    /* search: whole words in the name, Latin name, type or group first; notes only when that finds nothing */
+    const terms = q ? q.split(/\s+/).filter(Boolean) : [], esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const wb = (h, t) => new RegExp('(^|[^a-z])' + esc(t)).test(h);
+    let list = base;
+    if (terms.length) {
+      /* rank: a whole word in the name beats a word that merely starts with the term, which beats a mention in the notes */
+      const exact = (h, t) => new RegExp('(^|[^a-z])' + esc(t) + '($|[^a-z])').test(h);
+      const score = (p) => { const h1 = `${p.name} ${p.latin} ${p.type} ${p.group || ''}`.toLowerCase(), h2 = `${p.sun} ${p.notes || ''}`.toLowerCase(); let s = 0;
+        for (const t of terms) { if (exact(h1, t)) s += 3; else if (wb(h1, t)) s += 2; else if (wb(h2, t)) s += 1; else return 0; } return s; };
+      list = base.map((p, i) => ({ p, s: score(p), i })).filter(x => x.s > 0).sort((a, b) => b.s - a.s || a.i - b.i).map(x => x.p);
+    }
+    const shown = list.slice(0, state.libLimit || 60);
     $('plantList').innerHTML = shown.map(p => {
       const issues = suitsIssues(p).filter(i => i.level !== 'note');
       const sp = (window.SPRITE_MANIFEST || {})[p.id] || {}, spFile = (sp.flower && sp.flower.file) || (sp.leaf && sp.leaf.file) || (sp.fruit && sp.fruit.file);
@@ -675,7 +687,8 @@
         <div class="nm">${p.name}</div><div class="lt">${p.latin}</div>
         <div class="meta">${p.h} × ${p.s} m · ${p.sun} sun${p.ev ? ' · evergreen' : ''}${p.flower ? ' · flowers ' + monthsText(p.flower.m) : ''}${p.fruit ? ' · fruit ' + monthsText(p.fruit.m) : ''}</div>
         ${issues.length ? `<div class="flag">⚠ ${issues[0].text.split(';')[0]}</div>` : ''}</button>`;
-    }).join('') + (list.length > shown.length ? `<p class="small">${list.length - shown.length} more: narrow the search.</p>` : '') || '<p class="small">Nothing matches.</p>';
+    }).join('') + (list.length > shown.length ? `<button type="button" class="more" id="libMore">Show more (${list.length - shown.length} left)</button>` : '') || '<p class="small">Nothing matches. Try another word, or clear the filters.</p>';
+    const more = $('libMore'); if (more) more.addEventListener('click', () => { state.libLimit = (state.libLimit || 60) + 60; renderLibrary(); });
     /* thumbnails drawn lazily as cards scroll into view */
     const io = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { const c = e.target, p = LIB.byId[c.dataset.thumb]; const im = new Image(); im.onload = () => c.getContext('2d').drawImage(im, 0, 0); im.src = thumb(p); io.unobserve(c); } }); }, { root: $('panel-plants') });
     $('plantList').querySelectorAll('canvas[data-thumb]').forEach(c => io.observe(c));
@@ -688,7 +701,7 @@
       if (state.libSel) { setSheet('peek'); blurInputs(); if (!isPhone()) toast(`Now tap the photo where the ${LIB.byId[state.libSel].name} should go`, 2500); }
     }));
   }
-  $('search').addEventListener('input', (e) => { state.search = e.target.value; renderLibrary(); });
+  $('search').addEventListener('input', (e) => { state.search = e.target.value; state.libLimit = 60; renderLibrary(); });
   $('search').addEventListener('focus', () => { if (mqSheet.matches) setSheet('full'); });
   $('search').addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.blur(); });
 
@@ -889,10 +902,15 @@
     $('shopping').innerHTML = rows.length ? `<table class="shop">${rows.map(r => `<tr><td>${r.n} ×</td><td><b>${r.p.name}</b><br><i class="small">${r.p.latin}</i></td><td class="small">${r.pot}</td><td><a class="small" href="https://www.rhs.org.uk/plants/search-results?query=${encodeURIComponent(r.p.latin)}" target="_blank" rel="noopener">RHS</a></td></tr>`).join('')}</table>` : '<p class="small">Empty until you place plants.</p>';
     $('shopCopy').onclick = () => { const txt = rows.map(r => `${r.n} x ${r.p.name} (${r.p.latin}), ${r.pot}`).join('\n'); if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast('Shopping list copied')); };
   }
-  $('exportJson').addEventListener('click', () => { const blob = new Blob([JSON.stringify({ version: 2, ground: state.ground, beds: state.beds, plants: state.plants, sun: state.sun, light: state.light, profile: state.profile, masks: state.masks.map(window.Masks.serialize), photoName: state.photo.name, photoData: state.photo.dataUrl })], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'netgarden-design.json'; a.click(); });
+  $('exportJson').addEventListener('click', () => { const blob = new Blob([JSON.stringify({ version: 2, t: state.t, years: state.years, ground: state.ground, beds: state.beds, plants: state.plants, sun: state.sun, light: state.light, profile: state.profile, masks: state.masks.map(window.Masks.serialize), photoName: state.photo.name, photoData: state.photo.dataUrl })], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'netgarden-design.json'; a.click(); });
   $('importJson').addEventListener('change', async (e) => {
     const file = e.target.files[0]; if (!file) return;
-    try { const o = JSON.parse(await file.text()); if (o.photoData) await loadPhoto(o.photoData, o.photoName || 'photo.jpg', true); state.ground = o.ground || defaultGround(); state.beds = o.beds || []; state.plants = (o.plants || []).filter(p => LIB.byId[p.pid]); if (o.sun) state.sun = o.sun; if (o.light) state.light = o.light; if (o.profile) state.profile = Object.assign({}, window.Site.DEFAULT_PROFILE, o.profile); state.masks = o.masks ? await Promise.all(o.masks.map(m => window.Masks.restore(m, state.photo.w, state.photo.h))) : []; buildCamera(); fit(); afterChange(); renderPhoto(); renderBeds(); renderMasks(); toast('Design imported'); }
+    try { const o = JSON.parse(await file.text());
+      const fin = (v) => typeof v === 'number' && isFinite(v);
+      if (!o || typeof o !== 'object' || (o.plants && !Array.isArray(o.plants)) || (o.beds && !Array.isArray(o.beds)) || (o.masks && !Array.isArray(o.masks))) throw new Error('shape');
+      if ((o.plants || []).some(p => !p || !fin(p.X) || !fin(p.Z)) || (o.beds || []).some(b => !b || !Array.isArray(b.pts) || b.pts.length < 3 || b.pts.some(q => !q || !fin(q.X) || !fin(q.Z)))) throw new Error('values');
+      if (o.ground && (!fin(o.ground.horizon) || !fin(o.ground.lens))) throw new Error('ground');
+      if (o.photoData) await loadPhoto(o.photoData, o.photoName || 'photo.jpg', true); state.ground = o.ground || defaultGround(); if (fin(o.t)) state.t = o.t; if (fin(o.years)) state.years = o.years; state.beds = o.beds || []; state.plants = (o.plants || []).filter(p => LIB.byId[p.pid]); if (o.sun) state.sun = o.sun; if (o.light) state.light = o.light; if (o.profile) state.profile = Object.assign({}, window.Site.DEFAULT_PROFILE, o.profile); state.masks = o.masks ? await Promise.all(o.masks.map(m => window.Masks.restore(m, state.photo.w, state.photo.h))) : []; buildCamera(); fit(); afterChange(); renderPhoto(); renderBeds(); renderMasks(); toast('Design imported'); }
     catch (err) { toast('That file could not be read as a Netgarden design.', 3000); }
   });
   $('exportPng').addEventListener('click', () => { try { const a = document.createElement('a'); a.href = compositeCanvas().toDataURL('image/jpeg', 0.9); a.download = `netgarden-${timeLabel(state.t).replace(/\s+/g, '-').toLowerCase()}.jpg`; a.click(); } catch (err) { toast('The browser will not export the sample photo when the app is opened from a file. Upload your own photo or use the published site.', 4000); } });
@@ -959,6 +977,7 @@
   window.netgarden = { state, invalidate, get cam() { return cam; }, draw, save, showStep, setTime, undo, redo, setSheet, view, get sheet() { return sheet; }, get press() { return press; }, get pinch() { return pinch; }, get pointers() { return pointers.size; } };
   async function boot() {
     window.Render.api.onImageLoad = invalidate;
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => { });
     await loadUserSprites();
     const saved = loadSaved();
     try { if (saved && saved.photoData) await loadPhoto(saved.photoData, saved.photoName || 'photo.jpg', true); else await loadPhoto('assets/sample-garden.jpg', 'sample-garden.jpg', false); }

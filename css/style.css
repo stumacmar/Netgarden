@@ -126,6 +126,7 @@ button.card:active { transform: none; }
 .list.grid .card { display: flex; flex-direction: column; gap: 4px; padding: 6px; align-items: stretch; }
 .list.grid .card canvas, .list.grid .card img.th { width: 100%; height: 90px; display: block; background: linear-gradient(#dfe8f4, #e9eadb 70%, #cfd8b8); border-radius: 6px; object-fit: contain; }
 .list.grid .card .nm { font-size: 13px; line-height: 1.2; }
+.list.grid .more { grid-column: 1 / -1; justify-content: center; min-height: 44px; }
 .list.grid .card .flag { font-size: 11px; color: #a33a2a; }
 .list.compact .card { padding: 6px 8px; grid-template-columns: 22px 1fr auto; align-items: center; }
 .list.compact .card .sw { width: 22px; height: 22px; }
