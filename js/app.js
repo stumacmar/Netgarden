@@ -203,7 +203,8 @@
     items.forEach(it => {
       if (it.kind === 'mask') { if (!plantsOnly) c.drawImage(window.Masks.maskedPhoto(it.m, ph), 0, 0); return; }
       const pl = it.pl, p = dims(pl); if (!p) return;
-      window.Compose.drawPlant(c, { p, st: stateAt(p, tq), t: tq, seed: pl.seed, size: sizeOf(pl), flip: !!pl.flip !== (window.Render.hasSprites(p) && state.sun.az > 0), X: pl.X, Z: pl.Z }, env);
+      const vary = 0.94 + 0.12 * ((pl.seed % 997) / 997);
+      window.Compose.drawPlant(c, { p, st: stateAt(p, tq), t: tq, seed: pl.seed, size: sizeOf(pl) * vary, flip: !!pl.flip !== (window.Render.hasSprites(p) && state.sun.az > 0), X: pl.X, Z: pl.Z }, env);
     });
   }
   function compositeCanvas(plantsOnly) {
@@ -216,16 +217,16 @@
     const dpr = view.dpr, sc = view.scale, lw = (n) => n / sc;
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#1b2318'; ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.setTransform(dpr * sc, 0, 0, dpr * sc, dpr * view.ox, dpr * view.oy);
-    drawScene(ctx, false);
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, state.photo.w, state.photo.h); ctx.clip(); drawScene(ctx, false); ctx.restore();
     if (state.drawingBed && state.drawingBed.length) {
       drawBed(ctx, { pts: state.drawingBed }, 0.6); ctx.fillStyle = '#fff';
       state.drawingBed.forEach(p => { const q = cam.toImage(p.X, p.Z); ctx.beginPath(); ctx.arc(q.x, q.y, lw(5), 0, Math.PI * 2); ctx.fill(); });
     }
     if ($('showGrid').checked || state.step === 'photo') {
       ctx.save(); ctx.beginPath(); ctx.rect(0, 0, state.photo.w, state.photo.h); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = lw(1);
-      const near = Math.max(0.5, cam.hc * 0.4);
-      for (let X = -12; X <= 12; X++) { const a = cam.toImage(X, near), b = cam.toImage(X, 40); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
-      for (let Z = 1; Z <= 40; Z += (Z < 10 ? 1 : 5)) { if (Z < near) continue; const a = cam.toImage(-12, Z), b = cam.toImage(12, Z); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+      const near = Math.max(0.5, cam.hc * 0.4), farZ = Math.min(40, (fenceZ() || 40) + 0.01);
+      for (let X = -12; X <= 12; X++) { const a = cam.toImage(X, near), b = cam.toImage(X, farZ); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+      for (let Z = 1; Z <= farZ; Z += (Z < 10 ? 1 : 5)) { if (Z < near) continue; const a = cam.toImage(-12, Z), b = cam.toImage(12, Z); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
       ctx.restore();
     }
     if (state.mode === 'mask') {
@@ -245,7 +246,7 @@
         ctx.strokeStyle = '#6bd0ff'; ctx.lineWidth = lw(3); ctx.beginPath(); ctx.moveTo(g.ref.x1, g.ref.y1); ctx.lineTo(g.ref.x2, g.ref.y2); ctx.stroke(); ctx.fillStyle = '#6bd0ff';
         const hr = lw(HANDLE_R());
         [[g.ref.x1, g.ref.y1], [g.ref.x2, g.ref.y2]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, hr, 0, Math.PI * 2); ctx.fill(); if (mqCoarse.matches) { ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = lw(2); ctx.stroke(); ctx.restore(); } });
-        ctx.fillText(`${g.refLen} m`, (g.ref.x1 + g.ref.x2) / 2 + lw(8), (g.ref.y1 + g.ref.y2) / 2 - lw(8));
+        ctx.fillText(`${g.refLen} m`, (g.ref.x1 + g.ref.x2) / 2 + lw(8), (g.ref.y1 + g.ref.y2) / 2 + lw(22));
       }
       ctx.restore();
     }
@@ -288,7 +289,11 @@
     ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
   }
 
-  function hitPlant(pt) { for (const pl of sortedPlants().reverse()) { const b = placedBounds(pl); if (pt.x >= b.x0 && pt.x <= b.x1 && pt.y >= b.y0 && pt.y <= b.y1) return pl; } return null; }
+  function hitPlant(pt) {
+    const m = (mqCoarse.matches ? 22 : 10) / view.scale;
+    for (const pl of sortedPlants().reverse()) { const b = placedBounds(pl); const gx = Math.max(0, m - (b.x1 - b.x0) / 2), gy = Math.max(0, m - (b.y1 - b.y0) / 2); if (pt.x >= b.x0 - gx && pt.x <= b.x1 + gx && pt.y >= b.y0 - gy && pt.y <= b.y1 + gy) return pl; }
+    return null;
+  }
 
   /* ---------------- gestures ----------------
    * One pointer: a press that is a tap until it moves more than a few pixels, then a drag.

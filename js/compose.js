@@ -33,9 +33,12 @@
       const cx = c.getContext('2d'); cx.drawImage(img, 0, 0, c.width, c.height);
       const y0 = Math.min(c.height - 2, Math.round((horizonY * k) + c.height * 0.05));
       const d = cx.getImageData(0, y0, c.width, c.height - y0).data;
+      /* the brightest quarter of the ground: plants stand in the light, not in the average of lawn and shadow */
+      const lums = []; for (let i = 0; i < d.length; i += 4) lums.push(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]);
+      const sorted = lums.slice().sort((x, y) => x - y), cut = sorted[Math.floor(sorted.length * 0.75)] || 0;
       let r = 0, g = 0, b = 0, n = 0;
-      for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
-      r /= n; g /= n; b /= n;
+      for (let i = 0, k = 0; i < d.length; i += 4, k++) { if (lums[k] < cut) continue; r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+      r /= Math.max(1, n); g /= Math.max(1, n); b /= Math.max(1, n);
       const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
       const warmth = (r - b) / Math.max(1, r + b);
       /* sky colour for haze: mean of the top rows */
@@ -49,7 +52,7 @@
   /* Automatic light settings from the photo stats. */
   function autoLight(stats) {
     return {
-      brightness: Math.max(0.7, Math.min(1.3, stats.lum / 0.40)),
+      brightness: Math.max(0.7, Math.min(1.3, stats.lum / 0.48)),
       warmth: Math.max(-1, Math.min(1, (stats.warmth - 0.10) * 4)),
       contrast: 1.0,
       saturation: 1.0,
@@ -96,6 +99,11 @@
       if (light.grain > 0) { px.globalAlpha = light.grain * 0.35; px.fillStyle = px.createPattern(noise(), 'repeat'); px.fillRect(0, 0, W, H); }
       if (light.warmth) { px.globalAlpha = Math.abs(light.warmth) * 0.12; px.fillStyle = light.warmth > 0 ? '#ff9a2a' : '#4a7aff'; px.fillRect(0, 0, W, H); }
       if (hazeK > 0.01 && env.stats) { const hz = env.stats.haze; px.globalAlpha = hazeK; px.fillStyle = `rgb(${hz[0]},${hz[1]},${hz[2]})`; px.fillRect(0, 0, W, H); }
+      /* form: the side away from the sun and the underside sit in their own shade (sprites are lit from the left before any flip) */
+      if (env.quality !== 'fast') {
+        px.globalAlpha = 1; const side = px.createLinearGradient(0, 0, W, 0); side.addColorStop(0, 'rgba(0,0,0,0)'); side.addColorStop(0.45, 'rgba(0,0,0,0.04)'); side.addColorStop(1, 'rgba(0,0,0,0.26)'); px.fillStyle = side; px.fillRect(0, 0, W, H);
+        const under = px.createLinearGradient(0, 0, 0, H); under.addColorStop(0, 'rgba(0,0,0,0)'); under.addColorStop(0.6, 'rgba(0,0,0,0.03)'); under.addColorStop(1, 'rgba(0,0,0,0.18)'); px.fillStyle = under; px.fillRect(0, 0, W, H);
+      }
       px.restore();
       /* silhouette, pre-blurred for the cast shadow */
       sc = document.createElement('canvas'); sc.width = W; sc.height = H;
@@ -105,6 +113,7 @@
       else if (HAS_FILTER) { sbx.filter = `blur(${blurPx}px)`; sbx.drawImage(sc, 0, 0); }
       else { /* no canvas filters (older Safari): soften by stacking offset copies */ const n = 8; sbx.globalAlpha = 1 / n * 1.6; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; sbx.drawImage(sc, Math.cos(a) * blurPx, Math.sin(a) * blurPx); } }
       sc = sb;
+      { const sx3 = sb.getContext('2d'); sx3.globalCompositeOperation = 'destination-in'; const fade = sx3.createLinearGradient(0, H - pad, 0, pad); fade.addColorStop(0, 'rgba(0,0,0,1)'); fade.addColorStop(1, 'rgba(0,0,0,0.3)'); sx3.fillStyle = fade; sx3.fillRect(0, 0, W, H); }
       /* bake the exposure match and feather into the plant image */
       if (env.quality === 'fast') { /* no exposure match while scrubbing: speed over polish */ }
       else if (HAS_FILTER) { const fc = document.createElement('canvas'); fc.width = W; fc.height = H; const fx = fc.getContext('2d'); fx.filter = filt; fx.drawImage(pc, 0, 0); pc = fc; }
@@ -125,13 +134,15 @@
       /* local (u, vv) with vv in [-hPx, 0]:  x' = k u - (sx/hPx) vv ; y' = -(sy/hPx) vv */
       const fx = spec.flip ? -1 : 1;
       ctx.transform(k, 0, -v.sx / hPx * fx, -v.sy / hPx, 0, 0);
-      ctx.globalAlpha = light.shadow * (0.9 - 0.4 * Math.min(1, spec.Z / 20));
+      ctx.globalAlpha = light.shadow * (1.1 - 0.4 * Math.min(1, spec.Z / 20)); ctx.globalCompositeOperation = 'multiply';
       ctx.drawImage(sc, -cx, -cy);
       ctx.restore();
     }
-    /* contact shadow */
-    ctx.save(); ctx.fillStyle = 'rgba(10,20,8,0.35)'; ctx.beginPath();
-    ctx.ellipse(q.x, q.y, (b.x1 - b.x0) * 0.42, Math.max(2, (b.x1 - b.x0) * 0.08), 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    /* contact shadow: a soft pool under the plant, darkening what is there */
+    { const rw = (b.x1 - b.x0) * 0.46, rh = Math.max(2, (b.x1 - b.x0) * 0.09);
+      ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.translate(q.x, q.y); ctx.scale(1, rh / rw);
+      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rw); g.addColorStop(0, 'rgba(40,50,30,0.55)'); g.addColorStop(0.6, 'rgba(40,50,30,0.3)'); g.addColorStop(1, 'rgba(40,50,30,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, rw, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
 
     /* the plant (exposure match and feather already baked in) */
     ctx.save(); ctx.translate(q.x, q.y); if (spec.flip) ctx.scale(-1, 1); ctx.drawImage(pc, -cx, -cy); ctx.restore();

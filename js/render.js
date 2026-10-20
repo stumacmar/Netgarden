@@ -292,7 +292,30 @@
   /* ---------- photo sprites ---------- */
   const FALLBACK = { flower: ['flower', 'leaf', 'spring', 'autumn', 'fruit'], fruit: ['fruit', 'leaf', 'autumn', 'flower', 'spring'], autumn: ['autumn', 'leaf', 'fruit', 'flower', 'spring'], spring: ['spring', 'leaf', 'flower', 'autumn', 'fruit'], leaf: ['leaf', 'spring', 'autumn', 'fruit', 'flower'], bare: ['bare'] };
   const imgCache = {}; const api = { onImageLoad: null };
-  function getImage(path) { let im = imgCache[path]; if (!im) { im = new Image(); imgCache[path] = im; im.onload = () => { if (api.onImageLoad) api.onImageLoad(); }; im.src = path; } return im.complete && im.naturalWidth ? im : null; }
+  /* Sprites were cut out from a white background, which leaves a bright fringe round every leaf and white
+   * specks in the gaps. Once loaded, each sprite is cleaned: the colour is un-mixed from white at the
+   * semi-transparent edge and the alpha is eroded by one pixel so the fringe and specks go. */
+  function cleanSprite(im) {
+    try {
+      const w = im.naturalWidth, h = im.naturalHeight, c = document.createElement('canvas'); c.width = w; c.height = h;
+      const cx = c.getContext('2d', { willReadFrequently: true }); cx.drawImage(im, 0, 0);
+      const img = cx.getImageData(0, 0, w, h), d = img.data, a0 = new Uint8ClampedArray(w * h);
+      for (let i = 0, j = 3; i < a0.length; i++, j += 4) a0[i] = d[j];
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const i = y * w + x, a = a0[i], j = i * 4; if (!a) continue;
+        if (a < 255) { const k = 255 / a, m = 255 - a; d[j] = Math.max(0, (d[j] - m) * k); d[j + 1] = Math.max(0, (d[j + 1] - m) * k); d[j + 2] = Math.max(0, (d[j + 2] - m) * k); }
+        let mn = a; for (let dy = -2; dy <= 2; dy++) { const yy = y + dy; if (yy < 0 || yy >= h) { mn = 0; continue; } for (let dx = -2; dx <= 2; dx++) { if (Math.abs(dx) + Math.abs(dy) > 3) continue; const xx = x + dx; if (xx < 0 || xx >= w) { mn = 0; continue; } const v = a0[yy * w + xx]; if (v < mn) mn = v; } }
+        d[j + 3] = Math.round(a * (0.15 + 0.85 * mn / 255));
+      }
+      cx.putImageData(img, 0, 0); c.naturalWidth = w; c.naturalHeight = h; c.complete = true; return c;
+    } catch (e) { return im; /* a file:// page cannot read pixels; the raw sprite still draws */ }
+  }
+  function getImage(path) {
+    let im = imgCache[path];
+    if (!im) { im = new Image(); imgCache[path] = im; im.onload = () => { if (imgCache[path] === im) imgCache[path] = cleanSprite(im); if (api.onImageLoad) api.onImageLoad(); }; im.src = path; }
+    if (im instanceof HTMLImageElement) { if (im.complete && im.naturalWidth) { imgCache[path] = cleanSprite(im); return imgCache[path]; } return null; }
+    return im;
+  }
   function spriteSet(p) { return (global.SPRITE_MANIFEST || {})[p.id] || null; }
   function resolveSprite(p, state) { const set = spriteSet(p); if (!set) return null; for (const s of FALLBACK[state] || [state]) { const e = set[s]; if (e && e.file) { const im = getImage(e.file); if (im) return { im, state: s }; } } return null; }
   function hasSprites(p) { const set = spriteSet(p); return !!(set && Object.values(set).some(e => e && e.file)); }
