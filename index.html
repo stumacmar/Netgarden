@@ -35,8 +35,7 @@
 <main class="layout" id="layout">
   <section class="stage" id="stage">
     <div class="canvasWrap" id="canvasWrap">
-      <canvas id="view"></canvas>
-      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <canvas id="view" role="img" aria-label="Garden photo"></canvas>
       <button id="usePhotoBtn" class="primary usePhoto">📷<span class="long"> Use a photo of your garden</span><span class="short"> Your photo</span></button>
       <div class="zoomCtl" id="zoomCtl">
         <button id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
@@ -54,18 +53,20 @@
         <button id="sbClose" title="Deselect" aria-label="Deselect">✕</button>
       </div>
       <div class="ctxbar" id="ctxbar">
-        <span class="hint" id="hint"></span>
+        <span class="hint" id="hint" aria-live="polite"></span>
         <button id="cancelBtn" class="hidden">Cancel</button>
         <button id="doneBtn" class="primary hidden">Done</button>
       </div>
     </div>
     <div class="timebar" id="timebar">
       <button id="play" class="icon" title="Play through the year" aria-label="Play through the year">▶</button>
+      <button id="monthPrev" class="icon monthBtn" title="Previous month" aria-label="Previous month">‹</button>
       <div class="sliderWrap">
         <input type="range" id="time" min="0" max="11.99" step="0.02" value="6.5" aria-label="Time of year">
-        <canvas id="bands" height="34" title="What is in flower through the year"></canvas>
+        <canvas id="bands" height="34" role="img" aria-label="What is in flower through the year"></canvas>
         <div class="months" id="monthTicks"></div>
       </div>
+      <button id="monthNext" class="icon monthBtn" title="Next month" aria-label="Next month">›</button>
       <div class="timeLabel" id="timeLabel">Mid June</div>
     </div>
   </section>
@@ -86,7 +87,7 @@
       <div class="wizPage" data-page="1">
         <h3>Three quick questions</h3>
         <div class="q"><b>1. Where was your eye level?</b>
-          <label>Drag the yellow line on the photo, or use this. <span id="horizonVal" class="count"></span><input type="range" id="horizon" min="0" max="1" step="0.001"></label>
+          <label>Drag the yellow line on the photo, or use this. <span id="horizonVal" class="count"></span><input type="range" id="horizon" min="0.05" max="0.9" step="0.001"></label>
           <p class="small">For a 1.8 m fence, a little below its top.</p></div>
       </div>
       <div class="wizPage" data-page="2">
@@ -178,6 +179,8 @@
     </section>
   </aside>
 </main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <dialog id="renderDlg">
   <div class="dlgHead"><b id="renderTitle">Rendered</b><span class="small">Hold "Before" to compare.</span><button id="renderBefore">Before</button><a id="renderDl" class="btn" href="#" download>Download</a><button id="renderClose">Close</button></div>

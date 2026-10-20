@@ -111,7 +111,8 @@
   function maxPlantZ() { const fz = fenceZ(); return fz ? fz - 0.1 : 30; }
   function placedBounds(pl) { const q = placedImage(pl); return window.Render.bounds(dims(pl), q.x, q.y, cam.ppm(pl.X, pl.Z), sizeOf(pl)); }
   function sortedPlants() { return state.plants.slice().sort((a, b) => placedImage(a).y - placedImage(b).y); }
-  function toast(msg, ms) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), ms || 1800); }
+  function toast(msg, ms) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), ms || 3500); }
+  function hideToast() { clearTimeout(toast.h); $('toast').classList.remove('show'); }
   function hint(s) { $('hint').textContent = s; updateCtxbar(); }
   function updateCtxbar() { const bar = $('ctxbar'); const btns = !$('doneBtn').classList.contains('hidden') || !$('cancelBtn').classList.contains('hidden'); bar.classList.toggle('empty', !$('hint').textContent && !btns); bar.classList.toggle('task', btns); }
   const mqPhone = window.matchMedia('(max-width: 900px)'), mqSheet = window.matchMedia('(max-width: 900px) and (orientation: portrait)'), mqCoarse = window.matchMedia('(pointer: coarse)');
@@ -291,7 +292,7 @@
    * One pointer: a press that is a tap until it moves more than a few pixels, then a drag.
    * Two pointers: pinch to zoom and pan; whatever the first finger had started is undone. */
   const pointers = new Map(); let pinch = null, press = null;
-  const TAP_SLOP = 6;
+  const TAP_SLOP = 6, TOUCH_SLOP = 14; let lastPointerType = 'mouse', lastCanvasUp = 0, lastPlanted = null;
   function blurInputs() { const a = document.activeElement; if (a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) a.blur(); }
   function cancelPress() {
     const p = press; press = null; if (!p || !p.drag) return;
@@ -319,12 +320,12 @@
   function pressIntent(ev, pt) {
     /* what this press will do if it moves (drag) and if it does not (tap) */
     const touch = ev.pointerType === 'touch', tol = (touch ? 28 : 16) / view.scale;
-    if (!inPhoto(pt)) return { drag: { kind: 'pan' }, tap: null };
+    if (!inPhoto(pt)) return { drag: { kind: 'pan' }, tap: 'outside' };
     if (state.step === 'photo') {
       const g = state.ground;
       if (state.refClicks != null) {
         if (state.refClicks === 0) { g.ref = { x1: pt.x, y1: pt.y, x2: pt.x, y2: pt.y }; state.refClicks = 1; rebuild(); updateHint(); return { drag: { kind: 'ref2', orig: null }, tap: null, started: true }; }
-        g.ref.x2 = pt.x; g.ref.y2 = pt.y; state.refClicks = null; setContext(null); rebuild(); updateHint(); return { drag: { kind: 'ref2', orig: null }, tap: null, started: true };
+        g.ref.x2 = pt.x; g.ref.y2 = pt.y; state.refClicks = null; setContext(null); rebuild(); updateHint(); if (mqSheet.matches) setTimeout(() => { setSheet('half'); renderPhoto(); }, 250); return { drag: { kind: 'ref2', orig: null }, tap: null, started: true };
       }
       if (g.ref && Math.hypot(pt.x - g.ref.x1, pt.y - g.ref.y1) < tol) return { drag: { kind: 'ref1', orig: Object.assign({}, g.ref) }, tap: null };
       if (g.ref && Math.hypot(pt.x - g.ref.x2, pt.y - g.ref.y2) < tol) return { drag: { kind: 'ref2', orig: Object.assign({}, g.ref) }, tap: null };
@@ -339,29 +340,36 @@
       return { drag: { kind: 'paint', id: m.id, last: pt, snap }, tap: null, started: true };
     }
     if (state.mode === 'bed') return { drag: { kind: 'pan' }, tap: 'corner' };
-    if (state.libSel) return { drag: { kind: 'pan' }, tap: 'plant' };
     const hit = hitPlant(pt);
+    /* a plant already here: select or move it rather than stacking another on top */
+    if (state.libSel && !hit) return { drag: { kind: 'pan' }, tap: 'plant' };
     if (hit) { state.sel = hit.id; const q = placedImage(hit); renderSelected(); invalidate(); return { drag: { kind: 'plant', id: hit.id, dx: pt.x - q.x, dy: pt.y - q.y, orig: { X: hit.X, Z: hit.Z } }, tap: 'select' }; }
     return { drag: { kind: 'pan' }, tap: 'clear' };
   }
   function pressTap(p) {
     const pt = p.pt;
-    if (p.tap === 'depth') { const pl = cam.toPlan(pt.x, pt.y); if (!pl) { toast('Tap the ground, below the horizon'); return; } const m = state.masks.find(x => x.id === state.maskSel); if (m) { m.Z = pl.Z; state.maskSetDepth = false; save(); renderMasks(); setContext(null); setMode('plant'); toast('Distance set'); } return; }
+    if (p.tap === 'outside') { if (state.libSel || state.mode !== 'plant') toast('Tap inside the photo'); return; }
+    const tooFar = () => fenceZ() ? 'That is beyond the back fence. Tap the lawn in front of it.' : 'That is too far away. Tap nearer the camera.';
+    if (p.tap === 'depth') { const pl = cam.toPlan(pt.x, pt.y); if (!pl) { toast('Tap the ground, below the horizon'); return; } if (pl.Z > maxPlantZ() + 0.3) { toast(tooFar()); return; } const m = state.masks.find(x => x.id === state.maskSel); if (m) { m.Z = pl.Z; state.maskSetDepth = false; save(); renderMasks(); setContext(null); setMode('plant'); toast('Distance set'); } return; }
     if (p.tap === 'corner') {
       const pl = cam.toPlan(pt.x, pt.y); if (!pl) { toast('Tap on the ground, below the horizon'); return; }
+      if (pl.Z > maxPlantZ() + 0.3) { toast(tooFar()); return; }
       if (!state.drawingBed) state.drawingBed = [];
       const last = state.drawingBed[state.drawingBed.length - 1]; if (last && Math.hypot(last.X - pl.X, last.Z - pl.Z) < 0.05) return;
       state.drawingBed.push(pl); $('doneBtn').disabled = state.drawingBed.length < 3; invalidate(); updateHint(); return;
     }
     if (p.tap === 'plant') {
       const pl = cam.toPlan(pt.x, pt.y); if (!pl) { toast('Tap on the ground, below the horizon'); return; }
-      if (pl.Z > maxPlantZ() + 0.3) { toast(fenceZ() ? 'That is beyond the back fence. Tap the lawn in front of it.' : 'That is too far away. Tap nearer the camera.', 2600); return; }
+      if (pl.Z > maxPlantZ() + 0.3) { toast(tooFar()); return; }
+      /* a nervous double tap is one tap */
+      if (lastPlanted && performance.now() - lastPlanted.t < 600 && Math.hypot(p.x0 - lastPlanted.x, p.y0 - lastPlanted.y) < 24) return;
+      lastPlanted = { t: performance.now(), x: p.x0, y: p.y0 };
       const lp = LIB.byId[state.libSel];
       const np = { id: uid(), pid: lp.id, X: pl.X, Z: pl.Z, seed: Math.floor(Math.random() * 1e9), size: 1 };
       if (lp.rootstocks) np.rootstock = Object.keys(lp.rootstocks)[1] || Object.keys(lp.rootstocks)[0];
       state.plants.push(np); state.sel = np.id; afterChange(); toast(isPhone() ? `Planted ${lp.name}` : `Planted ${lp.name}. Tap again for another.`, 1800); return;
     }
-    if (p.tap === 'select') { renderSelected(); if (sheet.pos === 'peek') setSheet('half'); return; }
+    if (p.tap === 'select') { renderSelected(); if (sheet.pos === 'peek' && !state.libSel) setSheet('half'); return; }
     if (p.tap === 'clear') { if (state.sel) { state.sel = null; renderSelected(); invalidate(); } }
   }
   function pressMove(p, ev) {
@@ -379,13 +387,13 @@
   }
   function pressEnd(p) {
     const d = p.drag;
-    if (d.kind === 'plant') afterChange();
+    if (d.kind === 'plant') { const plant = state.plants.find(x => x.id === d.id); if (plant && d.orig && Math.hypot(plant.X - d.orig.X, plant.Z - d.orig.Z) < 0.05) { plant.X = d.orig.X; plant.Z = d.orig.Z; renderSelected(); } else afterChange(); }
     else if (d.kind === 'paint') { save(); renderMasks(); }
     else if (d.kind !== 'pan') { save(); renderPhoto(); }
     invalidate();
   }
   canvas.addEventListener('pointerdown', (ev) => {
-    if (ev.button > 0) return; blurInputs(); wakeZoom();
+    if (ev.button > 0) return; blurInputs(); wakeZoom(); lastPointerType = ev.pointerType;
     pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY }); try { canvas.setPointerCapture(ev.pointerId); } catch (e) { }
     if (pointers.size === 2) { cancelPress(); startPinch(); return; }
     if (pointers.size > 2 || pinch || !cam) return;
@@ -400,7 +408,7 @@
     if (!cam) return;
     if (press && ev.pointerId === press.id) {
       press.client = { x: ev.clientX, y: ev.clientY };
-      if (!press.moved) { if (Math.hypot(ev.clientX - press.x0, ev.clientY - press.y0) < TAP_SLOP) return; press.moved = true; }
+      if (!press.moved) { if (Math.hypot(ev.clientX - press.x0, ev.clientY - press.y0) < (press.touch ? TOUCH_SLOP : TAP_SLOP)) return; press.moved = true; }
       state.hoverPt = toImg(ev); pressMove(press, ev); return;
     }
     if (ev.pointerType === 'mouse') {
@@ -413,15 +421,19 @@
     pointers.delete(ev.pointerId);
     if (pinch) { if (pointers.size < 2) { const c = pinch; pinch = null; settleZoom(c.cx, c.cy); } return; }
     if (!press || ev.pointerId !== press.id) return;
-    const p = press; press = null;
+    const p = press; press = null; lastCanvasUp = performance.now();
     if (ev.type === 'pointercancel') { invalidate(); return; }
+    /* a short wobble that could not pan anything is still a tap */
+    if (p.moved && p.drag.kind === 'pan' && view.zoom === 1 && p.tap && Math.hypot(ev.clientX - p.x0, ev.clientY - p.y0) < 20) p.moved = false;
     if (p.moved) pressEnd(p); else if (p.tap) pressTap(p); else pressEnd(p);
     if (p.touch) { state.hoverPt = null; invalidate(); }
   };
   canvas.addEventListener('pointerup', endPointer); canvas.addEventListener('pointercancel', endPointer);
   canvas.addEventListener('pointerleave', (ev) => { if (ev.pointerType === 'mouse' && !press) { state.hoverPt = null; state.hover = null; invalidate(); } });
-  canvas.addEventListener('dblclick', () => { if (state.mode === 'bed') finishBed(); });
+  canvas.addEventListener('dblclick', () => { if (state.mode === 'bed' && lastPointerType === 'mouse') finishBed(); });
   canvas.addEventListener('contextmenu', (ev) => ev.preventDefault());
+  /* the selection bar appears where the finger just was: ignore a click that follows a canvas tap too closely */
+  ['sbFlip', 'sbDup', 'sbDel', 'sbClose'].forEach(id => $(id).addEventListener('click', (ev) => { if (performance.now() - lastCanvasUp < 400) { ev.stopImmediatePropagation(); ev.preventDefault(); } }, true));
   window.addEventListener('keydown', (ev) => {
     if (ev.target.matches('input, select, textarea')) return;
     const mod = ev.ctrlKey || ev.metaKey;
@@ -444,7 +456,7 @@
   /* animate from the current visual position to a resting height */
   function snapTo(v) {
     const cur = sheet.v - (parseFloat(sideEl.style.getPropertyValue('--sheet-dy')) || 0);
-    sheet.v = v; sideEl.style.height = v + 'px'; layoutEl.style.setProperty('--peek', v + 'px');
+    sheet.v = v; sideEl.style.height = v + 'px'; layoutEl.style.setProperty('--peek', v + 'px'); document.documentElement.style.setProperty('--peek', v + 'px');
     sideEl.classList.add('dragging'); sideEl.style.setProperty('--sheet-dy', (v - cur) + 'px'); void sideEl.offsetHeight;
     sideEl.classList.remove('dragging'); sideEl.style.setProperty('--sheet-dy', '0px');
   }
@@ -488,11 +500,12 @@
   /* the time bar lives in the sheet on an upright phone and under the photo everywhere else */
   function relayout() {
     const tb = $('timebar'), stage = $('stage');
+    $('time').classList.toggle('vh', isPhone());
     if (mqSheet.matches) { if (tb.parentElement !== sideEl) sideEl.insertBefore(tb, sheetHead.nextSibling); setSheet(sheet.pos); }
     else { if (tb.parentElement !== stage) stage.appendChild(tb); sideEl.style.removeProperty('--sheet-dy'); sideEl.style.removeProperty('height'); sideEl.classList.remove('peek', 'dragging'); layoutEl.classList.remove('sheetFull'); layoutEl.style.removeProperty('--peek'); }
     renderBands(); fit();
   }
-  mqSheet.addEventListener('change', relayout);
+  mqSheet.addEventListener('change', relayout); mqPhone.addEventListener('change', relayout);
   /* nothing may scroll the app frame itself (a focused input or a tap can try) */
   layoutEl.addEventListener('scroll', () => { layoutEl.scrollTop = 0; layoutEl.scrollLeft = 0; });
   window.addEventListener('resize', () => { if (mqSheet.matches) setSheet(sheet.pos); });
@@ -517,7 +530,8 @@
   /* ---------------- steps, modes, contextual Done/Cancel ---------------- */
   const TITLES = { photo: 'Photo and your garden', beds: 'Beds and what is in front', plants: 'Plants', review: 'Review' };
   function showStep(name) {
-    state.step = name;
+    state.step = name; hideToast();
+    if (state.refClicks != null) cancelContext();
     if (name !== 'plants' && state.libSel) { state.libSel = null; setContext(null); renderLibrary(); }
     if ((name === 'photo' || name === 'beds') && state.sel) { state.sel = null; renderSelected(); }
     document.querySelectorAll('.steps button').forEach(b => b.classList.toggle('active', b.dataset.step === name));
@@ -557,7 +571,7 @@
     else if (state.mode === 'mask') hint(state.maskSetDepth ? 'Tap the ground where this object stands.' : (ph ? (state.erase ? 'Rub out paint, then Done.' : 'Paint over the object, then Done.') : `Paint over the object. ${state.erase ? 'Erasing.' : 'Tick "erase" to remove paint.'} Then press Done.`));
     else if (state.mode === 'bed') hint(state.drawingBed && state.drawingBed.length ? `${state.drawingBed.length} corner${state.drawingBed.length > 1 ? 's' : ''}. ${ph ? 'Keep tapping, then Done.' : 'Keep tapping, then press Done.'}` : (ph ? 'Tap the corners of the border.' : 'Tap the corners of the border on the lawn, then press Done.'));
     else if (state.libSel) hint(ph ? `Tap the lawn to plant ${LIB.byId[state.libSel].name}.` : `Tap the lawn or a border to plant ${LIB.byId[state.libSel].name}. Cancel to stop.`);
-    else hint(state.step === 'plants' ? (ph ? 'Pick a plant, then tap the lawn.' : 'Choose a plant on the right, then tap where it should go. Drag plants to move them.') : '');
+    else hint(state.step === 'plants' ? (ph ? (state.plants.length ? '' : 'Pick a plant, then tap the lawn.') : 'Choose a plant on the right, then tap where it should go. Drag plants to move them.') : '');
   }
 
   /* ---------------- beds ---------------- */
@@ -567,6 +581,7 @@
     updateHint();
   }
   function finishBed() {
+    if (state.drawingBed && state.drawingBed.length > 0 && state.drawingBed.length < 3) { toast('A border needs at least 3 corners. Keep tapping, or Cancel.'); return; }
     if (state.drawingBed && state.drawingBed.length >= 3) { state.beds.push({ id: uid(), pts: state.drawingBed, surface: 'soil' }); toast('Border added'); }
     state.drawingBed = null; setContext(null); setMode('plant'); afterChange(); renderBeds();
   }
@@ -659,7 +674,8 @@
     const io = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { const c = e.target, p = LIB.byId[c.dataset.thumb]; const im = new Image(); im.onload = () => c.getContext('2d').drawImage(im, 0, 0); im.src = thumb(p); io.unobserve(c); } }); }, { root: $('panel-plants') });
     $('plantList').querySelectorAll('canvas[data-thumb]').forEach(c => io.observe(c));
     $('plantList').querySelectorAll('.card').forEach(c => c.addEventListener('click', () => {
-      state.libSel = state.libSel === c.dataset.id ? null : c.dataset.id; state.sel = null;
+      if (state.libSel === c.dataset.id) { setSheet('peek'); return; }
+      state.libSel = c.dataset.id; state.sel = null;
       if (state.libSel && state.mode !== 'plant') setMode('plant');
       setContext(state.libSel ? { cancel: () => { state.libSel = null; renderLibrary(); updateHint(); } } : null);
       renderLibrary(); renderSelected(); updateHint(); invalidate();
@@ -674,7 +690,7 @@
   const SPRITE_STATES = ['leaf', 'flower', 'fruit', 'autumn', 'spring', 'bare'];
   function renderSelected() {
     const sel = state.plants.find(p => p.id === state.sel), box = $('selectedBox'), bar = $('selbar');
-    bar.classList.toggle('hidden', !sel); box.classList.toggle('hidden', !sel);
+    bar.classList.toggle('hidden', !sel); box.classList.toggle('hidden', !sel); wrap.classList.toggle('hasSel', !!sel);
     if (!sel) return;
     const p = LIB.byId[sel.pid], d = dims(sel);
     $('selName').textContent = p.name;
@@ -761,7 +777,8 @@
     $('horizon').value = g.horizon; $('horizonVal').textContent = `${Math.round(g.horizon * 100)}% down the photo`;
     $('refLen').value = g.refLen; $('lens').value = String(g.lens);
     const fz = fenceZ();
-    $('camReadout').innerHTML = g.ref && fz == null ? '<span style="color:#a33a2a">The fence ends are above the eye-level line. Move the yellow line up, above the fence.</span>' : g.ref ? `The fence is about <b>${fz.toFixed(1)} m</b> away and the camera was <b>${cam.hc.toFixed(2)} m</b> up.` + (cam.hc < 0.6 || cam.hc > 3 ? ' <span style="color:#a33a2a">That camera height looks wrong: check the eye-level line and the length.</span>' : ' That looks right for a phone at chest height.') : 'Nothing marked yet, so the camera is assumed to be 1.5 m up.';
+    const refPx = g.ref ? Math.hypot(g.ref.x2 - g.ref.x1, g.ref.y2 - g.ref.y1) : 0;
+    $('camReadout').innerHTML = g.ref && refPx < 6 ? '<span style="color:#a33a2a">The two ends are on the same spot. Mark the fence again, tapping each end.</span>' : g.ref && fz == null ? '<span style="color:#a33a2a">The fence ends are above the eye-level line. Move the yellow line up, above the fence.</span>' : g.ref ? `The fence is about <b>${fz.toFixed(1)} m</b> away and the camera was <b>${cam.hc.toFixed(2)} m</b> up.` + (cam.hc < 0.6 || cam.hc > 3 ? ' <span style="color:#a33a2a">That camera height looks wrong: check the eye-level line and the length.</span>' : ' That looks right for a phone at chest height.') : 'Nothing marked yet, so the camera is assumed to be 1.5 m up.';
     $('heading').value = state.profile.heading || ''; $('region').value = state.profile.region; $('soil').value = state.profile.soil; $('drainage').value = state.profile.drainage; $('ph').value = state.profile.ph; $('exposure').value = state.profile.exposure;
     const L = state.light || window.Compose.autoLight(state.stats || {});
     $('sunAz').value = state.sun.az; $('sunEl').value = state.sun.el;
@@ -772,9 +789,9 @@
   }
   $('horizon').addEventListener('input', (e) => { state.ground.horizon = +e.target.value; rebuild(); });
   $('horizon').addEventListener('change', save);
-  $('refLen').addEventListener('change', (e) => { state.ground.refLen = Math.max(0.5, +e.target.value || 1); rebuild(); save(); renderReview(); });
+  $('refLen').addEventListener('change', (e) => { state.ground.refLen = Math.min(50, Math.max(0.5, +e.target.value || 1)); rebuild(); save(); renderReview(); });
   $('lens').addEventListener('change', (e) => { state.ground.lens = +e.target.value; rebuild(); save(); });
-  $('markRef').addEventListener('click', () => { state.refClicks = 0; setContext({ cancel: () => { state.refClicks = null; updateHint(); } }); updateHint(); toast('Tap one end of the fence, then the other'); });
+  $('markRef').addEventListener('click', () => { const prev = state.ground.ref ? Object.assign({}, state.ground.ref) : null; state.refClicks = 0; setContext({ cancel: () => { state.refClicks = null; state.ground.ref = prev; rebuild(); renderPhoto(); updateHint(); } }); updateHint(); toast('Tap one end of the fence, then the other'); });
   ['heading', 'region', 'soil', 'drainage', 'ph', 'exposure'].forEach(k => $(k).addEventListener('change', (e) => { state.profile[k] = e.target.value || null; save(); renderLibrary(); renderSelected(); renderReview(); renderBands(); invalidate(); }));
   $('sunAz').addEventListener('input', (e) => { state.sun.az = +e.target.value; renderPhoto(); invalidate(); });
   $('sunEl').addEventListener('input', (e) => { state.sun.el = +e.target.value; renderPhoto(); invalidate(); });
@@ -893,6 +910,9 @@
     drawBandCursor();
   }
   $('time').addEventListener('input', (e) => setTime(+e.target.value)); $('time').addEventListener('change', save);
+  const monthMid = (m) => ((m % 12) + 12) % 12 + 0.5;   /* mid-month position for month index m (0 = January) */
+  $('monthPrev').addEventListener('click', () => { setTime(monthMid(Math.ceil(state.t - 0.5) - 1)); save(); });
+  $('monthNext').addEventListener('click', () => { setTime(monthMid(Math.floor(state.t - 0.5) + 1)); save(); });
   $('monthTicks').innerHTML = SHORT.map(m => `<span>${m}</span>`).join('');
   $('play').addEventListener('click', () => { state.playing = !state.playing; $('play').textContent = state.playing ? '❚❚' : '▶'; if (state.playing) { let last = performance.now(); const step = (now) => { if (!state.playing) return; setTime(state.t + (now - last) / 1000 * 0.9); last = now; requestAnimationFrame(step); }; requestAnimationFrame(step); } else save(); });
   const bands = $('bands'), bctx = bands.getContext('2d'); let bandImage = null;
@@ -904,9 +924,11 @@
     const rows = Math.min(ids.length, 10), rh = rows ? Math.max(2, (h - 2) / rows) : 0;
     ids.slice(0, 10).forEach((p, i) => { const y = 1 + i * rh; for (let m = 1; m <= 12; m++) { const s = window.Phenology.monthState(p, m); if (s.flower > 0) { bctx.fillStyle = s.flowerColor; bctx.globalAlpha = 0.4 + 0.6 * s.flower; bctx.fillRect((m - 1) / 12 * w, y, w / 12 + 0.5, rh - 1); } } });
     bctx.globalAlpha = 1;
-    if (!ids.length) { bctx.fillStyle = '#9a9a90'; bctx.font = '11px system-ui'; bctx.fillText(state.plants.length ? 'None of the placed plants flower' : 'Flowering months of your plants will show here', 8, 21); }
+    if (!ids.length) { bctx.fillStyle = '#9a9a90'; bctx.font = '11px system-ui'; let txt = state.plants.length ? 'None of the placed plants flower' : 'Flowering months of your plants will show here'; if (bctx.measureText(txt).width > w - 16) txt = state.plants.length ? 'No flowers yet' : 'Flowering months show here'; bctx.fillText(txt, 8, h / 2 + 4); }
+    else ids.slice(0, 10).forEach((p, i) => { /* name the band so colour is not the only cue */ const y = 1 + i * rh; if (rh >= 9) { bctx.fillStyle = 'rgba(20,30,18,0.75)'; bctx.font = `${Math.min(11, rh - 1)}px system-ui`; bctx.fillText(p.name, 4, y + rh - 2); } });
     for (let m = 1; m < 12; m++) { bctx.fillStyle = 'rgba(0,0,0,0.08)'; bctx.fillRect(m / 12 * w, 0, 1, h); }
     bandImage = bctx.getImageData(0, 0, bands.width, bands.height); drawBandCursor();
+    bands.setAttribute('aria-label', ids.length ? 'Flowering months: ' + ids.slice(0, 10).map(p => `${p.name} ${monthsText(p.flower.m)}`).join(', ') : 'Flowering months of your plants will show here');
   }
   function drawBandCursor() { if (!bandImage) return; bctx.putImageData(bandImage, 0, 0); const dpr = window.devicePixelRatio || 1, w = bands.width / dpr; bctx.setTransform(dpr, 0, 0, dpr, 0, 0); bctx.fillStyle = 'rgba(38,58,34,0.9)'; bctx.fillRect(state.t / 12 * w - 1, 0, 2, 34); }
   function inFlowerText(m) { const ids = [...new Set(state.plants.map(p => p.pid))].map(id => LIB.byId[id]).filter(p => p && p.flower && p.flower.m.includes(m)); return `${MONTHS[m - 1]}: ${ids.length ? ids.map(p => p.name).join(', ') : 'nothing in flower'}`; }
