@@ -107,6 +107,8 @@
   }
   function sizeOf(pl) { return (pl.size || 1) * window.Site.growth(LIB.byId[pl.pid], state.years); }
   function placedImage(pl) { return cam.toImage(pl.X, pl.Z); }
+  /* how far away a plant may be: the back fence when it is marked, otherwise 30 m */
+  function maxPlantZ() { const fz = fenceZ(); return fz ? fz - 0.1 : 30; }
   function placedBounds(pl) { const q = placedImage(pl); return window.Render.bounds(dims(pl), q.x, q.y, cam.ppm(pl.X, pl.Z), sizeOf(pl)); }
   function sortedPlants() { return state.plants.slice().sort((a, b) => placedImage(a).y - placedImage(b).y); }
   function toast(msg, ms) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), ms || 1800); }
@@ -246,7 +248,7 @@
     }
     if (state.mode === 'plant' && state.libSel && state.hoverPt && !(press && press.moved)) {
       const pl = cam.toPlan(state.hoverPt.x, state.hoverPt.y), p = LIB.byId[state.libSel];
-      if (pl) window.Render.drawPlant(ctx, p, stateAt(p, tEff()), state.hoverPt.x, state.hoverPt.y, cam.ppm(pl.X, pl.Z), 12345, { alpha: 0.55, t: tEff(), size: window.Site.growth(p, state.years) });
+      if (pl && pl.Z <= maxPlantZ() + 0.3) window.Render.drawPlant(ctx, p, stateAt(p, tEff()), state.hoverPt.x, state.hoverPt.y, cam.ppm(pl.X, pl.Z), 12345, { alpha: 0.55, t: tEff(), size: window.Site.growth(p, state.years) });
     }
     state.plants.forEach(pl => {
       const isSel = pl.id === state.sel, isHov = pl.id === state.hover; if (!isSel && !isHov) return;
@@ -353,6 +355,7 @@
     }
     if (p.tap === 'plant') {
       const pl = cam.toPlan(pt.x, pt.y); if (!pl) { toast('Tap on the ground, below the horizon'); return; }
+      if (pl.Z > maxPlantZ() + 0.3) { toast(fenceZ() ? 'That is beyond the back fence. Tap the lawn in front of it.' : 'That is too far away. Tap nearer the camera.', 2600); return; }
       const lp = LIB.byId[state.libSel];
       const np = { id: uid(), pid: lp.id, X: pl.X, Z: pl.Z, seed: Math.floor(Math.random() * 1e9), size: 1 };
       if (lp.rootstocks) np.rootstock = Object.keys(lp.rootstocks)[1] || Object.keys(lp.rootstocks)[0];
@@ -369,7 +372,7 @@
     else if (d.kind === 'paint') { const m = state.masks.find(x => x.id === d.id); if (m) { window.Masks.line(m, d.last.x, d.last.y, pt.x, pt.y, state.brush, state.erase || ev.altKey); d.last = pt; } }
     else if (d.kind === 'plant') {
       const bx = Math.max(0, Math.min(state.photo.w, pt.x - d.dx)), by = Math.max(cam.horizonY + 2, Math.min(state.photo.h, pt.y - d.dy));
-      const pl = cam.toPlan(bx, by); if (pl) { const plant = state.plants.find(x => x.id === d.id); if (plant) { plant.X = pl.X; plant.Z = pl.Z; } }
+      const pl = cam.toPlan(bx, by); if (pl) { const plant = state.plants.find(x => x.id === d.id); if (plant) { plant.X = pl.X; plant.Z = Math.min(pl.Z, maxPlantZ()); } }
     }
     else if (d.kind === 'pan') { if (view.zoom > 1) { view.panX = d.panX0 + (ev.clientX - p.x0); view.panY = d.panY0 + (ev.clientY - p.y0); layout(); } }
     invalidate();
@@ -681,6 +684,7 @@
       ${issues.length ? `<ul class="flags">${issues.map(i => `<li class="${i.level}">${i.level === 'bad' ? '✖' : i.level === 'warn' ? '⚠' : 'ℹ'} ${p.name} ${i.text}.</li>`).join('')}</ul>` : ''}
       ${p.rootstocks ? `<label>Rootstock <select id="selRoot">${Object.entries(p.rootstocks).map(([k, v]) => `<option value="${k}"${sel.rootstock === k ? ' selected' : ''}>${k}: about ${v[0]} m tall</option>`).join('')}</select></label>` : ''}
       ${p.pollination === 'partner' ? '<p class="small">Needs a different variety of the same fruit nearby to pollinate.</p>' : ''}
+      <div class="row selActions"><button data-act="flip">⇋ Flip</button><button data-act="dup">⧉ Duplicate</button><button data-act="del" class="danger">Delete</button></div>
       <label>Size <span class="count">${Math.round(sel.size * 100)}% (${(d.h * sizeOf(sel)).toFixed(1)} m tall ${state.years < 15 ? 'at ' + state.years + ' years' : 'mature'})</span>
         <input type="range" id="selSize" min="0.25" max="1.4" step="0.05" value="${sel.size}"></label>
       <details class="photoBox"><summary>Photos of this plant</summary>
@@ -694,14 +698,28 @@
     const root = $('selRoot'); if (root) root.addEventListener('change', (e) => { sel.rootstock = e.target.value; afterChange(); });
     $('spriteFile').addEventListener('change', (e) => { const f = e.target.files[0]; if (f) addUserSprite(p.id, $('spriteState').value, f); });
     box.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => removeUserSprite(p.id, b.dataset.rm)));
+    box.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => { if (b.dataset.act === 'del') removePlant(sel.id); else if (b.dataset.act === 'dup') duplicateSel(); else { sel.flip = !sel.flip; afterChange(); } }));
   }
+  function renderPlantTools() { const n = state.plants.length; $('plantTools').classList.toggle('hidden', !n); $('plantCount').textContent = n === 1 ? '1 plant placed' : `${n} plants placed`; }
+  async function removeAllPlants() { if (!state.plants.length) { toast('Nothing to remove'); return; } if (await confirmDialog(`Remove all ${state.plants.length} plants? Borders stay. You can undo.`, 'Remove all')) { state.plants = []; state.sel = null; state.libSel = null; setContext(null); afterChange(); renderLibrary(); toast('All plants removed. Undo is in the top bar.'); } }
+  $('removeAll').addEventListener('click', removeAllPlants);
+  /* the ⋯ menu: things people look for from anywhere */
+  $('menuBtn').addEventListener('click', () => { const d = $('menuDlg'); if (typeof d.showModal !== 'function') return; d.returnValue = ''; d.showModal(); });
+  $('menuDlg').addEventListener('close', async () => {
+    const v = $('menuDlg').returnValue;
+    if (v === 'removeAll') removeAllPlants();
+    else if (v === 'startAgain') { if (await confirmDialog('Start again with an empty design? Plants, borders and painted objects go. You can then choose a new photo.', 'Start again')) { state.plants = []; state.beds = []; state.masks = []; state.maskSel = null; state.sel = null; state.libSel = null; setContext(null); afterChange(); renderBeds(); renderMasks(); renderLibrary(); wiz.page = 0; showStep('photo'); toast('Cleared. Choose a photo, or keep the sample.', 3000); } }
+    else if (v === 'exportPng') $('exportPng').click();
+    else if (v === 'exportJson') $('exportJson').click();
+    else if (v === 'importJson') $('importJson').click();
+  });
   function removePlant(id) { state.plants = state.plants.filter(p => p.id !== id); if (state.sel === id) state.sel = null; afterChange(); toast('Removed. Undo is in the top bar.'); }
+  function renderPlaced() { renderPlantTools(); }
   function duplicateSel() { const sel = state.plants.find(p => p.id === state.sel); if (!sel) return; const p = LIB.byId[sel.pid]; const np = Object.assign({}, sel, { id: uid(), X: sel.X + p.s * 0.9, seed: Math.floor(Math.random() * 1e9) }); state.plants.push(np); state.sel = np.id; afterChange(); }
   $('sbFlip').addEventListener('click', () => { const sel = state.plants.find(p => p.id === state.sel); if (sel) { sel.flip = !sel.flip; afterChange(); } });
   $('sbDup').addEventListener('click', duplicateSel);
   $('sbDel').addEventListener('click', () => { if (state.sel) removePlant(state.sel); });
   $('sbClose').addEventListener('click', () => { state.sel = null; renderSelected(); invalidate(); });
-  function renderPlaced() { /* placed plants appear in the review panel and plan view */ }
 
   /* ---------------- user photos of plants (IndexedDB) ---------------- */
   const userSprites = {};
@@ -914,7 +932,7 @@
       if (saved.masks) state.masks = await Promise.all(saved.masks.map(m => window.Masks.restore(m, state.photo.w, state.photo.h)));
     }
     buildCamera(); relayout(); fit(); lastSnap = snapshot();
-    renderCredits(); renderLibrary(); renderPhoto(); renderBeds(); renderMasks(); renderSelected(); renderReview(); renderBands(); updateUndoButtons(); renderWiz();
+    renderCredits(); renderLibrary(); renderPhoto(); renderBeds(); renderMasks(); renderSelected(); renderPlaced(); renderReview(); renderBands(); updateUndoButtons(); renderWiz();
     const firstRun = !saved; showStep(firstRun && !/sample/.test(state.photo.name) ? 'photo' : 'plants'); setTime(state.t); wakeZoom();
     if (firstRun) toast(isPhone() ? 'Welcome. Pick a plant, then tap the lawn.' : 'Welcome. Pick a plant below or on the right, then tap the lawn.', 4000);
   }

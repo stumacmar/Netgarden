@@ -82,6 +82,8 @@ button.mini { font-size: 12px; padding: 2px 8px; min-height: 26px; }
 .q b { display: block; margin-bottom: 4px; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
 .row.end { justify-content: flex-end; margin-top: 16px; }
+.row.between { justify-content: space-between; }
+#selectedBox .selActions { margin: 8px 0 0; }
 label { display: block; margin: 8px 0 4px; }
 label.inline { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
 input[type=range] { width: 100%; }
@@ -156,6 +158,10 @@ dialog::backdrop { background: rgba(0,0,0,0.6); }
 .dlgHead { display: flex; gap: 10px; align-items: center; padding: 10px 14px; flex-wrap: wrap; }
 .dlgHead .small { color: #bcc; flex: 1; }
 #renderImg { display: block; max-width: 92vw; max-height: calc(92vh - 60px); }
+dialog.menu { border: 0; border-radius: 14px; padding: 8px; width: min(92vw, 360px); background: var(--panel); color: var(--ink); box-shadow: 0 20px 60px rgba(0,0,0,0.35); }
+dialog.menu form { display: flex; flex-direction: column; gap: 6px; }
+dialog.menu button { width: 100%; justify-content: center; min-height: 48px; font-size: 16px; border-radius: 10px; }
+dialog.menu button.cancel { margin-top: 4px; font-weight: 600; }
 dialog.confirm { border: 0; border-radius: 14px; padding: 18px 18px 12px; max-width: min(92vw, 360px); background: var(--panel); color: var(--ink); box-shadow: 0 20px 60px rgba(0,0,0,0.35); }
 dialog.confirm p { margin: 0 0 8px; font-size: 15px; line-height: 1.45; }
 dialog.confirm .row.end { margin-top: 12px; }
@@ -230,6 +236,7 @@ dialog.confirm .row.end { margin-top: 12px; }
   .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; margin: 6px 0; -webkit-overflow-scrolling: touch; min-width: 0; max-width: 100%; scrollbar-width: none; scroll-snap-type: x proximity; }
   .chips::-webkit-scrollbar { display: none; }
   .chips button { flex: 0 0 auto; scroll-snap-align: start; }
+  dialog.menu { width: calc(100vw - 16px); max-width: none; margin: auto 8px calc(8px + var(--sab)); position: fixed; top: auto; bottom: 0; }
   #renderDlg { max-width: 100vw; max-height: 100dvh; width: 100vw; height: 100dvh; border-radius: 0; }
   #renderImg { max-width: 100vw; max-height: calc(100dvh - 120px); margin: 0 auto; }
   .dlgHead { padding-top: calc(10px + var(--sat)); }

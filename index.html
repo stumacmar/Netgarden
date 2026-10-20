@@ -28,6 +28,7 @@
   <div class="actions">
     <button id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>↶<span class="lbl"> Undo</span></button>
     <button id="redoBtn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled>↷<span class="lbl"> Redo</span></button>
+    <button id="menuBtn" title="More" aria-label="More actions" aria-haspopup="dialog">⋯</button>
   </div>
 </header>
 
@@ -49,7 +50,7 @@
         <span id="selName"></span>
         <button id="sbFlip" title="Mirror to face the light" aria-label="Flip">⇋<span class="lbl"> Flip</span></button>
         <button id="sbDup" title="Duplicate" aria-label="Duplicate">⧉<span class="lbl"> Duplicate</span></button>
-        <button id="sbDel" class="danger" title="Delete" aria-label="Delete">🗑<span class="lbl"> Delete</span></button>
+        <button id="sbDel" class="danger" title="Delete" aria-label="Delete">Delete</button>
         <button id="sbClose" title="Deselect" aria-label="Deselect">✕</button>
       </div>
       <div class="ctxbar" id="ctxbar">
@@ -139,6 +140,7 @@
 
     <section class="panel" id="panel-plants">
       <div id="selectedBox" class="hidden"></div>
+      <div class="row between hidden" id="plantTools"><span class="small" id="plantCount"></span><button id="removeAll" class="mini danger">Remove all plants</button></div>
       <input type="search" id="search" placeholder="Search 400+ plants… (e.g. lavender, apple, shade)" autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="search">
       <div class="chips" id="roleChips"></div>
       <div class="chips filters" id="filterChips"></div>
@@ -182,6 +184,16 @@
   <img id="renderImg" alt="Rendered garden">
 </dialog>
 
+<dialog id="menuDlg" class="menu">
+  <form method="dialog">
+    <button value="removeAll" class="danger">Remove all plants</button>
+    <button value="startAgain" class="danger">Start again: new photo, empty design</button>
+    <button value="exportPng">Save picture</button>
+    <button value="exportJson">Export design file</button>
+    <button value="importJson">Import design file</button>
+    <button value="cancel" class="cancel">Cancel</button>
+  </form>
+</dialog>
 <dialog id="confirmDlg" class="confirm">
   <form method="dialog">
     <p id="confirmText"></p>
