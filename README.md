@@ -23,9 +23,10 @@ and open http://localhost:8000/.
 ## The app in four steps
 
 1. **Photo.** Choose a photo, then answer three questions: where your eye
-   level is (drag the yellow line), how long the back fence is (mark it and
-   type the metres), and which way the camera faces. A 1 m grid shows on the
-   lawn so you can see the calibration is right. Below that, tell it about
+   level is (drag the yellow line), how tall the back fence is (tap the bottom
+   and top of one panel; 1.8 m is standard), and which way the camera faces.
+   The lens is read from the photo when it carries one. A 1.75 m person stands
+   on the lawn and a 1 m grid shows, so you can see the scale is right. Below that, tell it about
    your garden: region, soil, drainage, pH and exposure. These drive the
    "suits my garden" filter and the checks.
 2. **Beds.** Draw borders by tapping corners and pressing Done. Paint over
@@ -35,7 +36,9 @@ and open http://localhost:8000/.
    shrubs, climbers, perennials, grasses, bulbs, hedging, ground cover,
    ferns, herbs, vegetables, annuals) and filters such as "suits my garden",
    pollinators, evergreen and winter interest. Tap a plant, then tap the
-   lawn. A bar over the photo lets you flip, duplicate or delete the
+   lawn, or press and hold a plant card and drag it onto the photo. With
+   borders drawn, choosing a plant zooms to the nearest border and planting
+   outside one asks first. A bar over the photo lets you flip, duplicate or delete the
    selected plant; fruit trees get a rootstock choice.
 4. **Review.** Checks (sun and shade, soil, hardiness, spacing, pollination
    partners), design tips (layering, evergreen backbone, grouping,

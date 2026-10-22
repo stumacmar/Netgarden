@@ -146,6 +146,7 @@
     <section class="panel" id="panel-plants">
       <div id="selectedBox" class="hidden"></div>
       <div class="row between hidden" id="plantTools"><span class="small" id="plantCount"></span><button id="removeAll" class="mini danger">Remove all plants</button></div>
+      <div class="chips hidden" id="bedZoom" aria-label="Zoom to a border"></div>
       <div class="row quickPlace hidden" id="quickPlace"><span class="small">Or place it:</span><button class="mini" data-place="back">at the back</button><button class="mini" data-place="middle">in the middle</button><button class="mini" data-place="front">at the front</button></div>
       <input type="search" id="search" placeholder="Search plants" aria-label="Search plants" autocomplete="off" autocorrect="off" autocapitalize="off" enterkeyhint="search">
       <div class="chips" id="roleChips"></div>
@@ -199,6 +200,7 @@
     <button value="removeAll" class="danger">Remove all plants</button>
     <button value="startAgain" class="danger">Start again: new photo, empty design</button>
     <button value="exportPng">Save picture</button>
+    <button value="share">Send design to another device</button>
     <button value="exportJson">Export design file</button>
     <button value="importJson">Import design file</button>
     <button value="cancel" class="cancel" autofocus>Cancel</button>

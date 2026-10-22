@@ -113,6 +113,7 @@ details summary { cursor: pointer; color: var(--muted); font-size: 13px; margin:
 
 .list { display: flex; flex-direction: column; gap: 6px; }
 .list.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.card.dragging { opacity: 0.5; }
 .card { display: grid; grid-template-columns: 34px 1fr; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; text-align: left; width: 100%; min-height: 0; font: inherit; color: inherit; transition: none; }
 button.card:active { transform: none; }
 .card:focus-visible { outline: 3px solid #4a4a9a; outline-offset: 2px; }
@@ -197,7 +198,7 @@ dialog.confirm .row.end { margin-top: 12px; }
   .small { font-size: 13px; }
   .list.grid .card .nm { font-size: 14px; }
   .list.grid .card .meta, .card .lt { font-size: 13px; }
-  .months { font-size: 11px; }
+  .months { display: none; }
   .cal td.m { width: 24px; height: 28px; }
   .cal td.m i { left: 6px; top: 7px; width: 11px; height: 11px; }
   .swatches .s { min-height: 36px; padding: 4px 12px 4px 4px; font-size: 13px; }
@@ -247,8 +248,7 @@ dialog.confirm .row.end { margin-top: 12px; }
   .monthBtn { display: inline-flex; width: 40px; min-width: 40px; height: 44px; font-size: 22px; }
   .timebar { gap: 4px; }
   #bands { height: 44px; border-radius: 8px; }
-  .months { font-size: 10px; }
-  .months span:nth-child(even) { visibility: hidden; }
+  .months { display: none; }
   .timeLabel { min-width: 82px; font-size: 13px; }
   .panel { padding: 8px 12px; padding-bottom: calc(16px + var(--sab)); }
   .list.grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
@@ -296,6 +296,7 @@ dialog.confirm .row.end { margin-top: 12px; }
   .sheetRow button { width: 36px; min-height: 36px; padding: 0; justify-content: center; border-radius: 50%; font-size: 16px; }
   .side .timebar { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .side.peek .panel { visibility: hidden; }
+  .side.peek.cardDrag .panel { visibility: visible; }
   .layout.sheetFull .stage { visibility: hidden; }
 }
 

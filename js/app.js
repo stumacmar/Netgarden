@@ -199,6 +199,24 @@
     const step = (now) => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); const z = from + (target - from) * e; zoomAt(z / view.zoom, cx, cy, true); if (k < 1) zoomAnim = requestAnimationFrame(step); else { view.zoom = target; layout(); invalidate(); } };
     zoomAnim = requestAnimationFrame(step);
   }
+  let viewAnim = null;
+  function glideTo(zoom, panX, panY) {
+    cancelAnimationFrame(viewAnim); const z0 = view.zoom, x0 = view.panX, y0 = view.panY, t0 = performance.now(), dur = 280;
+    const step = (now) => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); view.zoom = z0 + (zoom - z0) * e; view.panX = x0 + (panX - x0) * e; view.panY = y0 + (panY - y0) * e; layout(); invalidate(); if (k < 1) viewAnim = requestAnimationFrame(step); };
+    viewAnim = requestAnimationFrame(step);
+  }
+  function bedBounds(bed) { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; bed.pts.forEach(p => { const q = cam.toImage(p.X, p.Z); x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y); }); return { x0, y0, x1, y1 }; }
+  function zoomToBed(bed) {
+    if (!cam || !bed) return; const b = bedBounds(bed); const bw = Math.max(40, b.x1 - b.x0), bh = Math.max(40, b.y1 - b.y0);
+    /* room above the bed for the plants standing in it, and a margin all round */
+    const fx0 = b.x0 - bw * 0.15, fx1 = b.x1 + bw * 0.15, fy0 = b.y0 - bh * 1.4, fy1 = b.y1 + bh * 0.25;
+    /* keep the bed clear of the strips that float over the top and bottom of the photo */
+    const topPad = isPhone() ? 70 : 60, botPad = isPhone() ? 80 : 64, availH = Math.max(80, view.ch - topPad - botPad);
+    const zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.min(view.cw / ((fx1 - fx0) * view.base), availH / ((fy1 - fy0) * view.base))));
+    const sc = view.base * zoom, cxI = (fx0 + fx1) / 2, cyI = (fy0 + fy1) / 2;
+    glideTo(zoom, view.cw / 2 - cxI * sc, topPad + availH / 2 - cyI * sc); wakeZoom();
+  }
+  function nearestBed() { if (!state.beds.length || !cam) return null; const r = canvas.getBoundingClientRect(); const c = toImg({ clientX: r.left + view.cw / 2, clientY: r.top + view.ch / 2 }); let best = null, bd = Infinity; state.beds.forEach(b => { const bb = bedBounds(b); const d = Math.hypot((bb.x0 + bb.x1) / 2 - c.x, (bb.y0 + bb.y1) / 2 - c.y); if (d < bd) { bd = d; best = b; } }); return best; }
   const zoomCentre = () => { const r = canvas.getBoundingClientRect(); return [r.left + view.cw / 2, r.top + view.ch / 2]; };
   let zoomIdleT = null;
   function wakeZoom() { $('zoomCtl').classList.remove('idle'); clearTimeout(zoomIdleT); zoomIdleT = setTimeout(() => $('zoomCtl').classList.add('idle'), 2500); }
@@ -273,7 +291,7 @@
       ctx.strokeStyle = '#ffd86b'; ctx.lineWidth = lw(2); ctx.setLineDash([lw(10), lw(6)]);
       ctx.beginPath(); ctx.moveTo(0, cam.horizonY); ctx.lineTo(state.photo.w, cam.horizonY); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle = '#ffd86b'; ctx.font = `${lw(13)}px system-ui`; ctx.fillText('eye level (drag)', lw(10), cam.horizonY - lw(8));
-      if (g.ref) {
+      if (g.ref && !(g.refV && g.refV.yt < g.refV.yb - 2)) {
         ctx.strokeStyle = '#6bd0ff'; ctx.lineWidth = lw(3); ctx.beginPath(); ctx.moveTo(g.ref.x1, g.ref.y1); ctx.lineTo(g.ref.x2, g.ref.y2); ctx.stroke(); ctx.fillStyle = '#6bd0ff';
         const hr = lw(HANDLE_R());
         [[g.ref.x1, g.ref.y1], [g.ref.x2, g.ref.y2]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, hr, 0, Math.PI * 2); ctx.fill(); if (mqCoarse.matches) { ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = lw(2); ctx.stroke(); ctx.restore(); } });
@@ -432,16 +450,21 @@
       /* a nervous double tap is one tap */
       if (lastPlanted && performance.now() - lastPlanted.t < 600 && Math.hypot(p.x0 - lastPlanted.x, p.y0 - lastPlanted.y) < 24) return;
       lastPlanted = { t: performance.now(), x: p.x0, y: p.y0 };
-      const lp = LIB.byId[state.libSel];
-      const np = { id: uid(), pid: lp.id, X: pl.X, Z: pl.Z, seed: Math.floor(Math.random() * 1e9), size: 1 };
-      if (lp.rootstocks) np.rootstock = Object.keys(lp.rootstocks)[1] || Object.keys(lp.rootstocks)[0];
-      state.plants.push(np); state.sel = np.id; afterChange();
-      if (!pressTap.explainedAge && state.years < 15) { pressTap.explainedAge = true; toast(`Planted ${lp.name}, shown ${state.years} years after planting. Garden age is in Review.`, 4500); }
-      else toast(isPhone() ? `Planted ${lp.name}` : `Planted ${lp.name}. Tap again for another.`, 1800);
-      return;
+      if (state.beds.length && !state.lawnOk && !inAnyBed(pl)) { confirmDialog('That spot is outside your borders. Plant it on the lawn anyway?', 'Plant here').then(ok => { if (ok) { state.lawnOk = true; placeChosen(pl); } }); return; }
+      placeChosen(pl); return;
     }
     if (p.tap === 'select') { renderSelected(); if (sheet.pos === 'peek' && !state.libSel) setSheet('half'); return; }
     if (p.tap === 'clear') { if (state.sel) { state.sel = null; renderSelected(); invalidate(); } }
+  }
+  function inAnyBed(pl) { return state.beds.some(b => { const pts = b.pts; let inside = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const a = pts[i], c = pts[j]; if ((a.Z > pl.Z) !== (c.Z > pl.Z) && pl.X < (c.X - a.X) * (pl.Z - a.Z) / (c.Z - a.Z) + a.X) inside = !inside; } return inside; }); }
+  function placeChosen(pl) {
+    { const lp = LIB.byId[state.libSel]; if (!lp) return;
+      const np = { id: uid(), pid: lp.id, X: pl.X, Z: pl.Z, seed: Math.floor(Math.random() * 1e9), size: 1 };
+      if (lp.rootstocks) np.rootstock = Object.keys(lp.rootstocks)[1] || Object.keys(lp.rootstocks)[0];
+      state.plants.push(np); state.sel = np.id; afterChange();
+      if (!placeChosen.explainedAge && state.years < 15) { placeChosen.explainedAge = true; toast(`Planted ${lp.name}, shown ${state.years} years after planting. Garden age is in Review.`, 4500); }
+      else toast(isPhone() ? `Planted ${lp.name}` : `Planted ${lp.name}. Tap again for another.`, 1800);
+    }
   }
   function pressMove(p, ev) {
     const pt = toImg(ev), d = p.drag, g = state.ground;
@@ -533,6 +556,7 @@
     sheet.v = v; sideEl.style.height = v + 'px'; layoutEl.style.setProperty('--peek', v + 'px'); document.documentElement.style.setProperty('--peek', v + 'px');
     sideEl.classList.add('dragging'); sideEl.style.setProperty('--sheet-dy', (v - cur) + 'px'); void sideEl.offsetHeight;
     sideEl.classList.remove('dragging'); sideEl.style.setProperty('--sheet-dy', '0px');
+    fit(); /* the stage has a new height now; anything that zooms next must see it */
   }
   function setSheet(pos) {
     sheet.pos = pos; $('sheetToggle').textContent = pos === 'peek' ? '⌃' : '⌄'; $('sheetToggle').setAttribute('aria-label', pos === 'peek' ? 'Show panel' : 'Hide panel');
@@ -564,7 +588,7 @@
   document.querySelectorAll('.panel').forEach(panel => {
     panel.addEventListener('touchstart', (ev) => { if (!mqSheet.matches || ev.touches.length !== 1) { panelTouch = null; return; } panelTouch = { y: ev.touches[0].clientY, top: panel.scrollTop, decided: false, drag: false }; }, { passive: true });
     panel.addEventListener('touchmove', (ev) => {
-      if (!panelTouch || ev.touches.length !== 1) return; const y = ev.touches[0].clientY, dy = y - panelTouch.y;
+      if (!panelTouch || ev.touches.length !== 1 || cardDrag) return; const y = ev.touches[0].clientY, dy = y - panelTouch.y;
       if (!panelTouch.decided) { if (Math.abs(dy) < 3) return; panelTouch.decided = true; panelTouch.drag = (dy > 0 && panel.scrollTop <= 0) || (dy < 0 && sheet.pos !== 'full'); if (panelTouch.drag) sheetDown(panelTouch.y); }
       if (panelTouch.drag) { ev.preventDefault(); sheetMove(y); }
     }, { passive: false });
@@ -647,7 +671,7 @@
     else if (state.mode === 'mask') hint(state.maskSetDepth ? 'Tap the ground where this object stands.' : (ph ? (state.erase ? 'Rub out paint, then Done.' : 'Paint over the object, then Done.') : `Paint over the object. ${state.erase ? 'Erasing.' : 'Tick "erase" to remove paint.'} Then press Done.`));
     else if (state.mode === 'bed') hint(state.drawingBed && state.drawingBed.length ? `${state.drawingBed.length} corner${state.drawingBed.length > 1 ? 's' : ''}. ${ph ? 'Keep tapping, then Done.' : 'Keep tapping, then press Done.'}` : (ph ? 'Tap the corners of the border.' : 'Tap the corners of the border on the lawn, then press Done.'));
     else if (state.libSel) hint(ph ? `Tap the lawn to plant ${LIB.byId[state.libSel].name}.` : `Tap the lawn or a border to plant ${LIB.byId[state.libSel].name}. Cancel to stop.`);
-    else hint(state.step === 'plants' ? (ph ? (state.plants.length ? '' : 'Pick a plant, then tap the lawn.') : 'Choose a plant on the right, then tap where it should go. Drag plants to move them.') : '');
+    else hint(state.step === 'plants' ? (ph ? (state.plants.length ? '' : state.beds.length ? 'Pick a plant, then tap inside a border.' : 'Pick a plant, then tap the lawn. Or draw a border first (Beds).') : (state.beds.length ? 'Choose a plant on the right, then click inside a border. Drag plants to move them.' : 'Choose a plant on the right, then click where it should go. Drawing a border first (Beds) lets you zoom straight to it.')) : '');
   }
 
   /* ---------------- beds ---------------- */
@@ -664,6 +688,9 @@
   function showStepQuiet(name) { if (state.step !== name) showStep(name); }
   $('bedDraw').addEventListener('click', startBed);
   function renderBeds() {
+    const bz = $('bedZoom'); bz.classList.toggle('hidden', !state.beds.length);
+    bz.innerHTML = state.beds.length ? `<span class="small" style="align-self:center">Zoom to:</span>` + state.beds.map((b, i) => `<button type="button" data-zoombed="${b.id}">Border ${i + 1}</button>`).join('') + `<button type="button" data-zoombed="">Whole photo</button>` : '';
+    bz.querySelectorAll('[data-zoombed]').forEach(btn => btn.addEventListener('click', () => { const bed = state.beds.find(b => b.id === btn.dataset.zoombed); if (bed) zoomToBed(bed); else glideTo(1, 0, 0); if (mqSheet.matches) setSheet('peek'); }));
     const sw = { soil: '#4a3422', bark: '#5a3b26', gravel: '#9a948a' };
     $('bedList').innerHTML = state.beds.length ? state.beds.map((b, i) => `<div class="card"><div class="sw" style="background:${sw[b.surface || 'soil']}"></div><div><div class="nm">Border ${i + 1}</div><div class="meta"><select data-surface="${b.id}"><option value="soil"${(b.surface || 'soil') === 'soil' ? ' selected' : ''}>Bare soil</option><option value="bark"${b.surface === 'bark' ? ' selected' : ''}>Bark mulch</option><option value="gravel"${b.surface === 'gravel' ? ' selected' : ''}>Gravel</option></select></div></div><button data-bed="${b.id}" title="Delete border">×</button></div>`).join('') : '<p class="small">No borders yet.</p>';
     $('bedList').querySelectorAll('[data-bed]').forEach(b => b.addEventListener('click', () => { state.beds = state.beds.filter(x => x.id !== b.dataset.bed); afterChange(); renderBeds(); }));
@@ -769,10 +796,49 @@
       if (state.libSel && state.mode !== 'plant') setMode('plant');
       setContext(state.libSel ? { cancel: () => { state.libSel = null; renderLibrary(); updateHint(); } } : null);
       renderLibrary(); renderSelected(); updateHint(); invalidate();
-      if (state.libSel) { setSheet('peek'); blurInputs(); if (!isPhone()) toast(`Now tap the photo where the ${LIB.byId[state.libSel].name} should go`, 2500); }
+      if (state.libSel) { setSheet('peek'); blurInputs(); if (state.beds.length && view.zoom === 1) zoomToBed(nearestBed()); if (!isPhone()) toast(`Now tap the photo where the ${LIB.byId[state.libSel].name} should go`, 2500); }
     }));
   }
   $('search').addEventListener('input', (e) => { state.search = e.target.value; state.libLimit = 60; renderLibrary(); });
+  /* drag a plant card onto the photo: press and hold on touch, or just drag with a mouse */
+  let cardDrag = null;
+  function startCardDrag() {
+    const d = cardDrag; if (!d || d.started) return; d.started = true; d.el.classList.add('dragging'); sideEl.classList.add('cardDrag');
+    if (!d.touch) { try { d.el.setPointerCapture(d.pointerId); } catch (e) { } }
+    /* mark the card in place: re-rendering the list would detach the element the finger is on and end the touch */
+    if (state.libSel !== d.id) { state.libSel = d.id; state.sel = null; setContext({ cancel: () => { state.libSel = null; renderLibrary(); updateHint(); } }); markLibSel(); renderSelected(); }
+    updateHint(); setSheet('peek'); if (state.beds.length && view.zoom === 1) zoomToBed(nearestBed()); toast('Drop it on the lawn', 2000);
+  }
+  function cardDragAt(clientX, clientY) {
+    const r = canvas.getBoundingClientRect(); const over = clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
+    state.hoverPt = over ? toImg({ clientX, clientY }) : null; invalidate();
+  }
+  function cardDragMove(ev) {
+    const d = cardDrag; if (!d || ev.pointerId !== d.pointerId || d.touch) return;
+    if (!d.started) { const moved = Math.hypot(ev.clientX - d.x0, ev.clientY - d.y0); if (ev.pointerType === 'mouse' && moved > 8) startCardDrag(); else if (moved > 10) { clearTimeout(d.timer); cardDrag = null; } return; }
+    const r = canvas.getBoundingClientRect(); const over = ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom;
+    state.hoverPt = over ? toImg(ev) : null; invalidate();
+  }
+  function markLibSel() { $('plantList').querySelectorAll('.card').forEach(c => { const on = c.dataset.id === state.libSel; c.classList.toggle('active', on); c.setAttribute('aria-pressed', String(on)); }); $('quickPlace').classList.toggle('hidden', !state.libSel); }
+  function finishCardDrag(drop, clientX, clientY, touch) {
+    const d = cardDrag; if (!d) return; clearTimeout(d.timer); cardDrag = null; d.el.classList.remove('dragging'); sideEl.classList.remove('cardDrag');
+    if (!d.started) return;
+    setTimeout(renderLibrary, 0);
+    const pt = state.hoverPt; state.hoverPt = null; invalidate();
+    if (drop && pt && inPhoto(pt)) pressTap({ tap: 'plant', pt, x0: clientX, y0: clientY, touch });
+  }
+  function cardDragEnd(ev) { const d = cardDrag; if (!d || ev.pointerId !== d.pointerId || d.touch) return; finishCardDrag(ev.type === 'pointerup', ev.clientX, ev.clientY, false); }
+  $('plantList').addEventListener('pointerdown', (ev) => { const el = ev.target.closest('.card'); if (!el || (ev.pointerType === 'mouse' && ev.button !== 0)) return; const touch = ev.pointerType !== 'mouse'; cardDrag = { id: el.dataset.id, el, pointerId: ev.pointerId, x0: ev.clientX, y0: ev.clientY, started: false, touch, timer: touch ? setTimeout(startCardDrag, 280) : null }; });
+  document.addEventListener('pointermove', cardDragMove, { passive: true });
+  document.addEventListener('pointerup', cardDragEnd); document.addEventListener('pointercancel', cardDragEnd);
+  /* touch drags are driven by touch events, which stay bound to the card even as the sheet drops away under the finger */
+  document.addEventListener('touchmove', (ev) => {
+    const d = cardDrag; if (!d || !d.touch || ev.touches.length !== 1) return; const t = ev.touches[0];
+    if (!d.started) { if (Math.hypot(t.clientX - d.x0, t.clientY - d.y0) > 10) { clearTimeout(d.timer); cardDrag = null; } return; }
+    ev.preventDefault(); cardDragAt(t.clientX, t.clientY);
+  }, { passive: false });
+  document.addEventListener('touchend', (ev) => { const d = cardDrag; if (!d || !d.touch) return; const t = ev.changedTouches[0]; finishCardDrag(true, t.clientX, t.clientY, true); });
+  document.addEventListener('touchcancel', () => { if (cardDrag && cardDrag.touch) finishCardDrag(false); });
   $('search').addEventListener('focus', () => { if (mqSheet.matches) setSheet('full'); });
   $('search').addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.blur(); });
 
@@ -825,6 +891,7 @@
     const v = $('menuDlg').returnValue;
     if (v === 'removeAll') removeAllPlants();
     else if (v === 'startAgain') { if (await confirmDialog('Start again with an empty design? Plants, borders and painted objects go. You can then choose a new photo.', 'Start again')) { state.plants = []; state.beds = []; state.masks = []; state.maskSel = null; state.sel = null; state.libSel = null; setContext(null); afterChange(); renderBeds(); renderMasks(); renderLibrary(); wiz.page = 0; showStep('photo'); toast('Cleared. Choose a photo, or keep the sample.', 3000); } }
+    else if (v === 'share') shareDesign();
     else if (v === 'exportPng') $('exportPng').click();
     else if (v === 'exportJson') $('exportJson').click();
     else if (v === 'importJson') $('importJson').click();
@@ -983,6 +1050,12 @@
     $('shopping').innerHTML = rows.length ? `<table class="shop">${rows.map(r => `<tr><td>${r.n} ×</td><td><b>${r.p.name}</b><br><i class="small">${r.p.latin}</i></td><td class="small">${r.pot}</td><td><a class="small" href="https://www.rhs.org.uk/plants/search-results?query=${encodeURIComponent(r.p.latin)}" target="_blank" rel="noopener">RHS</a></td></tr>`).join('')}</table>` : '<p class="small">Empty until you place plants.</p>';
     $('shopCopy').onclick = () => { const txt = rows.map(r => `${r.n} x ${r.p.name} (${r.p.latin}), ${r.pot}`).join('\n'); if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast('Shopping list copied')); };
   }
+  function designBlob() { return new Blob([JSON.stringify({ version: 2, t: state.t, years: state.years, ground: state.ground, beds: state.beds, plants: state.plants, sun: state.sun, light: state.light, profile: state.profile, masks: state.masks.map(window.Masks.serialize), photoName: state.photo.name, photoData: state.photo.dataUrl })], { type: 'application/json' }); }
+  async function shareDesign() {
+    const file = new File([designBlob()], 'netgarden-design.json', { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: 'Netgarden design' }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+    $('exportJson').click(); toast('Design file saved. Open Netgarden on the other device and use Import.', 5000);
+  }
   $('exportJson').addEventListener('click', () => { const blob = new Blob([JSON.stringify({ version: 2, t: state.t, years: state.years, ground: state.ground, beds: state.beds, plants: state.plants, sun: state.sun, light: state.light, profile: state.profile, masks: state.masks.map(window.Masks.serialize), photoName: state.photo.name, photoData: state.photo.dataUrl })], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'netgarden-design.json'; a.click(); });
   $('importJson').addEventListener('change', async (e) => {
     const file = e.target.files[0]; if (!file) return;
@@ -1042,6 +1115,7 @@
     if (!ids.length) { bctx.fillStyle = '#9a9a90'; bctx.font = '11px system-ui'; let txt = state.plants.length ? 'None of the placed plants flower' : 'Flowering months of your plants will show here'; if (bctx.measureText(txt).width > w - 16) txt = state.plants.length ? 'No flowers yet' : 'Flowering months show here'; bctx.fillText(txt, 8, h / 2 + 4); }
     else ids.slice(0, 10).forEach((p, i) => { /* name the band so colour is not the only cue */ const y = 1 + i * rh; if (rh >= 9) { bctx.fillStyle = 'rgba(20,30,18,0.75)'; bctx.font = `${Math.min(11, rh - 1)}px system-ui`; bctx.fillText(p.name, 4, y + rh - 2); } });
     for (let m = 1; m < 12; m++) { bctx.fillStyle = 'rgba(0,0,0,0.08)'; bctx.fillRect(m / 12 * w, 0, 1, h); }
+    if (isPhone()) { bctx.fillStyle = 'rgba(40,50,36,0.8)'; bctx.font = '9px system-ui'; bctx.textAlign = 'center'; for (let m = 0; m < 12; m++) bctx.fillText(SHORT[m][0], (m + 0.5) / 12 * w, h - 3); bctx.textAlign = 'left'; }
     bandImage = bctx.getImageData(0, 0, bands.width, bands.height); drawBandCursor();
     bands.setAttribute('aria-label', ids.length ? 'Flowering months: ' + ids.slice(0, 10).map(p => `${p.name} ${monthsText(p.flower.m)}`).join(', ') : 'Flowering months of your plants will show here');
   }
