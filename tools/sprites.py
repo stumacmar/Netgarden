@@ -17,7 +17,8 @@ Usage
   sprites.py generate <plant-id> <state> [--provider openai|replicate|local] [--quality low|medium|high]
       local = a diffusion model on this computer's CPU (pip install torch diffusers transformers accelerate);
       env LOCAL_MODEL (default stabilityai/sd-turbo), LOCAL_STEPS (4), LOCAL_SIZE (512)
-  sprites.py generate-all [--provider openai] [--quality medium] [--limit N] [--only id1,id2]
+  sprites.py generate-all [--provider openai] [--quality medium] [--limit N] [--only id1,id2] [--replace-local]
+      --replace-local also regenerates sprites that came from the weak local model (and any marked rejected by qa_sprites.py)
   sprites.py prompts                                      -> print the generation prompt for every plant/state
   sprites.py list
 """
@@ -249,9 +250,12 @@ def prompt_for(p, state):
         'fruit': 'carrying ripe fruit',
         'autumn': 'in autumn colour',
     }[state]
-    return (f'Photograph of a single {form} of {p["latin"]} ({p["name"]}), {what}, whole plant visible from ground level '
-            f'at eye height, side view, isolated on a plain white background, soft natural daylight from the upper left, sharp focus, '
-            f'no pot, no people, no text, photorealistic, botanical accuracy')
+    size = f'{p.get("h", 1)} m tall and {p.get("s", 1)} m wide'
+    return (f'Photograph of a single {form} of {p["latin"]} ({p["name"]}), {what}, the whole plant visible from ground level '
+            f'at eye height, side view, isolated on a plain white background, soft natural daylight from the upper left, sharp focus. '
+            f'The plant is about {size}; its leaves and flowers are at their true size for the species, so a tree or shrub shows many small leaves, '
+            f'not a few large ones. Natural, slightly irregular growth with gaps you can see through, the way a real plant looks in a garden. '
+            f'Garden photograph, not an illustration: no pot, no people, no text, no signature, no watermark, botanical accuracy')
 
 
 def states_for(p):
@@ -308,12 +312,13 @@ def cmd_generate(pid, state, provider='openai', quality='medium'):
     save_manifest(m); print('saved', raw, '\nprompt:', prompt)
 
 
-def cmd_generate_all(provider='openai', quality='medium', limit=None, only=None):
+def cmd_generate_all(provider='openai', quality='medium', limit=None, only=None, replace_local=False):
     plants = load_plants(); m = load_manifest(); todo = []
     for pid, p in plants.items():
         if only and pid not in only: continue
         for st in states_for(p):
-            if not m.get(pid, {}).get(st, {}).get('file'): todo.append((pid, st))
+            e = m.get(pid, {}).get(st, {})
+            if not e.get('file') or e.get('rejected') or (replace_local and 'local' in (e.get('source') or '')): todo.append((pid, st))
     if limit: todo = todo[:int(limit)]
     print(f'{len(todo)} images to generate with {provider} at {quality} quality.')
     for i, (pid, st) in enumerate(todo):
@@ -344,7 +349,7 @@ if __name__ == '__main__':
         cmd_generate(a[1], a[2], opts.get('--provider', 'openai'), opts.get('--quality', 'medium'))
     elif cmd == 'generate-all':
         opts = dict(zip(a[1::2], a[2::2]))
-        cmd_generate_all(opts.get('--provider', 'openai'), opts.get('--quality', 'medium'), opts.get('--limit'), opts.get('--only', '').split(',') if opts.get('--only') else None)
+        cmd_generate_all(opts.get('--provider', 'openai'), opts.get('--quality', 'medium'), opts.get('--limit'), opts.get('--only', '').split(',') if opts.get('--only') else None, '--replace-local' in a)
     elif cmd == 'prompts': cmd_prompts()
     elif cmd == 'list': cmd_list()
     else: sys.exit(__doc__)

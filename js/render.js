@@ -317,8 +317,9 @@
     return im;
   }
   function spriteSet(p) { return (global.SPRITE_MANIFEST || {})[p.id] || null; }
-  function resolveSprite(p, state) { const set = spriteSet(p); if (!set) return null; for (const s of FALLBACK[state] || [state]) { const e = set[s]; if (e && e.file) { const im = getImage(e.file); if (im) return { im, state: s }; } } return null; }
-  function hasSprites(p) { const set = spriteSet(p); return !!(set && Object.values(set).some(e => e && e.file)); }
+  const usableEntry = (e) => e && e.file && !e.rejected;
+  function resolveSprite(p, state) { const set = spriteSet(p); if (!set) return null; for (const s of FALLBACK[state] || [state]) { const e = set[s]; if (usableEntry(e)) { const im = getImage(e.file); if (im) return { im, state: s }; } } return null; }
+  function hasSprites(p) { const set = spriteSet(p); return !!(set && Object.values(set).some(usableEntry)); }
   function spriteAspect(p) { const set = spriteSet(p); if (!set) return null; for (const s of ['leaf', 'flower', 'spring', 'autumn', 'fruit', 'bare']) { const e = set[s]; if (e && e.w && e.h) return e.w / e.h; } return null; }
   function drawSprite(ctx, im, x, y, h, alpha) { const w = h * im.naturalWidth / im.naturalHeight; ctx.save(); ctx.globalAlpha *= alpha; ctx.drawImage(im, x - w / 2, y - h, w, h); ctx.restore(); return w; }
 
