@@ -91,10 +91,14 @@
           <p class="small">For a 1.8 m fence, a little below its top.</p></div>
       </div>
       <div class="wizPage" data-page="2">
-        <div class="q"><b>2. How long is something in the photo?</b>
-          <div class="row"><button id="markRef">Mark the back fence</button><label class="inline">metres <input type="number" id="refLen" min="0.5" max="50" step="0.1" value="6.5" inputmode="decimal"></label></div>
-          <p class="small" id="camReadout"></p></div>
-        <div class="box small">Check: the 1 m grid is showing on the photo. It should lie flat on the lawn and the squares should look square. If the grid tilts, adjust eye level.</div>
+        <div class="q"><b>2. How tall is the back fence?</b>
+          <div class="row"><button id="markRefV" class="primary">Mark a fence panel</button><label class="inline">metres tall <input type="number" id="refH" min="0.5" max="4" step="0.05" value="1.8" inputmode="decimal" aria-label="Fence height in metres"></label></div>
+          <p class="small">Tap the bottom of the fence, then the top of the same spot. A standard panel is 1.8 m.</p>
+          <p class="small" id="camReadout"></p>
+          <details><summary>Or mark a length along the ground instead</summary>
+            <div class="row"><button id="markRef">Mark the back fence</button><label class="inline">metres long <input type="number" id="refLen" min="0.5" max="50" step="0.1" value="6.5" inputmode="decimal" aria-label="Fence length in metres"></label></div>
+          </details></div>
+        <div class="box small">Check: drag the grey person around the lawn. If they look the right height next to the fence, the scale is right. The 1 m grid should lie flat on the lawn.</div>
       </div>
       <div class="wizPage" data-page="3">
         <div class="q"><b>3. Which way is the camera facing?</b>

@@ -29,8 +29,16 @@
     const theta = Math.atan((cy - vh) / f), s = Math.sin(theta), c = Math.cos(theta);
     const unit = (u, v) => { const k = (v - cy) / f, den = k * c + s; if (den <= 1e-6) return null; const Z = (c - k * s) / den; return { X: (u - cx) * (s + Z * c) / f, Z }; };
     let hc = 1.5;
-    if (g.ref) { const a = unit(g.ref.x1, g.ref.y1), b = unit(g.ref.x2, g.ref.y2); if (a && b) { const d = Math.hypot(a.X - b.X, a.Z - b.Z); if (d > 1e-6) hc = g.refLen / d; } }
-    const Hm = [f, cx * c, cx * hc * s, 0, -f * s + cy * c, hc * (f * c + cy * s), 0, c, hc * s];
+    /* a vertical reference (one fence panel of known height): the camera height that makes its top land where it was marked */
+    const hmFor = (h) => [f, cx * c, cx * h * s, 0, -f * s + cy * c, h * (f * c + cy * s), 0, c, h * s];
+    const v = g.refV, vb = v && v.yt < v.yb - 2 ? unit(v.x, v.yb) : null;
+    if (vb) {
+      const topY = (hcTry) => window.Homography.apply(hmFor(hcTry - v.h), vb.X * hcTry, vb.Z * hcTry).y;
+      let lo = 0.2, hi = 8; for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; if (topY(mid) < v.yt) lo = mid; else hi = mid; }
+      hc = (lo + hi) / 2;
+    }
+    else if (g.ref) { const a = unit(g.ref.x1, g.ref.y1), b = unit(g.ref.x2, g.ref.y2); if (a && b) { const d = Math.hypot(a.X - b.X, a.Z - b.Z); if (d > 1e-6) hc = g.refLen / d; } }
+    const Hm = hmFor(hc);
     cam = {
       f, hc, theta, horizonY: vh,
       toImage: (X, Z) => window.Homography.apply(Hm, X, Z),
@@ -42,7 +50,30 @@
       if (!state.light || state.light.auto) state.light = Object.assign(window.Compose.autoLight(state.stats), { auto: true });
     }
   }
-  function fenceZ() { const g = state.ground; if (!g.ref) return null; const a = cam.toPlan(g.ref.x1, g.ref.y1), b = cam.toPlan(g.ref.x2, g.ref.y2); return a && b ? (a.Z + b.Z) / 2 : null; }
+  function fenceZ() {
+    const g = state.ground;
+    if (g.refV && g.refV.yt < g.refV.yb - 2) { const p = cam.toPlan(g.refV.x, g.refV.yb); return p ? p.Z : null; }
+    if (!g.ref) return null; const a = cam.toPlan(g.ref.x1, g.ref.y1), b = cam.toPlan(g.ref.x2, g.ref.y2); return a && b ? (a.Z + b.Z) / 2 : null;
+  }
+  /* the 35 mm-equivalent focal length from a JPEG's EXIF, when it has one */
+  function exifFocal35(buf) {
+    try {
+      const v = new DataView(buf); if (v.getUint16(0) !== 0xFFD8) return null; let o = 2;
+      while (o + 4 <= v.byteLength) {
+        const marker = v.getUint16(o), len = v.getUint16(o + 2);
+        if (marker === 0xFFE1 && o + 10 <= v.byteLength && v.getUint32(o + 4) === 0x45786966) {
+          const t = o + 10, le = v.getUint16(t) === 0x4949, g16 = (p) => v.getUint16(p, le), g32 = (p) => v.getUint32(p, le);
+          let exifIfd = null, focal35 = null, focal = null;
+          const readIfd = (p, cb) => { const n = g16(p); for (let i = 0; i < n; i++) { const e = p + 2 + i * 12; if (e + 12 > v.byteLength) return; cb(g16(e), g16(e + 2), g32(e + 4), e + 8); } };
+          readIfd(t + g32(t + 4), (tag, type, count, vp) => { if (tag === 0x8769) exifIfd = t + g32(vp); });
+          if (exifIfd) readIfd(exifIfd, (tag, type, count, vp) => { if (tag === 0xA405) focal35 = type === 3 ? g16(vp) : g32(vp); if (tag === 0x920A && type === 5) { const p = t + g32(vp); if (p + 8 <= v.byteLength) focal = g32(p) / Math.max(1, g32(p + 4)); } });
+          return { focal35, focal };
+        }
+        if (marker === 0xFFDA || (marker & 0xFF00) !== 0xFF00) break; o += 2 + len;
+      }
+    } catch (e) { }
+    return null;
+  }
 
   function loadPhoto(src, name, keepData) {
     return new Promise((resolve, reject) => {
@@ -248,6 +279,14 @@
         [[g.ref.x1, g.ref.y1], [g.ref.x2, g.ref.y2]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, hr, 0, Math.PI * 2); ctx.fill(); if (mqCoarse.matches) { ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = lw(2); ctx.stroke(); ctx.restore(); } });
         ctx.fillText(`${g.refLen} m`, (g.ref.x1 + g.ref.x2) / 2 + lw(8), (g.ref.y1 + g.ref.y2) / 2 + lw(22));
       }
+      if (g.refV) {
+        const v = g.refV, hr = lw(HANDLE_R());
+        ctx.strokeStyle = '#6bd0ff'; ctx.lineWidth = lw(3); ctx.beginPath(); ctx.moveTo(v.x, v.yb); ctx.lineTo(v.x, v.yt); ctx.stroke();
+        ctx.lineWidth = lw(2); ctx.beginPath(); ctx.moveTo(v.x - lw(12), v.yb); ctx.lineTo(v.x + lw(12), v.yb); ctx.moveTo(v.x - lw(12), v.yt); ctx.lineTo(v.x + lw(12), v.yt); ctx.stroke();
+        ctx.fillStyle = '#6bd0ff'; [[v.x, v.yb], [v.x, v.yt]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, hr, 0, Math.PI * 2); ctx.fill(); if (mqCoarse.matches) { ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = lw(2); ctx.stroke(); ctx.restore(); } });
+        ctx.fillText(`${v.h} m`, v.x + lw(14), (v.yb + v.yt) / 2 + lw(4));
+      }
+      drawFigure();
       ctx.restore();
     }
     if (state.mode === 'plant' && state.libSel && state.hoverPt && !(press && press.moved)) {
@@ -274,7 +313,7 @@
   }
   /* a magnified view above the finger while a calibration handle is dragged, so the finger does not hide it */
   function drawLoupe() {
-    const p = press; if (!p || !p.touch || !p.drag || !/^(horizon|ref1|ref2)$/.test(p.drag.kind) || !p.client) return;
+    const p = press; if (!p || !p.touch || !p.drag || !/^(horizon|ref1|ref2|refVt|refVb)$/.test(p.drag.kind) || !p.client) return;
     const dpr = view.dpr, R = 54, mag = 2.2, r = canvas.getBoundingClientRect();
     const fx = p.client.x - r.left, fy = p.client.y - r.top;
     let cx = fx, cy = fy - R - 46; if (cy - R < 8) cy = fy + R + 46; cx = Math.max(R + 8, Math.min(view.cw - R - 8, cx));
@@ -289,6 +328,19 @@
     ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
   }
 
+  /* a 1.75 m person standing on the lawn: the quickest way to see whether the scale is right */
+  const FIG_H = 1.75;
+  function figureImage() { const g = state.ground; if (!g.figure) return null; const q = cam.toImage(g.figure.X, g.figure.Z); return { x: q.x, y: q.y, h: FIG_H * cam.ppm(g.figure.X, g.figure.Z) }; }
+  function drawFigure() {
+    const f = figureImage(); if (!f) return; const h = f.h, w = h * 0.3, lw = (n) => n / view.scale; ctx.save();
+    ctx.translate(f.x, f.y); ctx.fillStyle = 'rgba(40,46,52,0.78)'; ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = lw(1.5);
+    const path = () => { ctx.beginPath(); ctx.arc(0, -h * 0.93, h * 0.07, 0, Math.PI * 2); ctx.moveTo(-w * 0.5, -h * 0.84); ctx.quadraticCurveTo(-w * 0.62, -h * 0.84, -w * 0.62, -h * 0.74); ctx.lineTo(-w * 0.5, -h * 0.46); ctx.lineTo(-w * 0.36, -h * 0.46); ctx.lineTo(-w * 0.36, -h * 0.02); ctx.lineTo(-w * 0.08, 0); ctx.lineTo(-w * 0.04, -h * 0.42); ctx.lineTo(w * 0.04, -h * 0.42); ctx.lineTo(w * 0.08, 0); ctx.lineTo(w * 0.36, -h * 0.02); ctx.lineTo(w * 0.36, -h * 0.46); ctx.lineTo(w * 0.5, -h * 0.46); ctx.lineTo(w * 0.62, -h * 0.74); ctx.quadraticCurveTo(w * 0.62, -h * 0.84, w * 0.5, -h * 0.84); ctx.closePath(); };
+    path(); ctx.fill(); path(); ctx.stroke();
+    ctx.fillStyle = 'rgba(20,30,18,0.8)'; const fs = lw(12); ctx.font = `${fs}px system-ui`; const t = `${FIG_H} m person, drag me`, tw = ctx.measureText(t).width + lw(10);
+    ctx.fillRect(-tw / 2, -h - lw(22), tw, lw(17)); ctx.fillStyle = '#fff'; ctx.fillText(t, -tw / 2 + lw(5), -h - lw(9)); ctx.restore();
+  }
+  function hitFigure(pt) { const f = figureImage(); if (!f) return false; const w = Math.max(f.h * 0.35, 24 / view.scale); return pt.x > f.x - w && pt.x < f.x + w && pt.y > f.y - f.h - 10 / view.scale && pt.y < f.y + 8 / view.scale; }
+  function ensureFigure() { const g = state.ground; if (!g.figure && cam) g.figure = { X: 0.9, Z: Math.max(2, Math.min(8, (fenceZ() || 6) - 1.5)) }; }
   function hitPlant(pt) {
     const m = (mqCoarse.matches ? 22 : 10) / view.scale;
     for (const pl of sortedPlants().reverse()) { const b = placedBounds(pl); const gx = Math.max(0, m - (b.x1 - b.x0) / 2), gy = Math.max(0, m - (b.y1 - b.y0) / 2); if (pt.x >= b.x0 - gx && pt.x <= b.x1 + gx && pt.y >= b.y0 - gy && pt.y <= b.y1 + gy) return pl; }
@@ -308,6 +360,8 @@
     else if (d.kind === 'paint') { const m = state.masks.find(x => x.id === d.id); if (m && d.snap) { const mc = m.canvas.getContext('2d'); mc.clearRect(0, 0, m.canvas.width, m.canvas.height); mc.drawImage(d.snap, 0, 0); m.version++; } }
     else if (d.kind === 'horizon' && d.orig != null) { g.horizon = d.orig; rebuild(); }
     else if ((d.kind === 'ref1' || d.kind === 'ref2') && d.orig) { g.ref = d.orig; rebuild(); }
+    else if ((d.kind === 'refVt' || d.kind === 'refVb') && d.orig) { g.refV = d.orig; rebuild(); }
+    else if (d.kind === 'figure' && d.orig) { g.figure = d.orig; }
     invalidate();
   }
   function startPinch() {
@@ -330,6 +384,13 @@
     if (!inPhoto(pt)) return { drag: { kind: 'pan' }, tap: 'outside' };
     if (state.step === 'photo') {
       const g = state.ground;
+      if (state.refVClicks != null) {
+        if (state.refVClicks === 0) { g.refV = { x: pt.x, yb: pt.y, yt: pt.y, h: g.refH || 1.8 }; state.refVClicks = 1; updateHint(); return { drag: { kind: 'refVt', orig: null }, tap: null, started: true }; }
+        g.refV.yt = Math.min(pt.y, g.refV.yb - 2); state.refVClicks = null; setContext(null); rebuild(); updateHint(); if (mqSheet.matches) setTimeout(() => { setSheet('half'); renderPhoto(); }, 250); return { drag: { kind: 'refVt', orig: null }, tap: null, started: true };
+      }
+      if (g.refV && Math.hypot(pt.x - g.refV.x, pt.y - g.refV.yt) < tol) return { drag: { kind: 'refVt', orig: Object.assign({}, g.refV) }, tap: null };
+      if (g.refV && Math.hypot(pt.x - g.refV.x, pt.y - g.refV.yb) < tol) return { drag: { kind: 'refVb', orig: Object.assign({}, g.refV) }, tap: null };
+      if (hitFigure(pt)) return { drag: { kind: 'figure', orig: Object.assign({}, g.figure) }, tap: null };
       if (state.refClicks != null) {
         if (state.refClicks === 0) { g.ref = { x1: pt.x, y1: pt.y, x2: pt.x, y2: pt.y }; state.refClicks = 1; rebuild(); updateHint(); return { drag: { kind: 'ref2', orig: null }, tap: null, started: true }; }
         g.ref.x2 = pt.x; g.ref.y2 = pt.y; state.refClicks = null; setContext(null); rebuild(); updateHint(); if (mqSheet.matches) setTimeout(() => { setSheet('half'); renderPhoto(); }, 250); return { drag: { kind: 'ref2', orig: null }, tap: null, started: true };
@@ -387,6 +448,9 @@
     if (d.kind === 'horizon') { g.horizon = Math.max(0.02, Math.min(0.9, pt.y / state.photo.h)); rebuild(); }
     else if (d.kind === 'ref1') { g.ref.x1 = pt.x; g.ref.y1 = pt.y; rebuild(); }
     else if (d.kind === 'ref2') { g.ref.x2 = pt.x; g.ref.y2 = pt.y; rebuild(); }
+    else if (d.kind === 'refVt') { g.refV.yt = Math.min(pt.y, g.refV.yb - 2); rebuild(); }
+    else if (d.kind === 'refVb') { const dy = pt.y - g.refV.yb; g.refV.x = pt.x; g.refV.yb = pt.y; g.refV.yt += dy; rebuild(); }
+    else if (d.kind === 'figure') { const pl = cam.toPlan(pt.x, Math.max(cam.horizonY + 2, pt.y)); if (pl) g.figure = { X: pl.X, Z: Math.min(pl.Z, maxPlantZ() + 2) }; }
     else if (d.kind === 'paint') { const m = state.masks.find(x => x.id === d.id); if (m) { window.Masks.line(m, d.last.x, d.last.y, pt.x, pt.y, state.brush, state.erase || ev.altKey); d.last = pt; } }
     else if (d.kind === 'plant') {
       const bx = Math.max(0, Math.min(state.photo.w, pt.x - d.dx)), by = Math.max(cam.horizonY + 2, Math.min(state.photo.h, pt.y - d.dy));
@@ -541,7 +605,8 @@
   const TITLES = { photo: 'Photo and your garden', beds: 'Beds and what is in front', plants: 'Plants', review: 'Review' };
   function showStep(name) {
     state.step = name; hideToast();
-    if (state.refClicks != null) cancelContext();
+    if (state.refClicks != null || state.refVClicks != null) cancelContext();
+    if (name === 'photo') ensureFigure();
     if (name !== 'plants' && state.libSel) { state.libSel = null; setContext(null); renderLibrary(); }
     if ((name === 'photo' || name === 'beds') && state.sel) { state.sel = null; renderSelected(); }
     document.querySelectorAll('.steps button').forEach(b => { b.classList.toggle('active', b.dataset.step === name); if (b.dataset.step === name) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
@@ -566,7 +631,7 @@
     updateHint(); invalidate();
   }
   function setMode(m) {
-    state.mode = m; state.drawingBed = null; state.maskSetDepth = false; state.refClicks = null; press = null;
+    state.mode = m; state.drawingBed = null; state.maskSetDepth = false; state.refClicks = null; state.refVClicks = null; press = null;
     if (m !== 'plant' && state.sel) { state.sel = null; renderSelected(); }
     $('brushRow').classList.toggle('hidden', m !== 'mask');
     updateHint(); invalidate();
@@ -574,9 +639,10 @@
   function updateHint() {
     const ph = isPhone();
     if (state.step === 'photo') {
-      if (state.refClicks != null) hint(state.refClicks === 0 ? 'Tap one end of the back fence.' : 'Now tap the other end.');
-      else if (ph) hint(['Choose a photo, or keep the sample.', 'Drag the yellow line to your eye level.', 'Drag the blue ends onto the fence.', '', ''][wiz.page] || '');
-      else hint('Drag the yellow line to your eye level. Drag the blue ends onto the fence. The grid should lie flat on the lawn.');
+      if (state.refVClicks != null) hint(state.refVClicks === 0 ? 'Tap the bottom of the fence.' : 'Now tap the top of the fence at the same spot.');
+      else if (state.refClicks != null) hint(state.refClicks === 0 ? 'Tap one end of the back fence.' : 'Now tap the other end.');
+      else if (ph) hint(['Choose a photo, or keep the sample.', 'Drag the yellow line to your eye level.', 'Mark a fence panel. Does the person look the right height?', '', ''][wiz.page] || '');
+      else hint('Drag the yellow line to your eye level. Mark a fence panel. If the grey person looks the right height, the scale is right.');
     }
     else if (state.mode === 'mask') hint(state.maskSetDepth ? 'Tap the ground where this object stands.' : (ph ? (state.erase ? 'Rub out paint, then Done.' : 'Paint over the object, then Done.') : `Paint over the object. ${state.erase ? 'Erasing.' : 'Tick "erase" to remove paint.'} Then press Done.`));
     else if (state.mode === 'bed') hint(state.drawingBed && state.drawingBed.length ? `${state.drawingBed.length} corner${state.drawingBed.length > 1 ? 's' : ''}. ${ph ? 'Keep tapping, then Done.' : 'Keep tapping, then press Done.'}` : (ph ? 'Tap the corners of the border.' : 'Tap the corners of the border on the lawn, then press Done.'));
@@ -809,10 +875,16 @@
     $('photoName').textContent = /sample/.test(state.photo.name) ? 'Using the sample garden' : state.photo.name;
     $('usePhotoBtn').classList.toggle('hidden', !/sample/.test(state.photo.name));
     $('horizon').value = g.horizon; $('horizonVal').textContent = `${Math.round(g.horizon * 100)}% down the photo`;
-    $('refLen').value = g.refLen; $('lens').value = String(g.lens);
+    $('refLen').value = g.refLen;
+    const lensSel = $('lens'); let auto = lensSel.querySelector('option[data-auto]');
+    if (g.lensFrom) { if (!auto) { auto = document.createElement('option'); auto.dataset.auto = '1'; lensSel.prepend(auto); } auto.value = String(g.lens); auto.textContent = `Read from the photo (${g.lensFrom} mm)`; }
+    else if (auto) auto.remove();
+    lensSel.value = String(g.lens); if (lensSel.value !== String(g.lens)) { const o = document.createElement('option'); o.value = String(g.lens); o.textContent = `Custom (${Math.round(g.lens * 36)} mm)`; lensSel.appendChild(o); lensSel.value = o.value; }
     const fz = fenceZ();
+    $('refH').value = g.refH || (g.refV && g.refV.h) || 1.8;
+    const plaus = (hc) => hc >= 1.1 && hc <= 1.9 ? ' That looks right for a phone held at chest or eye height.' : hc < 0.6 || hc > 3 ? ' <span style="color:#a33a2a">That camera height looks wrong: check the eye-level line and the marks.</span>' : ' Unusual but possible (kneeling, or standing on a step).';
     const refPx = g.ref ? Math.hypot(g.ref.x2 - g.ref.x1, g.ref.y2 - g.ref.y1) : 0;
-    $('camReadout').innerHTML = g.ref && refPx < 6 ? '<span style="color:#a33a2a">The two ends are on the same spot. Mark the fence again, tapping each end.</span>' : g.ref && fz == null ? '<span style="color:#a33a2a">The fence ends are above the eye-level line. Move the yellow line up, above the fence.</span>' : g.ref ? `The fence is about <b>${fz.toFixed(1)} m</b> away and the camera was <b>${cam.hc.toFixed(2)} m</b> up.` + (cam.hc < 0.6 || cam.hc > 3 ? ' <span style="color:#a33a2a">That camera height looks wrong: check the eye-level line and the length.</span>' : ' That looks right for a phone at chest height.') : 'Nothing marked yet, so the camera is assumed to be 1.5 m up.';
+    $('camReadout').innerHTML = g.refV && g.refV.yt < g.refV.yb - 2 ? `The fence is about <b>${fz != null ? fz.toFixed(1) : '?'} m</b> away and the camera was <b>${cam.hc.toFixed(2)} m</b> up.` + plaus(cam.hc) : g.ref && refPx < 6 ? '<span style="color:#a33a2a">The two ends are on the same spot. Mark the fence again, tapping each end.</span>' : g.ref && fz == null ? '<span style="color:#a33a2a">The fence ends are above the eye-level line. Move the yellow line up, above the fence.</span>' : g.ref ? `The fence is about <b>${fz.toFixed(1)} m</b> away and the camera was <b>${cam.hc.toFixed(2)} m</b> up.` + (cam.hc < 0.6 || cam.hc > 3 ? ' <span style="color:#a33a2a">That camera height looks wrong: check the eye-level line and the length.</span>' : ' That looks right for a phone at chest height.') : 'Nothing marked yet, so the camera is assumed to be 1.5 m up.';
     $('heading').value = state.profile.heading || ''; $('region').value = state.profile.region; $('soil').value = state.profile.soil; $('drainage').value = state.profile.drainage; $('ph').value = state.profile.ph; $('exposure').value = state.profile.exposure;
     const L = state.light || window.Compose.autoLight(state.stats || {});
     $('sunAz').value = state.sun.az; $('sunEl').value = state.sun.el;
@@ -824,7 +896,9 @@
   $('horizon').addEventListener('input', (e) => { state.ground.horizon = +e.target.value; rebuild(); });
   $('horizon').addEventListener('change', save);
   $('refLen').addEventListener('change', (e) => { state.ground.refLen = Math.min(50, Math.max(0.5, +e.target.value || 1)); rebuild(); save(); renderReview(); });
-  $('lens').addEventListener('change', (e) => { state.ground.lens = +e.target.value; rebuild(); save(); });
+  $('lens').addEventListener('change', (e) => { state.ground.lens = +e.target.value; if (!e.target.selectedOptions[0].dataset.auto) delete state.ground.lensFrom; rebuild(); save(); });
+  $('markRefV').addEventListener('click', () => { const prev = state.ground.refV ? Object.assign({}, state.ground.refV) : null; state.ground.refH = Math.min(4, Math.max(0.5, +$('refH').value || 1.8)); state.refVClicks = 0; setContext({ cancel: () => { state.refVClicks = null; state.ground.refV = prev; rebuild(); renderPhoto(); updateHint(); } }); updateHint(); toast('Tap the bottom of the fence, then the top'); if (mqSheet.matches) setSheet('peek'); });
+  $('refH').addEventListener('change', (e) => { const h = Math.min(4, Math.max(0.5, +e.target.value || 1.8)); state.ground.refH = h; if (state.ground.refV) state.ground.refV.h = h; rebuild(); save(); renderReview(); });
   $('markRef').addEventListener('click', () => { const prev = state.ground.ref ? Object.assign({}, state.ground.ref) : null; state.refClicks = 0; setContext({ cancel: () => { state.refClicks = null; state.ground.ref = prev; rebuild(); renderPhoto(); updateHint(); } }); updateHint(); toast('Tap one end of the fence, then the other'); });
   ['heading', 'region', 'soil', 'drainage', 'ph', 'exposure'].forEach(k => $(k).addEventListener('change', (e) => { state.profile[k] = e.target.value || null; save(); renderLibrary(); renderSelected(); renderReview(); renderBands(); invalidate(); }));
   $('sunAz').addEventListener('input', (e) => { state.sun.az = +e.target.value; renderPhoto(); invalidate(); });
@@ -838,7 +912,9 @@
   $('photoFile').addEventListener('change', async (e) => {
     const file = e.target.files[0]; if (!file) return;
     const url = URL.createObjectURL(file); await loadPhoto(url, file.name, true); URL.revokeObjectURL(url);
-    state.ground = defaultGround(); state.beds = []; state.plants = []; state.sel = null; state.masks = []; state.maskSel = null; state.stats = null; state.light = null; state.undo = []; state.redo = [];
+    let ex = null; try { ex = exifFocal35(await file.slice(0, 512 * 1024).arrayBuffer()); } catch (err) { }
+    state.ground = defaultGround();
+    if (ex && ex.focal35 >= 10 && ex.focal35 <= 200) { state.ground.lens = ex.focal35 / 36; state.ground.lensFrom = ex.focal35; } state.beds = []; state.plants = []; state.sel = null; state.masks = []; state.maskSel = null; state.stats = null; state.light = null; state.undo = []; state.redo = [];
     view.zoom = 1; view.panX = view.panY = 0;
     buildCamera(); fit(); lastSnap = snapshot(); save(); renderPhoto(); renderBeds(); renderMasks(); renderReview(); renderBands(); updateUndoButtons();
     wiz.page = 1; showStep('photo'); toast(isPhone() ? 'Photo in. Now set your eye level.' : 'Your photo is in. Drag the yellow line to your eye level and mark the fence.', 4000);
