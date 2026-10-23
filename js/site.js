@@ -32,6 +32,22 @@
     return issues;
   }
 
+  /* why a plant suits the site, in plain words, alongside any problems */
+  const SOIL_WORDS = { clay: 'clay', loam: 'loam', sand: 'sandy soil', chalk: 'chalky soil' };
+  function explain(p, prof) {
+    prof = prof || DEFAULT_PROFILE; const good = [], issues = suitability(p, prof);
+    const known = prof.soil !== 'unknown' || prof.drainage !== 'average' || prof.ph !== 'unknown';
+    if (p.drain === 'dry' && (prof.drainage === 'dry' || prof.soil === 'sand' || prof.soil === 'chalk')) good.push('likes the free-draining ' + (SOIL_WORDS[prof.soil] || 'ground') + ' you have');
+    if (p.drain === 'moist' && (prof.drainage === 'wet' || prof.soil === 'clay' || prof.soil === 'loam')) good.push('happy in soil that holds moisture, like yours');
+    if (!p.drain && prof.soil !== 'unknown') good.push('grows in most soils, including ' + (SOIL_WORDS[prof.soil] || 'yours'));
+    if (p.ph === 'acid' && prof.ph === 'acid') good.push('suits your acid soil');
+    if (!p.ph && prof.ph === 'alkaline') good.push('does not mind lime');
+    if (!p.tender && (prof.region === 'north' || prof.region === 'scotland')) good.push('fully hardy, fine this far north');
+    if (!p.tender && prof.exposure === 'exposed' && (p.type === 'grass' || p.group === 'hedging' || p.ev)) good.push('tough enough for a windy garden');
+    if (!issues.length && !known) good.push('no problems found yet; set soil, drainage and pH in the Photo step for a closer check');
+    return { good, issues };
+  }
+
   /* 'full' | 'partial' | 'shade' for a placed plant */
   function exposure(pl, plants, lib, site) {
     let level = 2; /* 2 full, 1 partial, 0 shade */
@@ -147,5 +163,5 @@
     return out;
   }
 
-  global.Site = { HEADINGS, REGIONS, MATURITY, DEFAULT_PROFILE, growth, suitability, exposure, checks, designRules, jobs, pointInPoly };
+  global.Site = { HEADINGS, REGIONS, MATURITY, DEFAULT_PROFILE, growth, suitability, explain, exposure, checks, designRules, jobs, pointInPoly };
 })(window);

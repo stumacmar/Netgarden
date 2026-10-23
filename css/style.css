@@ -324,3 +324,70 @@ dialog.confirm .row.end { margin-top: 12px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* ---------- library cards: shortlist star and details button ---------- */
+.cardWrap { position: relative; min-width: 0; }
+.cardWrap .card { height: 100%; }
+.cardWrap .fav, .cardWrap .info { position: absolute; top: 10px; width: 32px; height: 32px; min-height: 0; padding: 0; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.92); font-size: 16px; line-height: 1; z-index: 1; }
+.cardWrap .fav { right: 10px; color: #8a8f86; }
+.cardWrap .fav[aria-pressed="true"] { color: #c08a00; }
+.cardWrap .info { left: 10px; font-weight: 700; font-style: italic; font-family: Georgia, serif; }
+.card .ok { font-size: 11px; color: var(--accent); }
+.starterRow { margin: 0 0 8px; }
+#suitsNote { margin: 0 0 8px; background: var(--soft); border-radius: 8px; padding: 8px 10px; }
+@media (pointer: coarse) { .cardWrap .fav, .cardWrap .info { width: 38px; height: 38px; top: 8px; } .cardWrap .fav { right: 8px; } .cardWrap .info { left: 8px; } }
+
+/* ---------- plant details ---------- */
+dialog.plantDlg { border: 0; border-radius: 16px; padding: 0; width: min(94vw, 520px); max-height: 88vh; background: var(--panel); color: var(--ink); box-shadow: 0 20px 60px rgba(0,0,0,0.35); overflow: hidden; }
+dialog.plantDlg[open] { display: flex; flex-direction: column; }
+.pdBody { padding: 16px 18px 4px; overflow: auto; }
+dialog.plantDlg form { padding: 8px 14px 14px; margin: 0; border-top: 1px solid var(--line); }
+.pdHead { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; }
+.pdHead img, .pdHead canvas { width: 96px; height: 96px; object-fit: contain; border-radius: 10px; background: linear-gradient(#dfe8f4, #e9eadb 70%, #cfd8b8); }
+.pdHead h2 { font-size: 18px; margin: 0; }
+.pdHead .lt { font-style: italic; color: var(--muted); }
+.pdFacts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 12px 0; font-size: 14px; }
+.pdFacts dt { color: var(--muted); }
+.pdFacts dd { margin: 0; }
+.pdList { list-style: none; padding: 0; margin: 4px 0 10px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.pdList li { padding: 6px 8px; border-radius: 6px; background: #fff; border: 1px solid var(--line); }
+.pdList li.good { background: var(--soft); border-color: transparent; }
+.pdList li.warn, .pdList li.bad { background: #fde8e3; border-color: transparent; color: #7a2a1c; }
+.pdList li.note { background: #fff4d6; border-color: transparent; color: #6a4a00; }
+.plantDlg h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 14px 0 4px; }
+.plantDlg .rs { border-collapse: collapse; font-size: 13px; margin: 4px 0 8px; }
+.plantDlg .rs td { padding: 2px 10px 2px 0; }
+
+/* ---------- starter gardens ---------- */
+dialog.starter button { flex-direction: column; align-items: flex-start; text-align: left; gap: 2px; min-height: 56px; padding: 8px 14px; }
+dialog.starter button span { font-size: 13px; color: var(--muted); }
+dialog.starter button.cancel { align-items: center; }
+.dlgTitle { font-weight: 700; font-size: 17px; margin: 4px 0 2px; }
+
+/* ---------- first-run tour ---------- */
+.tour { position: fixed; inset: 0; z-index: 50; }
+.tour.light { pointer-events: none; }
+.tourSpot { position: fixed; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(12,18,10,0.6); transition: all 0.28s var(--ease); pointer-events: none; }
+.tour.light .tourSpot { box-shadow: 0 0 0 3px #9ccf7a; }
+.tour.centred .tourSpot { width: 0; height: 0; left: 50%; top: 50%; }
+.tourBubble { position: fixed; width: min(92vw, 340px); background: var(--panel); color: var(--ink); border-radius: 14px; padding: 12px 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.35); pointer-events: auto; transition: top 0.28s var(--ease), left 0.28s var(--ease); }
+.tourBubble p { margin: 0 0 8px; font-size: 15px; line-height: 1.45; }
+.tourBubble .row.end { margin: 4px 0 0; flex-wrap: wrap; }
+.tourBubble .skip { margin-right: auto; background: transparent; border-color: transparent; color: var(--muted); }
+
+/* ---------- multi-select ---------- */
+.selbar #sbMulti[aria-pressed="true"] { background: #9ccf7a; }
+
+/* ---------- printing the planting list ---------- */
+.printSheet { display: none; }
+@media print {
+  html, body { height: auto; overflow: visible; background: #fff; }
+  body > *:not(#printSheet) { display: none !important; }
+  .printSheet { display: block; color: #000; font: 11pt/1.35 system-ui, -apple-system, sans-serif; }
+  .printSheet img { max-width: 100%; max-height: 9cm; display: block; margin: 0 0 10px; border-radius: 4px; }
+  .printSheet table { width: 100%; border-collapse: collapse; }
+  .printSheet th, .printSheet td { text-align: left; vertical-align: top; padding: 4px 6px; border-bottom: 1px solid #bbb; }
+  .printSheet th { font-size: 9pt; text-transform: uppercase; color: #444; }
+  .printSheet tr { break-inside: avoid; }
+  .printSheet .lt { font-style: italic; color: #444; }
+}

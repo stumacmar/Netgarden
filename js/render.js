@@ -361,5 +361,10 @@
     const ww = p.type === 'bulb' && !asp ? Math.max(w * 2.5, ppm * 0.35) : w;
     return { x0: x - ww / 2, x1: x + ww / 2, y0: y - h, y1: y + Math.max(4, ww * 0.12) };
   }
-  global.Render = { drawPlant, bounds, mulberry32, hasSprites, api, leafShape, flowerForm };
+  /* load every usable sprite of these plants before an export draws them */
+  function preload(plants) {
+    const files = new Set(); plants.forEach(p => { const set = spriteSet(p); if (set) Object.values(set).forEach(e => { if (usableEntry(e)) files.add(e.file); }); });
+    return Promise.all([...files].map(f => new Promise(res => { const im = getImage(f); if (im) return res(); const raw = imgCache[f]; if (!raw || !(raw instanceof HTMLImageElement)) return res(); raw.addEventListener('load', () => { getImage(f); res(); }, { once: true }); raw.addEventListener('error', res, { once: true }); setTimeout(res, 8000); })));
+  }
+  global.Render = { drawPlant, bounds, mulberry32, hasSprites, api, leafShape, flowerForm, preload };
 })(window);

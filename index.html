@@ -49,7 +49,9 @@
         <span id="selName"></span>
         <button id="sbFlip" title="Mirror to face the light" aria-label="Flip">⇋<span class="lbl"> Flip</span></button>
         <button id="sbDup" title="Duplicate" aria-label="Duplicate">⧉<span class="lbl"> Duplicate</span></button>
+        <button id="sbLine" class="hidden" title="Line them up evenly" aria-label="Line up evenly">⋯ Line up</button>
         <button id="sbDel" class="danger" title="Delete" aria-label="Delete">Delete</button>
+        <button id="sbMulti" title="Select more plants" aria-label="Select more plants" aria-pressed="false">+</button>
         <button id="sbClose" title="Deselect" aria-label="Deselect">✕</button>
       </div>
       <div class="ctxbar" id="ctxbar">
@@ -145,6 +147,8 @@
 
     <section class="panel" id="panel-plants">
       <div id="selectedBox" class="hidden"></div>
+      <div class="row starterRow" id="starterRow"><span class="small">New here?</span><button class="mini" id="starterOpen">Try a starter garden</button></div>
+      <p class="small hidden" id="suitsNote"></p>
       <div class="row between hidden" id="plantTools"><span class="small" id="plantCount"></span><button id="removeAll" class="mini danger">Remove all plants</button></div>
       <div class="chips hidden" id="bedZoom" aria-label="Zoom to a border"></div>
       <div class="row quickPlace hidden" id="quickPlace"><span class="small">Or place it:</span><button class="mini" data-place="back">at the back</button><button class="mini" data-place="middle">in the middle</button><button class="mini" data-place="front">at the front</button></div>
@@ -173,6 +177,7 @@
       <h3>Shopping list <button id="shopCopy" class="mini">Copy</button></h3>
       <div id="shopping"></div>
       <h3>Save and share</h3>
+      <div class="row"><button id="printList">Print planting list</button><button id="yearGif">Save the year as an animation</button></div>
       <div class="row"><button id="exportPng">Save picture</button><button id="exportJson">Export design</button><label class="btn">Import <input type="file" id="importJson" accept="application/json" hidden></label></div>
       <details class="advanced"><summary>Advanced: realistic render and photo credits</summary>
         <h3>Realistic render</h3>
@@ -200,12 +205,42 @@
     <button value="removeAll" class="danger">Remove all plants</button>
     <button value="startAgain" class="danger">Start again: new photo, empty design</button>
     <button value="exportPng">Save picture</button>
+    <button value="starter">Starter gardens</button>
     <button value="share">Send design to another device</button>
     <button value="exportJson">Export design file</button>
     <button value="importJson">Import design file</button>
+    <button value="tour">Show me round again</button>
     <button value="cancel" class="cancel" autofocus>Cancel</button>
   </form>
 </dialog>
+<dialog id="plantDlg" class="plantDlg" aria-labelledby="pdName">
+  <div class="pdBody" id="pdBody"></div>
+  <form method="dialog" class="row end"><button value="close">Close</button><button value="fav" id="pdFav">☆ Shortlist</button><button value="plant" class="primary" id="pdPlant">Plant this</button></form>
+</dialog>
+
+<dialog id="starterDlg" class="menu starter" aria-label="Starter gardens">
+  <form method="dialog">
+    <p class="dlgTitle">Start from a planted border</p>
+    <p class="small">It goes along the back fence of your photo. Your photo and calibration stay; plants and borders are replaced. You can undo.</p>
+    <button value="cottage"><b>Cottage</b><span>Roses, foxgloves, catmint and cranesbill</span></button>
+    <button value="wildlife"><b>Wildlife</b><span>Bee and butterfly plants, flowering spring to autumn</span></button>
+    <button value="lowmaint"><b>Low maintenance</b><span>Evergreen shrubs and grasses, little to do</span></button>
+    <button value="edible"><b>Edible</b><span>Fruit, veg and herbs to pick</span></button>
+    <button value="cancel" class="cancel" autofocus>Cancel</button>
+  </form>
+</dialog>
+
+<div id="tour" class="tour hidden" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+  <div class="tourSpot" id="tourSpot"></div>
+  <div class="tourBubble" id="tourBubble">
+    <p class="dlgTitle" id="tourTitle"></p>
+    <p id="tourText"></p>
+    <div class="row end" id="tourBtns"></div>
+  </div>
+</div>
+
+<div id="printSheet" class="printSheet" aria-hidden="true"></div>
+
 <dialog id="confirmDlg" class="confirm" aria-labelledby="confirmText">
   <form method="dialog">
     <p id="confirmText"></p>
@@ -222,6 +257,7 @@
 <script src="js/beds.js"></script>
 <script src="js/masks.js"></script>
 <script src="js/renderapi.js"></script>
+<script src="js/gif.js"></script>
 <script src="js/site.js"></script>
 <script src="js/app.js"></script>
 </body>

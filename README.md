@@ -53,6 +53,26 @@ the photo. Pinch to zoom, drag with two fingers to pan, and drag the flower
 bands to scrub through the year. You can add it to your home screen and it
 runs full screen.
 
+The first visit shows a short tour (skippable, and available again from the
+⋯ menu). If you would rather start from something, Starter gardens plants a
+cottage, wildlife, low-maintenance or edible border along your back fence.
+
+In the plant library, tap **i** on any plant for everything about it:
+mature size and rootstocks, spacing, light, flowering and fruiting months,
+pollination partners, the jobs it needs through the year, and why it does or
+does not suit your garden. Tap **☆** to add it to your shortlist, and use the
+Shortlist filter to see just those. Filters stay on between visits.
+
+Select a placed plant to Flip, Duplicate, Replace it with another plant in the
+same spot, or Delete it. To work on several at once, Shift-click them (or tap
+**+** in the selection bar on a phone and then tap more plants): drag one to
+move them all, Line up spaces them evenly, and Delete or Duplicate act on the
+whole group.
+
+In Review, Print planting list gives a sheet with the picture, quantities,
+mature sizes, spacing and care, and Save the year as an animation makes a
+looping GIF of the garden through the seasons.
+
 Undo and Redo are always in the top bar (also Ctrl+Z and Ctrl+Shift+Z).
 Zoom with the buttons, the mouse wheel or a pinch, and drag the photo to
 pan, to place small plants precisely. Plants cannot leave the photo.

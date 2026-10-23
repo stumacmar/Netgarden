@@ -6,7 +6,8 @@
  * and keyboard on a desktop viewport, and writes screenshots of each step. */
 import { chromium, devices } from 'playwright';
 import fs from 'fs';
-const URL = process.argv[2] || 'http://localhost:8123/';
+/* ?tour=0 skips the first-run tour, which would otherwise cover the photo in every fresh browser */
+const URL = process.argv[2] || 'http://localhost:8123/?tour=0';
 const OUT = process.argv[3] || 'phone-check-shots';
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch();
