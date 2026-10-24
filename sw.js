@@ -1,9 +1,9 @@
 /* Netgarden service worker: the app opens without a signal once it has been loaded once.
  * App files are fetched network-first (so updates arrive) with the cache as fallback;
  * plant sprites are cached on first use. */
-const CACHE = 'netgarden-v2';
+const CACHE = 'netgarden-v3';
 const CORE = ['./', 'index.html', 'css/style.css', 'manifest.webmanifest', 'assets/sample-garden.jpg', 'assets/sprites/manifest.js', 'assets/icon.svg', 'assets/icon-192.png',
-  'js/homography.js', 'js/phenology.js', 'js/plants.js', 'js/render.js', 'js/compose.js', 'js/beds.js', 'js/masks.js', 'js/renderapi.js', 'js/gif.js', 'js/site.js', 'js/app.js'];
+  'js/homography.js', 'js/phenology.js', 'js/plants.js', 'js/render.js', 'js/compose.js', 'js/beds.js', 'js/masks.js', 'js/renderapi.js', 'js/gif.js', 'js/site.js', 'js/care.js', 'js/app.js'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
 });

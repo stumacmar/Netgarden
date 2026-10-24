@@ -391,3 +391,33 @@ dialog.starter button.cancel { align-items: center; }
   .printSheet tr { break-inside: avoid; }
   .printSheet .lt { font-style: italic; color: #444; }
 }
+
+/* ---------- care calendar ---------- */
+.steps button .badge { display: inline-flex; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 5px; border-radius: 9px; background: #d4602a; color: #fff; font-size: 11px; font-weight: 700; align-items: center; justify-content: center; line-height: 1; }
+.steps button .badge.hidden { display: none; }
+.care .careList { list-style: none; padding: 0; margin: 4px 0 10px; display: flex; flex-direction: column; gap: 6px; }
+.care .careList li { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.care .careList li.done { opacity: 0.55; }
+.care .careList li.done .txt { text-decoration: line-through; }
+.care .careList label { display: flex; gap: 8px; align-items: flex-start; margin: 0; cursor: pointer; }
+.care .careList input[type=checkbox] { flex: 0 0 auto; width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); }
+.care .tag { flex: 0 0 auto; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; padding: 2px 6px; border-radius: 4px; background: var(--soft); color: var(--accent); margin-top: 1px; }
+.care .tag.k-prune, .care .tag.k-trim, .care .tag.k-cut { background: #efe6f7; color: #5a3d86; }
+.care .tag.k-feed, .care .tag.k-mulch { background: #f3ead9; color: #7a5420; }
+.care .tag.k-water { background: #e2eef8; color: #2a5a85; }
+.care .tag.k-harvest, .care .tag.k-sow, .care .tag.k-plant { background: #e5f1dc; color: #3a6a22; }
+.care .tag.k-protect, .care .tag.k-pests { background: #fbe5df; color: #8a2f1c; }
+.care .txt { flex: 1; font-size: 14px; line-height: 1.35; }
+.care .who { font-size: 12px; color: var(--muted); margin: 3px 0 0 28px; }
+.care .why { font-size: 12px; color: var(--muted); margin: 2px 0 0 28px; font-style: italic; }
+.care details > summary { font-weight: 600; color: var(--ink); margin: 8px 0 4px; }
+.care .careYear details { margin-left: 6px; }
+.care .careYear details > summary { font-weight: 500; }
+.care .empty { font-size: 13px; color: var(--muted); }
+@media (pointer: coarse) { .care .careList input[type=checkbox] { width: 24px; height: 24px; } .care .txt { font-size: 15px; } }
+@media print { .printSheet h2 { font-size: 13pt; margin: 14px 0 4px; break-after: avoid; } .printSheet .careMonth { break-inside: avoid; } }
+
+/* the badge floats on the corner of the Review step so it never squeezes the labels */
+.steps button[data-step=review] { position: relative; }
+@media (max-width: 900px) { .steps button .badge { position: absolute; top: -4px; right: -2px; margin: 0; min-width: 16px; height: 16px; font-size: 10px; padding: 0 4px; box-shadow: 0 0 0 2px var(--top); } }
+@media print { .printSheet .careMonth table { table-layout: fixed; } .printSheet .careMonth th:nth-child(1) { width: 11%; } .printSheet .careMonth th:nth-child(2) { width: 40%; } .printSheet .careMonth th:nth-child(3) { width: 22%; } }

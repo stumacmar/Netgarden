@@ -932,6 +932,7 @@
     else if (v === 'startAgain') { if (await confirmDialog('Start again with an empty design? Plants, borders and painted objects go. You can then choose a new photo.', 'Start again')) { state.plants = []; state.beds = []; state.masks = []; state.maskSel = null; state.sel = null; state.libSel = null; setContext(null); afterChange(); renderBeds(); renderMasks(); renderLibrary(); wiz.page = 0; showStep('photo'); toast('Cleared. Choose a photo, or keep the sample.', 3000); } }
     else if (v === 'share') shareDesign();
     else if (v === 'starter') openStarter();
+    else if (v === 'care') openCare();
     else if (v === 'tour') startTour();
     else if (v === 'exportPng') $('exportPng').click();
     else if (v === 'exportJson') $('exportJson').click();
@@ -1056,11 +1057,7 @@
     $('checks').querySelectorAll('[data-go]').forEach(li => li.addEventListener('click', () => { state.sel = li.dataset.go; showStep('plants'); renderSelected(); invalidate(); }));
     const tips = window.Site.designRules(state.plants, state.beds, LIB.byId, state.profile);
     $('tips').innerHTML = tips.length ? tips.map(t => `<li class="${t.level}"><b>Tip:</b>${t.text}</li>`).join('') : `<li class="ok">${state.plants.length ? 'Nothing to add: layering, evergreen backbone and grouping all look reasonable.' : 'Tips about layering, grouping and succession appear once borders have plants in them.'}</li>`;
-    const month = Math.floor(((tEff() % 12) + 12) % 12) + 1;
-    $('jobsMonth').textContent = MONTHS[month - 1];
-    const jobs = window.Site.jobs(state.plants, LIB.byId, month);
-    $('jobs').innerHTML = jobs.length ? jobs.map(j => `<li>${j.plant ? `<b>${j.plant}:</b> ` : ''}${j.text}</li>`).join('') : '<li class="small">Nothing specific this month.</li>';
-    renderCalendar(); renderPlan(); renderShopping();
+    renderCare(); renderCalendar(); renderPlan(); renderShopping();
   }
   $('years').addEventListener('input', (e) => { state.years = +e.target.value; $('yearsVal').textContent = state.years >= 15 ? 'mature' : `${state.years} years after planting`; invalidate(); renderPlan(); });
   $('years').addEventListener('change', () => { save(); renderReview(); renderSelected(); });
@@ -1147,6 +1144,77 @@
   $('renderClose').addEventListener('click', () => $('renderDlg').close());
   try { const k = localStorage.getItem('netgarden.apikey'); if (k) $('apiKey').value = k; } catch (e) { }
 
+  /* ---------------- care calendar ---------------- */
+  const REGION_WORDS = { south: 'southern England', midlands: 'the Midlands and Wales', north: 'northern England', scotland: 'Scotland' };
+  function careTasks() { return window.Care.forPlants(state.plants, LIB.byId, state.profile, state.years); }
+  function careDone() { try { return JSON.parse(lsGet('netgarden.care.done') || '{}'); } catch (e) { return {}; } }
+  const careKey = (t) => `${new Date().getFullYear()}|${t.m}|${t.key}|${t.pids.join(',')}`;
+  function plantNames(pids, max) {
+    const names = pids.map(id => LIB.byId[id] && LIB.byId[id].name).filter(Boolean); max = max || 5;
+    return names.length > max ? `${names.slice(0, max - 1).join(', ')} and ${names.length - max + 1} more` : names.join(', ');
+  }
+  function careList(tasks, tickable) {
+    if (!tasks.length) return '<p class="empty">Nothing needs doing this month. Enjoy the garden.</p>';
+    const done = careDone();
+    return `<ul class="careList">${tasks.map(t => { const k = careKey(t), d = !!done[k], all = t.pids.length >= Math.max(4, new Set(state.plants.map(p => p.pid)).size);
+      return `<li class="${d && tickable ? 'done' : ''}"><label>${tickable ? `<input type="checkbox" data-care="${encodeURIComponent(k)}"${d ? ' checked' : ''} aria-label="Done: ${t.text.replace(/"/g, '')}">` : ''}<span class="tag k-${t.kind}">${window.Care.KINDS[t.kind]}</span><span class="txt">${t.text}</span></label>
+        ${t.general ? '' : `<div class="who">${all ? 'All your plants' : plantNames(t.pids)}</div>`}${t.why ? `<div class="why">${t.why}</div>` : ''}</li>`; }).join('')}</ul>`;
+  }
+  function renderCare() {
+    const now = new Date().getMonth() + 1, next = now % 12 + 1, tasks = careTasks(), done = careDone();
+    const thisMonth = tasks.filter(t => t.m === now), left = thisMonth.filter(t => !done[careKey(t)]).length;
+    const badge = $('careBadge'); badge.textContent = left || ''; badge.classList.toggle('hidden', !left || !state.plants.length);
+    if (!state.plants.length) { $('careCount').textContent = ''; $('careIntro').textContent = 'Place some plants and a year of jobs for them appears here: what to prune, cut back, feed, sow and pick, and when.'; $('careNow').innerHTML = ''; $('careNextBox').classList.add('hidden'); $('careYear').innerHTML = ''; return; }
+    $('careNextBox').classList.remove('hidden');
+    $('careCount').textContent = `${tasks.length} jobs a year`;
+    $('careIntro').innerHTML = `For the plants in this design, timed for ${REGION_WORDS[state.profile.region] || 'your area'}${state.years <= 2 ? ', with extra watering while they settle in' : ''}. Tick jobs off as you do them.`;
+    $('careNow').innerHTML = `<h3>This month: ${MONTHS[now - 1]}${left ? ` <span class="count">${left} to do</span>` : thisMonth.length ? ' <span class="count">all done</span>' : ''}</h3>` + careList(thisMonth, true);
+    $('careNextHead').textContent = `Coming up in ${MONTHS[next - 1]} (${tasks.filter(t => t.m === next).length})`;
+    $('careNext').innerHTML = careList(tasks.filter(t => t.m === next), false);
+    $('careYear').innerHTML = MONTHS.map((name, i) => { const ts = tasks.filter(t => t.m === i + 1); return `<details${i + 1 === now ? ' open' : ''}><summary>${name} <span class="count">${ts.length} job${ts.length === 1 ? '' : 's'}</span></summary>${careList(ts, i + 1 === now)}</details>`; }).join('');
+    $('careSection').querySelectorAll('[data-care]').forEach(cb => cb.addEventListener('change', () => {
+      const d = careDone(), k = decodeURIComponent(cb.dataset.care); if (cb.checked) d[k] = 1; else delete d[k];
+      lsSet('netgarden.care.done', JSON.stringify(d)); renderCare();
+      if (cb.checked) toast('Ticked off', 1200);
+    }));
+  }
+  function openCare() { showStep('review'); setSheet('full'); setTimeout(() => { const el = $('careSection'); if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 350); }
+
+  /* the care calendar as calendar events: one all-day event each month, repeating every year */
+  function icsText() {
+    const tasks = careTasks(), today = new Date(), stamp = today.toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+    const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+    const enc = new TextEncoder();
+    const fold = (line) => { const out = []; let cur = '', n = 0; for (const ch of line) { const b = enc.encode(ch).length; if (n + b > 73) { out.push(cur); cur = ' '; n = 1; } cur += ch; n += b; } out.push(cur); return out.join('\r\n'); };
+    const firstSat = (y, m) => { const d = new Date(y, m - 1, 1); d.setDate(1 + ((6 - d.getDay() + 7) % 7)); return d; };
+    const ymd = (d) => `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Netgarden//Care calendar//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Garden jobs'];
+    for (let m = 1; m <= 12; m++) {
+      const ts = tasks.filter(t => t.m === m); if (!ts.length) continue;
+      let start = firstSat(today.getFullYear(), m); if (start < new Date(today.getFullYear(), today.getMonth(), today.getDate())) start = firstSat(today.getFullYear() + 1, m);
+      const end = new Date(start); end.setDate(end.getDate() + 1);
+      const desc = ts.map(t => `• ${window.Care.KINDS[t.kind]}: ${t.text}${t.general ? '' : ` (${plantNames(t.pids, 6)})`}`).join('\n') + '\n\nFrom your Netgarden design.';
+      lines.push('BEGIN:VEVENT', `UID:netgarden-care-${m}-${state.plants.length}-${stamp}@netgarden`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${ymd(start)}`, `DTEND;VALUE=DATE:${ymd(end)}`, `RRULE:FREQ=YEARLY;BYMONTH=${m};BYDAY=1SA`,
+        fold(`SUMMARY:${esc(`Garden jobs for ${MONTHS[m - 1]} (${ts.length})`)}`), fold(`DESCRIPTION:${esc(desc)}`), 'TRANSP:TRANSPARENT',
+        'BEGIN:VALARM', 'ACTION:DISPLAY', fold(`DESCRIPTION:${esc(`Garden jobs for ${MONTHS[m - 1]}`)}`), 'TRIGGER:PT9H', 'END:VALARM', 'END:VEVENT');
+    }
+    lines.push('END:VCALENDAR'); return lines.join('\r\n') + '\r\n';
+  }
+  $('careIcs').addEventListener('click', async () => {
+    if (!state.plants.length) { toast('Place some plants first'); return; }
+    const file = new File([icsText()], 'netgarden-garden-jobs.ics', { type: 'text/calendar' });
+    if (isPhone() && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: 'Garden jobs' }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+    toast('Calendar file saved. Open it to add a reminder on the first Saturday of each month.', 5000);
+  });
+  $('carePrint').addEventListener('click', () => {
+    if (!state.plants.length) { toast('Place some plants first'); return; }
+    const tasks = careTasks();
+    $('printSheet').innerHTML = `<h1>Care calendar</h1><p>${new Set(state.plants.map(p => p.pid)).size} kinds of plant · timed for ${REGION_WORDS[state.profile.region]} · Netgarden</p>` +
+      MONTHS.map((name, i) => { const ts = tasks.filter(t => t.m === i + 1); if (!ts.length) return ''; return `<div class="careMonth"><h2>${name}</h2><table><tr><th>Job</th><th>What to do</th><th>Plants</th><th>Why</th></tr>${ts.map(t => `<tr><td>${window.Care.KINDS[t.kind]}</td><td>${t.text}</td><td>${t.general ? 'Whole garden' : plantNames(t.pids, 8)}</td><td>${t.why || ''}</td></tr>`).join('')}</table></div>`; }).join('');
+    setTimeout(() => window.print(), 50);
+  });
+
   /* ---------------- small storage helpers ---------------- */
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
@@ -1173,7 +1241,7 @@
     const POL = { self: 'Self-fertile: fruits on its own.', partial: 'Partly self-fertile: crops better with a partner nearby.', partner: 'Needs a different variety nearby to set fruit.' };
     const partners = p.pgroup ? LIB.all.filter(o => o.pgroup === p.pgroup && o.id !== p.id) : [];
     const have = partners.filter(o => state.plants.some(pl => pl.pid === o.id));
-    const jobs = []; for (let m = 1; m <= 12; m++) window.Site.jobs([{ pid: p.id }], LIB.byId, m).forEach(j => jobs.push({ m, text: j.text }));
+    const jobs = window.Care.forPlant(p, state.profile, state.years).sort((a, b) => a.m - b.m || window.Care.ORDER.indexOf(a.kind) - window.Care.ORDER.indexOf(b.kind));
     $('pdBody').innerHTML = `<div class="pdHead">${img ? `<img src="${img.file}" alt="">` : `<img src="${thumb(p)}" alt="">`}<div><h2 id="pdName">${p.name}</h2><div class="lt">${p.latin}</div></div></div>
       <p>${p.notes || ''}${p.notes2 ? ' ' + p.notes2 : ''}</p>
       <dl class="pdFacts"><dt>Grows to</dt><dd>${p.h} m tall, ${p.s} m across${p.rootstocks ? ' (depends on rootstock)' : ''}</dd>
@@ -1184,7 +1252,7 @@
       ${p.rootstocks ? `<h3>Rootstock (controls how big the tree grows)</h3><table class="rs">${Object.entries(p.rootstocks).map(([k, v]) => `<tr><td><b>${k}</b></td><td>about ${v[0]} m tall, ${v[1]} m across</td></tr>`).join('')}</table>` : ''}
       ${p.pollination ? `<h3>Pollination</h3><p>${POL[p.pollination] || ''}${partners.length && p.pollination !== 'self' ? ` Partners in the library: ${partners.slice(0, 6).map(o => o.name).join(', ')}.` : ''}${have.length ? ` <b>✓ Your design already has ${have.map(o => o.name).join(', ')}.</b>` : ''}</p>` : ''}
       <h3>For your garden</h3><ul class="pdList">${ex.good.map(g => `<li class="good">✓ ${g[0].toUpperCase() + g.slice(1)}</li>`).join('')}${ex.issues.map(i => `<li class="${i.level}">${i.level === 'note' ? 'ℹ' : '⚠'} ${i.text[0].toUpperCase() + i.text.slice(1)}</li>`).join('')}${!ex.good.length && !ex.issues.length ? '<li>No problems found for your garden.</li>' : ''}</ul>
-      ${jobs.length ? `<h3>Jobs through the year</h3><ul class="pdList">${jobs.map(j => `<li><b>${MONTHS[j.m - 1]}:</b> ${j.text}</li>`).join('')}</ul>` : ''}`;
+      ${jobs.length ? `<h3>Care through the year</h3><ul class="pdList">${jobs.map(j => `<li><b>${MONTHS[j.m - 1]}:</b> ${j.text}${j.why ? ` <span class="small">${j.why}</span>` : ''}</li>`).join('')}</ul>` : ''}`;
     $('pdFav').textContent = favs.has(id) ? '★ On shortlist' : '☆ Shortlist';
     $('pdPlant').textContent = state.replaceId ? 'Put this here instead' : 'Plant this';
     const d = $('plantDlg'); d.returnValue = ''; d.showModal(); $('pdBody').scrollTop = 0;
@@ -1278,7 +1346,7 @@
   $('printList').addEventListener('click', () => {
     if (!state.plants.length) { toast('Place some plants first'); return; }
     const counts = {}; state.plants.forEach(pl => { const k = pl.pid + '|' + (pl.rootstock || ''); counts[k] = counts[k] || { pl, n: 0 }; counts[k].n++; });
-    const rows = Object.values(counts).map(({ pl, n }) => { const p = LIB.byId[pl.pid], d = dims(pl); const jobs = []; for (let m = 1; m <= 12; m++) window.Site.jobs([{ pid: p.id }], LIB.byId, m).forEach(j => { if (j.plant) jobs.push(`${SHORT[m - 1]}: ${j.text}`); }); return { p, n, d, pl, jobs }; })
+    const rows = Object.values(counts).map(({ pl, n }) => { const p = LIB.byId[pl.pid], d = dims(pl); const jobs = []; window.Care.forPlant(p, state.profile, state.years).filter(j => /prune|trim|cut|support|divide/.test(j.kind)).sort((a, b) => a.m - b.m).forEach(j => jobs.push(`${SHORT[j.m - 1]}: ${j.text}`)); return { p, n, d, pl, jobs }; })
       .sort((a, b) => b.d.h - a.d.h);
     let img = ''; try { const c = compositeCanvas(), k = Math.min(1, 900 / c.width), s = document.createElement('canvas'); s.width = Math.round(c.width * k); s.height = Math.round(c.height * k); s.getContext('2d').drawImage(c, 0, 0, s.width, s.height); img = s.toDataURL('image/jpeg', 0.85); } catch (e) { }
     const SUN = { full: 'full sun', partial: 'sun or part shade', shade: 'shade' };
@@ -1318,7 +1386,7 @@
   function markScrub() { scrubbing = true; clearTimeout(scrubTimer); scrubTimer = setTimeout(() => { scrubbing = false; invalidate(); }, 160); }
   function setTime(t) {
     markScrub(); state.t = ((t % 12) + 12) % 12; $('time').value = state.t; $('timeLabel').textContent = timeLabel(state.t);
-    invalidate(); renderPlan(); if (state.step === 'review') { renderCalendar(); const month = Math.floor(((tEff() % 12) + 12) % 12) + 1; $('jobsMonth').textContent = MONTHS[month - 1]; $('jobs').innerHTML = window.Site.jobs(state.plants, LIB.byId, month).map(j => `<li>${j.plant ? `<b>${j.plant}:</b> ` : ''}${j.text}</li>`).join('') || '<li class="small">Nothing specific this month.</li>'; }
+    invalidate(); renderPlan(); if (state.step === 'review') renderCalendar();
     drawBandCursor();
   }
   $('time').addEventListener('input', (e) => setTime(+e.target.value)); $('time').addEventListener('change', save);

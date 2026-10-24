@@ -69,6 +69,21 @@ same spot, or Delete it. To work on several at once, Shift-click them (or tap
 move them all, Line up spaces them evenly, and Delete or Duplicate act on the
 whole group.
 
+**Care calendar.** Review opens with a year of jobs for the plants in your
+design: what to prune, trim, cut back, deadhead, feed, mulch, water, stake,
+divide, sow, plant out, pick and protect, and when, each with a short reason.
+This month's jobs come first, with tick boxes that are remembered, and the
+Review step shows how many are still to do. Timings are for southern
+England; frost-tied jobs (planting out tender plants, taking off winter
+protection) move a month later in the north and Scotland, and a newly
+planted garden gets extra watering for its first two summers. Hand-written
+jobs in the plant library always win; the rest are worked out from what the
+library knows about each plant (type, flowering and fruiting months,
+evergreen or not, hardiness, soil). Add to my calendar saves an iCalendar
+file with a yearly reminder on the first Saturday of each month, and Print
+care calendar prints the whole year. Each plant's own care is also in its
+details (the **i** button). It is also in the ⋯ menu.
+
 In Review, Print planting list gives a sheet with the picture, quantities,
 mature sizes, spacing and care, and Save the year as an animation makes a
 looping GIF of the garden through the seasons.

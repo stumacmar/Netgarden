@@ -23,7 +23,7 @@
     <button data-step="photo"><span class="n">1</span> Photo</button>
     <button data-step="beds"><span class="n">2</span> Beds</button>
     <button data-step="plants" class="active"><span class="n">3</span> Plants</button>
-    <button data-step="review"><span class="n">4</span> Review</button>
+    <button data-step="review"><span class="n">4</span> Review<span class="badge hidden" id="careBadge" aria-label="garden jobs due this month"></span></button>
   </nav>
   <div class="actions">
     <button id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>↶<span class="lbl"> Undo</span></button>
@@ -165,8 +165,14 @@
       <ul id="checks" class="checks"></ul>
       <h3>Design tips</h3>
       <ul id="tips" class="checks"></ul>
-      <h3>Jobs this month <span id="jobsMonth" class="count"></span></h3>
-      <ul id="jobs" class="jobs"></ul>
+      <section id="careSection" class="care" aria-labelledby="careHead">
+        <h3 id="careHead">Care calendar <span id="careCount" class="count"></span></h3>
+        <p class="small" id="careIntro"></p>
+        <div id="careNow"></div>
+        <details class="careNext" id="careNextBox"><summary id="careNextHead"></summary><div id="careNext"></div></details>
+        <details class="careYear"><summary>The whole year</summary><div id="careYear"></div></details>
+        <div class="row"><button id="careIcs">Add to my calendar</button><button id="carePrint">Print care calendar</button></div>
+      </section>
       <h3>Through the year</h3>
       <div id="calendar"></div>
       <h3>In flower now</h3>
@@ -205,6 +211,7 @@
     <button value="removeAll" class="danger">Remove all plants</button>
     <button value="startAgain" class="danger">Start again: new photo, empty design</button>
     <button value="exportPng">Save picture</button>
+    <button value="care">Care calendar: what to do when</button>
     <button value="starter">Starter gardens</button>
     <button value="share">Send design to another device</button>
     <button value="exportJson">Export design file</button>
@@ -259,6 +266,7 @@
 <script src="js/renderapi.js"></script>
 <script src="js/gif.js"></script>
 <script src="js/site.js"></script>
+<script src="js/care.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
